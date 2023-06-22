@@ -1,0 +1,14 @@
+{
+    "files.eol": "\n",
+    "files.insertFinalNewline": true,
+    "python.linting.mypyEnabled": true,
+    "python.linting.ignorePatterns": [
+        "**/site-packages/**/*.py"
+    ],
+    "python.linting.banditEnabled": true,
+    "python.linting.banditArgs": [
+        "--config",
+        "pyproject.toml"
+    ],
+    "python.formatting.provider": "black"
+}
