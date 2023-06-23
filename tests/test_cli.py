@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Final
 from unittest import mock
 
+import pytest
 from click.testing import CliRunner
 from rich.console import Console
 
@@ -20,15 +21,17 @@ def test_main(tmp_path: Path) -> None:
         assert _run_successful_cli(("some_generator",), tmp_path) == (
             _cli_title("Using generator some_generator"),
             *"""\
-┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
-┃ Target              ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
-┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
-│ targets/example1.py │    ✖    │           0.0 │             0.0 │            0.0 │
-│ targets/example2.py │    ✖    │           0.0 │             0.0 │            0.0 │
-├─────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
-│ Total               │   0.0   │           0.0 │             0.0 │            0.0 │
-└─────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
-""".splitlines(),
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃ Target                          ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│ targets/example1.py             │    ✖    │           0.0 │             0.0 │            0.0 │
+│ targets/example2.py             │    ✖    │           0.0 │             0.0 │            0.0 │
+│ targets/sub_example/__init__.py │    ✔    │           0.0 │             0.0 │            0.0 │
+│ targets/sub_example/example3.py │    ✔    │           0.0 │             0.0 │            0.0 │
+├─────────────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
+│ Total                           │   0.5   │           0.0 │             0.0 │            0.0 │
+└─────────────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
+""".splitlines(),  # noqa: E501
         )
 
         csv_file = tmp_path / "results" / "some_generator" / "statistics.csv"
@@ -36,6 +39,8 @@ def test_main(tmp_path: Path) -> None:
             csv_file,
             tmp_path / "targets" / "example1.py",
             tmp_path / "targets" / "example2.py",
+            tmp_path / "targets" / "sub_example" / "__init__.py",
+            tmp_path / "targets" / "sub_example" / "example3.py",
         )
         assert tuple(csv_file.read_text().splitlines()) == (
             (
@@ -47,20 +52,66 @@ def test_main(tmp_path: Path) -> None:
             ),
             "targets/example1.py,0.0,1,0,0.0,1000,0,0.0,1000,0,0.0,1000,0",
             "targets/example2.py,0.0,1,0,0.0,1000,0,0.0,1000,0,0.0,1000,0",
-            "total,0.0,2,0,0.0,2000,0,0.0,2000,0,0.0,2000,0",
+            "targets/sub_example/__init__.py,1.0,1,1,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+            "targets/sub_example/example3.py,1.0,1,1,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+            "total,0.5,4,2,0.0,4000,0,0.0,4000,0,0.0,4000,0",
         )
 
 
-def _run_successful_cli(args: tuple[str, ...], tmp_path: Path) -> tuple[str, ...]:
+def test_main_with_invalid_generator_name() -> None:
+    assert _run_cli(("my generator",)) == (
+        1,
+        (
+            'The generator name "my generator" is invalid. '
+            r"It should match \A[\w.-]+\Z",
+        ),
+        (),
+    )
+
+
+def test_main_with_non_absolute_project_path() -> None:
+    with mock.patch("python_tool_competition_2024.config._PROJECT_ROOT", Path(".")):
+        assert _run_cli(("my_generator",)) == (1, ("The path must be absolute: .",), ())
+
+
+@pytest.mark.parametrize("verbose_flag", ("-v", "--verbose"))
+def test_main_with_non_absolute_project_path_verbose(verbose_flag: str) -> None:
+    with mock.patch("python_tool_competition_2024.config._PROJECT_ROOT", Path(".")):
+        exit_code, stdout, stderr = _run_cli((verbose_flag, "my_generator"))
+        assert (exit_code, stderr) == (1, ())
+        assert "Traceback (most recent call last)" in stdout[0]
+        assert stdout[-1] == "PathNotAbsoluteError: The path must be absolute: ."
+
+
+def test_main_without_targets(tmp_path: Path) -> None:
+    with mock.patch("python_tool_competition_2024.config._PROJECT_ROOT", tmp_path):
+        targets_dir = tmp_path / "targets"
+        assert _run_cli(("some-generator",), tmp_path) == (
+            1,
+            (
+                _cli_title("Using generator some-generator"),
+                f"Could not find any *.py files in the targets dir: {targets_dir}",
+                "Please download and extract the targets from TODO",
+            ),
+            (),
+        )
+
+
+def _run_successful_cli(
+    args: tuple[str, ...], tmp_path: Path | None = None
+) -> tuple[str, ...]:
     exit_code, stdout, stderr = _run_cli(args, tmp_path)
     assert (exit_code, stderr, stdout) == (0, (), mock.ANY)
     return stdout
 
 
 def _run_cli(
-    args: tuple[str, ...], tmp_path: Path
+    args: tuple[str, ...], tmp_path: Path | None = None
 ) -> tuple[int, tuple[str, ...], tuple[str, ...]]:
-    with _cli_runner() as runner, runner.isolated_filesystem(tmp_path):
+    with contextlib.ExitStack() as stack:
+        runner = stack.enter_context(_cli_runner())
+        if tmp_path is not None:
+            stack.enter_context(runner.isolated_filesystem(tmp_path))
         result = runner.invoke(main_cli, args=args, catch_exceptions=False)
     return (
         result.exit_code,
