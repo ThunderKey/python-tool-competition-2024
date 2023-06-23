@@ -20,10 +20,10 @@ def report_cli(results: Results, console: Console) -> None:
     table.add_section()
     table.add_row(
         "Total",
-        str(results.generation_results.ratio),
-        str(results.line_coverage.ratio),
-        str(results.branch_coverage.ratio),
-        str(results.mutation_analysis.ratio),
+        _to_percentage(results.generation_results.ratio),
+        _to_percentage(results.line_coverage.ratio),
+        _to_percentage(results.branch_coverage.ratio),
+        _to_percentage(results.mutation_analysis.ratio),
     )
     console.print(table)
 
@@ -32,9 +32,9 @@ def _result_to_table_row(result: Result) -> tuple[str, str, str, str, str]:
     return (
         str(result.target.relative_source),
         _get_generation_result_icon(result),
-        str(result.line_coverage.ratio),
-        str(result.branch_coverage.ratio),
-        str(result.mutation_analysis.ratio),
+        _to_percentage(result.line_coverage.ratio),
+        _to_percentage(result.branch_coverage.ratio),
+        _to_percentage(result.mutation_analysis.ratio),
     )
 
 
@@ -42,3 +42,7 @@ def _get_generation_result_icon(result: Result) -> str:
     if result.generation_results.successful == 0:
         return "[red]:heavy_multiplication_x:"
     return "[green]:heavy_check_mark:"
+
+
+def _to_percentage(percentage: float) -> str:
+    return f"{percentage * 100:0.2f} %"
