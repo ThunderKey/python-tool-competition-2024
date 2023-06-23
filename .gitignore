@@ -3,3 +3,6 @@
 /.tox/
 
 __pycache__
+
+/results/*/statistics.csv
+/results/*/generated_tests/**/test_*.py
