@@ -18,7 +18,7 @@ _REAL_TARGETS_DIR = _PROJECT_ROOT / "targets"
 def test_main(tmp_path: Path) -> None:
     with mock.patch("python_tool_competition_2024.config._PROJECT_ROOT", tmp_path):
         shutil.copytree(_REAL_TARGETS_DIR, tmp_path / "targets")
-        assert _run_successful_cli(("some_generator",), tmp_path) == (
+        assert _run_successful_cli(("some_generator",)) == (
             _cli_title("Using generator some_generator"),
             *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
@@ -103,7 +103,7 @@ def test_main_with_non_absolute_project_path_verbose(verbose_flag: str) -> None:
 def test_main_without_targets(tmp_path: Path) -> None:
     with mock.patch("python_tool_competition_2024.config._PROJECT_ROOT", tmp_path):
         targets_dir = tmp_path / "targets"
-        assert _run_cli(("some-generator",), tmp_path) == (
+        assert _run_cli(("some-generator",)) == (
             1,
             (
                 _cli_title("Using generator some-generator"),
@@ -114,21 +114,14 @@ def test_main_without_targets(tmp_path: Path) -> None:
         )
 
 
-def _run_successful_cli(
-    args: tuple[str, ...], tmp_path: Path | None = None
-) -> tuple[str, ...]:
-    exit_code, stdout, stderr = _run_cli(args, tmp_path)
+def _run_successful_cli(args: tuple[str, ...]) -> tuple[str, ...]:
+    exit_code, stdout, stderr = _run_cli(args)
     assert (exit_code, stderr, stdout) == (0, (), mock.ANY)
     return stdout
 
 
-def _run_cli(
-    args: tuple[str, ...], tmp_path: Path | None = None
-) -> tuple[int, tuple[str, ...], tuple[str, ...]]:
-    with contextlib.ExitStack() as stack:
-        runner = stack.enter_context(_cli_runner())
-        if tmp_path is not None:
-            stack.enter_context(runner.isolated_filesystem(tmp_path))
+def _run_cli(args: tuple[str, ...]) -> tuple[int, tuple[str, ...], tuple[str, ...]]:
+    with _cli_runner() as runner:
         result = runner.invoke(main_cli, args=args, catch_exceptions=False)
     return (
         result.exit_code,
