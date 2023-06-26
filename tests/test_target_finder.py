@@ -15,22 +15,22 @@ def test_find_targets(generator_name: str) -> None:
     assert find_targets(config) == (
         Target(
             source=targets / "example1.py",
-            relative_source=Path("targets", "example1.py"),
+            relative_source=Path("example1.py"),
             test=tests / "test_example1.py",
         ),
         Target(
             source=targets / "example2.py",
-            relative_source=Path("targets", "example2.py"),
+            relative_source=Path("example2.py"),
             test=tests / "test_example2.py",
         ),
         Target(
             source=targets / "sub_example" / "__init__.py",
-            relative_source=Path("targets", "sub_example", "__init__.py"),
+            relative_source=Path("sub_example", "__init__.py"),
             test=tests / "test_sub_example.py",
         ),
         Target(
             source=targets / "sub_example" / "example3.py",
-            relative_source=Path("targets", "sub_example", "example3.py"),
+            relative_source=Path("sub_example", "example3.py"),
             test=tests / "sub_example" / "test_example3.py",
         ),
     )

@@ -41,9 +41,7 @@ def find_targets(config: Config) -> tuple[Target, ...]:
 def _find_target(source: Path, config: Config) -> Target:
     test = _to_test_file(source, config)
     return Target(
-        source=source,
-        relative_source=source.relative_to(config.project_root),
-        test=test,
+        source=source, relative_source=source.relative_to(config.targets_dir), test=test
     )
 
 

@@ -19,7 +19,6 @@ class Config:
     """The configuraiton of the competition."""
 
     generator_name: GeneratorName
-    project_root: Path
     targets_dir: Path
     tests_dir: Path
     csv_file: Path
@@ -27,9 +26,7 @@ class Config:
 
     def __post_init__(self) -> None:
         """Ensure that the data is correct."""
-        ensure_absolute(
-            self.project_root, self.targets_dir, self.tests_dir, self.csv_file
-        )
+        ensure_absolute(self.targets_dir, self.tests_dir, self.csv_file)
 
 
 def get_config(generator_name: str) -> Config:
@@ -37,7 +34,6 @@ def get_config(generator_name: str) -> Config:
     results_dir = _PROJECT_ROOT / "results" / generator_name
     return Config(
         generator_name=_to_generator_name(generator_name),
-        project_root=_PROJECT_ROOT,
         targets_dir=_PROJECT_ROOT / "targets",
         tests_dir=results_dir / "generated_tests",
         csv_file=results_dir / "statistics.csv",

@@ -11,7 +11,7 @@ from ..target_finder import Target
 
 def calculate_generation_results(target: Target) -> TestGenerationResult:
     """Calculate the mutation analysis results."""
-    if len(target.relative_source.parts) % 2 == 0:
+    if len(target.relative_source.parts) % 2 == 1:
         return TestGenerationFailure(
             ("Not implemented...",), FailureReason.UNEXPECTED_ERROR
         )
