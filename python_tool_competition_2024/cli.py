@@ -14,6 +14,7 @@ from .caluclation import calculate_results
 from .errors import PythonToolCompetitionError
 from .reporters import report
 from .target_finder import find_targets
+from .version import VERSION
 
 
 @click.command(context_settings={"help_option_names": ["-h", "--help"]})
@@ -33,6 +34,7 @@ from .target_finder import find_targets
     default=Path("results"),
     show_default=True,
 )
+@click.version_option(VERSION)
 @click.pass_context
 def main_cli(
     ctx: click.Context,

@@ -151,8 +151,13 @@ def test_main_with_help(help_arg: str) -> None:
         "                           targets]",
         "  --results-dir DIRECTORY  The directory to store all results to.  [default:",
         "                           results]",
+        "  --version                Show the version and exit.",
         "  -h, --help               Show this message and exit.",
     )
+
+
+def test_main_with_version() -> None:
+    assert _run_successful_cli(("--version",)) == ("main-cli, version 0.1.0",)
 
 
 def test_main_with_invalid_generator_name() -> None:
