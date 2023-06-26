@@ -40,6 +40,9 @@ addopts = [
     '--cov-report=xml',
     '--cov-report=term',
 ]
+# disable detection of classes starting with Test
+# inherit from unittest.TestCase to test them
+python_classes = ''
 # treat all warnings as exceptions
 filterwarnings = ["error"]
 
@@ -96,6 +99,9 @@ sort = 'Cover'
 
 [tool.vulture]
 paths = ['python_tool_competition_2024']
+ignore_decorators = [
+    "@pytest.fixture",
+]
 ignore_names = [
     'side_effect',
     'return_value',

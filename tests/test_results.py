@@ -4,7 +4,8 @@ import pytest
 
 from python_tool_competition_2024.errors import TotalSmallerThanSuccessfulError
 from python_tool_competition_2024.results import RatioResult, Result, get_results
-from tests.helpers import sealed_mock
+
+from .helpers import sealed_mock
 
 
 @pytest.mark.parametrize(

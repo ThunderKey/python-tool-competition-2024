@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from python_tool_competition_2024.errors import PathNotAbsoluteError
+from .errors import PathNotAbsoluteError
 
 
 def ensure_absolute(*paths: Path) -> None:

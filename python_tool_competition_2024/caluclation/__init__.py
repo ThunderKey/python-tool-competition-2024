@@ -1,20 +1,21 @@
 """Calculation functions for generating results."""
 
 
+from ..config import Config
 from ..results import Result, Results, get_result, get_results
 from ..target_finder import Target
 from .coverage_caluclator import calculate_coverages
-from .generation_results_calculator import calculate_generation_results
+from .generation_results_calculator import calculate_generation_result
 from .mutation_caluclator import calculate_mutation
 
 
-def calculate_results(targets: tuple[Target, ...]) -> Results:
+def calculate_results(targets: tuple[Target, ...], config: Config) -> Results:
     """Calculate the results for all targets."""
-    return get_results(map(_calculate_result, targets))
+    return get_results(_calculate_result(target, config) for target in targets)
 
 
-def _calculate_result(target: Target) -> Result:
-    generation_result = calculate_generation_results(target)
+def _calculate_result(target: Target, config: Config) -> Result:
+    generation_result = calculate_generation_result(target, config)
     coverages = calculate_coverages(target)
     mutation = calculate_mutation(target)
     return get_result(

@@ -1,13 +1,17 @@
 from pathlib import Path
+from typing import cast
 
 import pytest
 
-from python_tool_competition_2024.config import get_config
+from python_tool_competition_2024.config import GeneratorName, get_config
 from python_tool_competition_2024.target_finder import Target, find_targets
 
 
-@pytest.mark.parametrize("generator_name", ("some_example", "other_test"))
-def test_find_targets(generator_name: str) -> None:
+@pytest.mark.parametrize(
+    "generator_name",
+    (cast(GeneratorName, "some_example"), cast(GeneratorName, "other_test")),
+)
+def test_find_targets(generator_name: GeneratorName) -> None:
     project_root = Path.cwd()
     targets = project_root / "targets"
     results = project_root / "results"

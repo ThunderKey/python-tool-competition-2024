@@ -59,3 +59,34 @@ class InvalidGeneratorNameError(PythonToolCompetitionError):
         super().__init__(
             f'The generator name "{name}" is invalid. It should match {regex.pattern}'
         )
+
+
+class GeneratorNotFoundError(PythonToolCompetitionError):
+    """Raised if the generator name is not valid."""
+
+    def __init__(self, name: str, available_names: tuple[str, ...]) -> None:
+        available = ", ".join(available_names)
+        super().__init__(
+            f'The generator name "{name}" was not found. Available: {available}'
+        )
+
+
+class GeneratorTypeError(PythonToolCompetitionError):
+    """Raised if a plugin does not inherit from TestGenerator."""
+
+    def __init__(self, plugin_name: str, test_generator_cls: type[object]) -> None:
+        super().__init__(
+            f'Invalid plugin "{plugin_name}": '
+            "Needs to be a subclass of TestGenerator, "
+            f"but got: {test_generator_cls}"
+        )
+
+
+class NoGeneratorFoundError(PythonToolCompetitionError):
+    """Raised if no plugin was defined."""
+
+    def __init__(self, entry_point_group_name: str) -> None:
+        super().__init__(
+            "Could not find any available plugin for test generators. "
+            f'Make sure, that it is exposed as "{entry_point_group_name}"'
+        )

@@ -3,10 +3,9 @@
 import dataclasses
 from pathlib import Path
 
-from python_tool_competition_2024.validation import ensure_absolute
-
 from .config import Config
 from .errors import NoTargetsFoundError
+from .validation import ensure_absolute
 
 
 @dataclasses.dataclass(frozen=True)

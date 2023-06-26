@@ -8,10 +8,10 @@ import click
 from rich import get_console
 from rich.console import Console
 
-from python_tool_competition_2024.config import get_config
-
 from .caluclation import calculate_results
+from .config import get_config
 from .errors import PythonToolCompetitionError
+from .generator_plugins import to_test_generator_plugin_name
 from .reporters import report
 from .target_finder import find_targets
 from .version import VERSION
@@ -48,11 +48,13 @@ def main_cli(
     console = get_console()
     with _handle_errors(ctx, console, verbose=verbose):
         config = get_config(
-            generator_name, targets_dir.absolute(), results_dir.absolute()
+            to_test_generator_plugin_name(generator_name),
+            targets_dir.absolute(),
+            results_dir.absolute(),
         )
         console.rule(f"Using generator {config.generator_name}")
         targets = find_targets(config)
-        results = calculate_results(targets)
+        results = calculate_results(targets, config)
         report(results, console, config)
 
 
