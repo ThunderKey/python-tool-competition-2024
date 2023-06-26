@@ -15,7 +15,7 @@ from .reporters import report
 from .target_finder import find_targets
 
 
-@click.command()
+@click.command(context_settings={"help_option_names": ["-h", "--help"]})
 @click.argument("generator_name")
 @click.option("-v", "--verbose", is_flag=True, help="Enables verbose mode")
 @click.pass_context

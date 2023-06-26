@@ -58,6 +58,19 @@ def test_main(tmp_path: Path) -> None:
         )
 
 
+@pytest.mark.parametrize("help_arg", ("-h", "--help"))
+def test_main_with_help(help_arg: str) -> None:
+    assert _run_successful_cli((help_arg,)) == (
+        "Usage: main-cli [OPTIONS] GENERATOR_NAME",
+        "",
+        "  Run the CLI to run the tool competition.",
+        "",
+        "Options:",
+        "  -v, --verbose  Enables verbose mode",
+        "  -h, --help     Show this message and exit.",
+    )
+
+
 def test_main_with_invalid_generator_name() -> None:
     assert _run_cli(("my generator",)) == (
         1,
