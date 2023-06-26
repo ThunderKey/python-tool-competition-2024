@@ -10,8 +10,9 @@ from python_tool_competition_2024.target_finder import Target, find_targets
 def test_find_targets(generator_name: str) -> None:
     project_root = Path.cwd()
     targets = project_root / "targets"
-    tests = project_root / "results" / generator_name / "generated_tests"
-    config = get_config(generator_name)
+    results = project_root / "results"
+    tests = results / generator_name / "generated_tests"
+    config = get_config(generator_name, targets, results)
     assert find_targets(config) == (
         Target(
             source=targets / "example1.py",

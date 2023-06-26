@@ -9,8 +9,6 @@ from urllib.parse import ParseResult, urlparse
 from .errors import InvalidGeneratorNameError
 from .validation import ensure_absolute
 
-_PROJECT_ROOT = Path().absolute()
-
 GeneratorName = NewType("GeneratorName", str)
 
 
@@ -29,12 +27,12 @@ class Config:
         ensure_absolute(self.targets_dir, self.tests_dir, self.csv_file)
 
 
-def get_config(generator_name: str) -> Config:
+def get_config(generator_name: str, targets_dir: Path, results_dir: Path) -> Config:
     """Generate the config from the specific generator name."""
-    results_dir = _PROJECT_ROOT / "results" / generator_name
+    results_dir /= generator_name
     return Config(
         generator_name=_to_generator_name(generator_name),
-        targets_dir=_PROJECT_ROOT / "targets",
+        targets_dir=targets_dir,
         tests_dir=results_dir / "generated_tests",
         csv_file=results_dir / "statistics.csv",
         default_targets_url=urlparse("TODO"),

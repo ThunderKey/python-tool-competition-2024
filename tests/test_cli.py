@@ -1,4 +1,5 @@
 import contextlib
+import re
 import shutil
 from collections.abc import Iterator
 from pathlib import Path
@@ -15,12 +16,11 @@ _PROJECT_ROOT = Path(__file__).parent.parent
 _REAL_TARGETS_DIR = _PROJECT_ROOT / "targets"
 
 
-def test_main(tmp_path: Path) -> None:
-    with mock.patch("python_tool_competition_2024.config._PROJECT_ROOT", tmp_path):
-        shutil.copytree(_REAL_TARGETS_DIR, tmp_path / "targets")
-        assert _run_successful_cli(("some_generator",)) == (
-            _cli_title("Using generator some_generator"),
-            *"""\
+def test_main_in_wd(wd_tmp_path: Path) -> None:
+    shutil.copytree(_REAL_TARGETS_DIR, wd_tmp_path / "targets")
+    assert _run_successful_cli(("some_generator",)) == (
+        _cli_title("Using generator some_generator"),
+        *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
@@ -32,30 +32,110 @@ def test_main(tmp_path: Path) -> None:
 │ Total                   │ 50.00 % │        0.00 % │          0.00 % │         0.00 % │
 └─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
 """.splitlines(),
-        )
+    )
 
-        csv_file = tmp_path / "results" / "some_generator" / "statistics.csv"
-        assert _find_files(tmp_path) == (
-            csv_file,
-            tmp_path / "targets" / "example1.py",
-            tmp_path / "targets" / "example2.py",
-            tmp_path / "targets" / "sub_example" / "__init__.py",
-            tmp_path / "targets" / "sub_example" / "example3.py",
+    csv_file = wd_tmp_path / "results" / "some_generator" / "statistics.csv"
+    assert _find_files(wd_tmp_path) == (
+        csv_file,
+        wd_tmp_path / "targets" / "example1.py",
+        wd_tmp_path / "targets" / "example2.py",
+        wd_tmp_path / "targets" / "sub_example" / "__init__.py",
+        wd_tmp_path / "targets" / "sub_example" / "example3.py",
+    )
+    assert tuple(csv_file.read_text().splitlines()) == (
+        (
+            "target,"
+            "successful ratio,files,successful files,"
+            "line coverage,lines,covered lines,"
+            "branch coverage,branches,covered branches,"
+            "mutation score,mutants,killed mutants"
+        ),
+        "example1.py,0.0,1,0,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "example2.py,0.0,1,0,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "sub_example/__init__.py,1.0,1,1,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "sub_example/example3.py,1.0,1,1,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "total,0.5,4,2,0.0,4000,0,0.0,4000,0,0.0,4000,0",
+    )
+
+
+def test_main_with_different_targets(wd_tmp_path: Path) -> None:
+    assert _run_successful_cli(
+        ("some_generator", "--targets-dir", str(_REAL_TARGETS_DIR))
+    ) == (
+        _cli_title("Using generator some_generator"),
+        *"""\
+┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│ example1.py             │    ✖    │        0.00 % │          0.00 % │         0.00 % │
+│ example2.py             │    ✖    │        0.00 % │          0.00 % │         0.00 % │
+│ sub_example/__init__.py │    ✔    │        0.00 % │          0.00 % │         0.00 % │
+│ sub_example/example3.py │    ✔    │        0.00 % │          0.00 % │         0.00 % │
+├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
+│ Total                   │ 50.00 % │        0.00 % │          0.00 % │         0.00 % │
+└─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
+""".splitlines(),
+    )
+
+    csv_file = wd_tmp_path / "results" / "some_generator" / "statistics.csv"
+    assert _find_files(wd_tmp_path) == (csv_file,)
+    assert tuple(csv_file.read_text().splitlines()) == (
+        (
+            "target,"
+            "successful ratio,files,successful files,"
+            "line coverage,lines,covered lines,"
+            "branch coverage,branches,covered branches,"
+            "mutation score,mutants,killed mutants"
+        ),
+        "example1.py,0.0,1,0,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "example2.py,0.0,1,0,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "sub_example/__init__.py,1.0,1,1,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "sub_example/example3.py,1.0,1,1,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "total,0.5,4,2,0.0,4000,0,0.0,4000,0,0.0,4000,0",
+    )
+
+
+def test_main_with_different_targets_and_results(wd_tmp_path: Path) -> None:
+    assert _run_successful_cli(
+        (
+            "some_generator",
+            "--targets-dir",
+            str(_REAL_TARGETS_DIR),
+            "--results-dir",
+            "other_res",
         )
-        assert tuple(csv_file.read_text().splitlines()) == (
-            (
-                "target,"
-                "successful ratio,files,successful files,"
-                "line coverage,lines,covered lines,"
-                "branch coverage,branches,covered branches,"
-                "mutation score,mutants,killed mutants"
-            ),
-            "example1.py,0.0,1,0,0.0,1000,0,0.0,1000,0,0.0,1000,0",
-            "example2.py,0.0,1,0,0.0,1000,0,0.0,1000,0,0.0,1000,0",
-            "sub_example/__init__.py,1.0,1,1,0.0,1000,0,0.0,1000,0,0.0,1000,0",
-            "sub_example/example3.py,1.0,1,1,0.0,1000,0,0.0,1000,0,0.0,1000,0",
-            "total,0.5,4,2,0.0,4000,0,0.0,4000,0,0.0,4000,0",
-        )
+    ) == (
+        _cli_title("Using generator some_generator"),
+        *"""\
+┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│ example1.py             │    ✖    │        0.00 % │          0.00 % │         0.00 % │
+│ example2.py             │    ✖    │        0.00 % │          0.00 % │         0.00 % │
+│ sub_example/__init__.py │    ✔    │        0.00 % │          0.00 % │         0.00 % │
+│ sub_example/example3.py │    ✔    │        0.00 % │          0.00 % │         0.00 % │
+├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
+│ Total                   │ 50.00 % │        0.00 % │          0.00 % │         0.00 % │
+└─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
+""".splitlines(),
+    )
+
+    csv_file = wd_tmp_path / "other_res" / "some_generator" / "statistics.csv"
+    assert _find_files(wd_tmp_path) == (csv_file,)
+    assert tuple(csv_file.read_text().splitlines()) == (
+        (
+            "target,"
+            "successful ratio,files,successful files,"
+            "line coverage,lines,covered lines,"
+            "branch coverage,branches,covered branches,"
+            "mutation score,mutants,killed mutants"
+        ),
+        "example1.py,0.0,1,0,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "example2.py,0.0,1,0,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "sub_example/__init__.py,1.0,1,1,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "sub_example/example3.py,1.0,1,1,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "total,0.5,4,2,0.0,4000,0,0.0,4000,0,0.0,4000,0",
+    )
 
 
 @pytest.mark.parametrize("help_arg", ("-h", "--help"))
@@ -66,8 +146,12 @@ def test_main_with_help(help_arg: str) -> None:
         "  Run the CLI to run the tool competition.",
         "",
         "Options:",
-        "  -v, --verbose  Enables verbose mode",
-        "  -h, --help     Show this message and exit.",
+        "  -v, --verbose            Enables verbose mode",
+        "  --targets-dir DIRECTORY  The directory containing all targets.  [default:",
+        "                           targets]",
+        "  --results-dir DIRECTORY  The directory to store all results to.  [default:",
+        "                           results]",
+        "  -h, --help               Show this message and exit.",
     )
 
 
@@ -82,36 +166,31 @@ def test_main_with_invalid_generator_name() -> None:
     )
 
 
-def test_main_with_non_absolute_project_path() -> None:
-    with mock.patch("python_tool_competition_2024.config._PROJECT_ROOT", Path(".")):
-        assert _run_cli(("my_generator",)) == (
-            1,
-            ("The path must be absolute: targets",),
-            (),
-        )
+def test_main_without_targets(wd_tmp_path: Path) -> None:
+    targets_dir = wd_tmp_path / "targets"
+    assert _run_cli(("some-generator",)) == (
+        1,
+        (
+            _cli_title("Using generator some-generator"),
+            f"Could not find any *.py files in the targets dir: {targets_dir}",
+            "Please download and extract the targets from TODO",
+        ),
+        (),
+    )
 
 
 @pytest.mark.parametrize("verbose_flag", ("-v", "--verbose"))
-def test_main_with_non_absolute_project_path_verbose(verbose_flag: str) -> None:
-    with mock.patch("python_tool_competition_2024.config._PROJECT_ROOT", Path(".")):
-        exit_code, stdout, stderr = _run_cli((verbose_flag, "my_generator"))
-        assert (exit_code, stderr) == (1, ())
-        assert "Traceback (most recent call last)" in stdout[0]
-        assert stdout[-1] == "PathNotAbsoluteError: The path must be absolute: targets"
-
-
-def test_main_without_targets(tmp_path: Path) -> None:
-    with mock.patch("python_tool_competition_2024.config._PROJECT_ROOT", tmp_path):
-        targets_dir = tmp_path / "targets"
-        assert _run_cli(("some-generator",)) == (
-            1,
-            (
-                _cli_title("Using generator some-generator"),
-                f"Could not find any *.py files in the targets dir: {targets_dir}",
-                "Please download and extract the targets from TODO",
-            ),
-            (),
-        )
+def test_main_without_targets_verbose(wd_tmp_path: Path, verbose_flag: str) -> None:
+    targets_dir = wd_tmp_path / "targets"
+    exit_code, stdout, stderr = _run_cli((verbose_flag, "my_generator"))
+    assert (exit_code, stderr) == (1, ())
+    assert stdout[0] == _cli_title("Using generator my_generator")
+    assert re.fullmatch(r"╭─+ Traceback \(most recent call last\) ─+╮", stdout[1])
+    assert stdout[-2] == (
+        "NoTargetsFoundError: "
+        f"Could not find any *.py files in the targets dir: {targets_dir}"
+    )
+    assert stdout[-1] == "Please download and extract the targets from TODO"
 
 
 def _run_successful_cli(args: tuple[str, ...]) -> tuple[str, ...]:
