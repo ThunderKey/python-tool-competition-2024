@@ -8,7 +8,7 @@ import click
 from rich import get_console
 from rich.console import Console
 
-from .caluclation import calculate_results
+from .calculation import calculate_results
 from .config import get_config
 from .errors import PythonToolCompetitionError
 from .generator_plugins import to_test_generator_plugin_name
