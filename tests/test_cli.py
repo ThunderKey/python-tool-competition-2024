@@ -1,4 +1,6 @@
 import contextlib
+import math
+import os
 import re
 import shutil
 from collections.abc import Iterator, Mapping
@@ -78,7 +80,7 @@ def test_main_in_wd(wd_tmp_path: Path) -> None:
         targets_dir / "sub_example" / "__init__.py",
     )
     assert {f: f.read_text() for f in test_files} == {
-        test: f"Some test body for {target}"
+        test: _dummy_body(target)
         for test, target in zip(test_files, targets, strict=True)
     }
 
@@ -140,7 +142,7 @@ def test_main_in_wd_with_all_success(wd_tmp_path: Path) -> None:
         targets_dir / "sub_example" / "__init__.py",
     )
     assert {f: f.read_text() for f in test_files} == {
-        test: f"Some test body for {target}"
+        test: _dummy_body(target)
         for test, target in zip(test_files, targets, strict=True)
     }
 
@@ -233,7 +235,68 @@ def test_main_with_different_targets(wd_tmp_path: Path) -> None:
         _REAL_TARGETS_DIR / "sub_example" / "__init__.py",
     )
     assert {f: f.read_text() for f in test_files} == {
-        test: f"Some test body for {target}"
+        test: _dummy_body(target)
+        for test, target in zip(test_files, targets, strict=True)
+    }
+
+
+def test_main_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
+    assert _run_successful_cli(
+        ("dummy", "--targets-dir", str(_REAL_TARGETS_DIR)), generators=None
+    ) == (
+        _cli_title("Using generator dummy"),
+        *"""\
+┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃ Target                  ┃ Success  ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│ example1.py             │    ✔     │        0.00 % │          0.00 % │         0.00 % │
+│ example2.py             │    ✔     │        0.00 % │          0.00 % │         0.00 % │
+│ sub_example/__init__.py │    ✔     │        0.00 % │          0.00 % │         0.00 % │
+│ sub_example/example3.py │    ✔     │        0.00 % │          0.00 % │         0.00 % │
+├─────────────────────────┼──────────┼───────────────┼─────────────────┼────────────────┤
+│ Total                   │ 100.00 % │        0.00 % │          0.00 % │         0.00 % │
+└─────────────────────────┴──────────┴───────────────┴─────────────────┴────────────────┘
+""".splitlines(),  # noqa: E501
+    )
+
+    results_dir = wd_tmp_path / "results" / "dummy"
+    test_dir = results_dir / "generated_tests"
+    test_files = (
+        test_dir / "sub_example" / "test_example3.py",
+        test_dir / "test_example1.py",
+        test_dir / "test_example2.py",
+        test_dir / "test_sub_example.py",
+    )
+    csv_file = results_dir / "statistics.csv"
+    assert _find_files(wd_tmp_path) == (*test_files, csv_file)
+    assert tuple(csv_file.read_text().splitlines()) == (
+        (
+            "target,"
+            "successful ratio,files,successful files,"
+            "line coverage,lines,covered lines,"
+            "branch coverage,branches,covered branches,"
+            "mutation score,mutants,killed mutants"
+        ),
+        "example1.py,1.0,1,1,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "example2.py,1.0,1,1,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "sub_example/__init__.py,1.0,1,1,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "sub_example/example3.py,1.0,1,1,0.0,1000,0,0.0,1000,0,0.0,1000,0",
+        "total,1.0,4,4,0.0,4000,0,0.0,4000,0,0.0,4000,0",
+    )
+    targets = (
+        _REAL_TARGETS_DIR / "sub_example" / "example3.py",
+        _REAL_TARGETS_DIR / "example1.py",
+        _REAL_TARGETS_DIR / "example2.py",
+        _REAL_TARGETS_DIR / "sub_example" / "__init__.py",
+    )
+    assert {f: tuple(f.read_text().splitlines()) for f in test_files} == {
+        test: (
+            f"# dummy test for {target}",
+            "",
+            "",
+            "def test_dummy() -> None:",
+            "    assert True",
+        )
         for test, target in zip(test_files, targets, strict=True)
     }
 
@@ -290,7 +353,7 @@ def test_main_with_different_targets_and_results(wd_tmp_path: Path) -> None:
         _REAL_TARGETS_DIR / "sub_example" / "__init__.py",
     )
     assert {f: f.read_text() for f in test_files} == {
-        test: f"Some test body for {target}"
+        test: _dummy_body(target)
         for test, target in zip(test_files, targets, strict=True)
     }
 
@@ -396,10 +459,19 @@ def test_main_without_targets_verbose(wd_tmp_path: Path, verbose_flag: str) -> N
     assert stdout[-1] == "Please download and extract the targets from TODO"
 
 
+_DEFAULT_GENERATORS = MappingProxyType(
+    {
+        "failures": FailureTestGenerator,
+        "static": StaticTestGenerator,
+        "length": LengthTestGenerator,
+    }
+)
+
+
 def _run_successful_cli(
     args: tuple[str, ...],
     *,
-    generators: Mapping[str, type[TestGenerator]] | None = None,
+    generators: Mapping[str, type[TestGenerator]] | None = _DEFAULT_GENERATORS,
     generators_called: bool = True,
 ) -> tuple[str, ...]:
     exit_code, stdout, stderr = _run_cli(
@@ -412,7 +484,7 @@ def _run_successful_cli(
 def _run_cli(
     args: tuple[str, ...],
     *,
-    generators: Mapping[str, type[TestGenerator]] | None = None,
+    generators: Mapping[str, type[TestGenerator]] | None = _DEFAULT_GENERATORS,
     generators_called: bool = True,
 ) -> tuple[int, tuple[str, ...], tuple[str, ...]]:
     with _cli_runner(generators, generators_called=generators_called) as runner:
@@ -429,7 +501,9 @@ _CLI_COLUMNS: Final = 200
 
 @contextlib.contextmanager
 def _cli_runner(
-    generators: Mapping[str, type[TestGenerator]] | None, *, generators_called: bool
+    generators: Mapping[str, type[TestGenerator]] | None = _DEFAULT_GENERATORS,
+    *,
+    generators_called: bool = True,
 ) -> Iterator[CliRunner]:
     with _register_generators(
         generators, generators_called=generators_called
@@ -440,21 +514,12 @@ def _cli_runner(
 
 
 def _cli_title(content: str) -> str:
-    dashes = "─" * int((_CLI_COLUMNS - len(content) - 2) / 2)
-    return f"{dashes} {content} {dashes}"
+    dashes = (_CLI_COLUMNS - len(content) - 2) / 2
+    return f"{'─' * math.floor(dashes)} {content} {'─' * math.ceil(dashes)}"
 
 
 def _find_files(directory: Path) -> tuple[Path, ...]:
     return tuple(sorted(p for p in directory.glob("**/*") if p.is_file()))
-
-
-_DEFAULT_GENERATORS = MappingProxyType(
-    {
-        "failures": FailureTestGenerator,
-        "static": StaticTestGenerator,
-        "length": LengthTestGenerator,
-    }
-)
 
 
 _ENTRY_POINT_GROUP = "python_tool_competition_2024.test_generators"
@@ -465,7 +530,8 @@ def _register_generators(
     generators: Mapping[str, type[TestGenerator]] | None, *, generators_called: bool
 ) -> Iterator[None]:
     if generators is None:
-        generators = _DEFAULT_GENERATORS
+        yield
+        return
     with mock.patch(
         "python_tool_competition_2024.generator_plugins.entry_points"
     ) as entry_points_mock:
@@ -486,4 +552,16 @@ def _to_entry_point(name: str, generator_cls: type[TestGenerator]) -> EntryPoint
         name,
         f"{generator_cls.__module__}:{generator_cls.__qualname__}",
         _ENTRY_POINT_GROUP,
+    )
+
+
+def _dummy_body(target_file: Path) -> str:
+    return os.linesep.join(
+        (
+            f"# dummy test for {target_file}",
+            "",
+            "",
+            "def test_dummy() -> None:",
+            "    assert True",
+        )
     )

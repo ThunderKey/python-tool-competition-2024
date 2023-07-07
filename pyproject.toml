@@ -28,6 +28,9 @@ python-tool-competition-2024 = 'python_tool_competition_2024.cli:main_cli'
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry.plugins."python_tool_competition_2024.test_generators"]
+dummy = "python_tool_competition_2024.generators:DummyTestGenerator"
+
 [tool.pytest.ini_options]
 markers = [
     'linter: all tests that run external linters which are usually slow',
@@ -39,6 +42,7 @@ addopts = [
     '--cov-report=html',
     '--cov-report=xml',
     '--cov-report=term',
+    '--ignore=results',
 ]
 # disable detection of classes starting with Test
 # inherit from unittest.TestCase to test them

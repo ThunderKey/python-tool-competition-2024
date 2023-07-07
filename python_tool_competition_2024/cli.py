@@ -17,7 +17,9 @@ from .target_finder import find_targets
 from .version import VERSION
 
 
-@click.command(context_settings={"help_option_names": ["-h", "--help"]})
+@click.command(  # type: ignore[arg-type]
+    context_settings={"help_option_names": ["-h", "--help"]}
+)
 @click.argument("generator_name")
 @click.option("-v", "--verbose", is_flag=True, help="Enables verbose mode")
 @click.option(

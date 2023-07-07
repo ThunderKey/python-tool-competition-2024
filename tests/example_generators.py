@@ -4,9 +4,8 @@ from python_tool_competition_2024.generation_results import (
     FailureReason,
     TestGenerationFailure,
     TestGenerationResult,
-    TestGenerationSuccess,
 )
-from python_tool_competition_2024.generators import TestGenerator
+from python_tool_competition_2024.generators import DummyTestGenerator, TestGenerator
 
 
 class FailureTestGenerator(TestGenerator):
@@ -16,12 +15,12 @@ class FailureTestGenerator(TestGenerator):
         )
 
 
-class StaticTestGenerator(TestGenerator):
-    def build_test(self, target_file: Path) -> TestGenerationSuccess:
-        return TestGenerationSuccess(f"Some test body for {target_file}")
+class StaticTestGenerator(DummyTestGenerator):
+    def build_test(self, target_file: Path) -> TestGenerationResult:
+        return super().build_test(target_file)
 
 
-class LengthTestGenerator(TestGenerator):
+class LengthTestGenerator(DummyTestGenerator):
     def build_test(self, target_file: Path) -> TestGenerationResult:
         project_root = next(
             parent for parent in target_file.parents if parent.name == "targets"
@@ -30,4 +29,4 @@ class LengthTestGenerator(TestGenerator):
             return TestGenerationFailure(
                 ("Not implemented...",), FailureReason.UNEXPECTED_ERROR
             )
-        return TestGenerationSuccess(f"Some test body for {target_file}")
+        return super().build_test(target_file)
