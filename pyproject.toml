@@ -12,6 +12,7 @@ pytest = "^7.3.2"
 pytest-cov = "^4.1.0"
 rich = "^13.4.2"
 click = "^8.1.3"
+defusedxml = "^0.7.1"
 
 [tool.poetry.group.linter.dependencies]
 ruff = ">=0.0.274, <0.1"
@@ -162,6 +163,16 @@ external = [
     "D1",
     # ignore missing __init__.py
     "INP001",
+]
+"stubs/**/*.pyi" = [
+    # ignore missing docstrings
+    "D1",
+    # ignore unused arguments
+    "ARG001",
+    # ignore missing __init__.py
+    "INP001",
+    # ignore bool params, because the library chose it this way
+    "FBT001",
 ]
 
 [tool.ruff.pydocstyle]

@@ -90,3 +90,24 @@ class NoGeneratorFoundError(PythonToolCompetitionError):
             "Could not find any available plugin for test generators. "
             f'Make sure, that it is exposed as "{entry_point_group_name}"'
         )
+
+
+class CommandFailedError(PythonToolCompetitionError):
+    """Raised if a CLI command execution failed."""
+
+    def __init__(self, cmd: tuple[str, ...]) -> None:
+        super().__init__(f"The following command failed: {' '.join(cmd)}")
+
+
+class ConditionCoverageError(PythonToolCompetitionError):
+    """Raised if the condition coverage is invalid."""
+
+    def __init__(self, condition_coverage: str) -> None:
+        super().__init__(f"Invalid condition coverage: {condition_coverage}")
+
+
+class TargetNotFoundInCoveragesError(PythonToolCompetitionError):
+    """Raised if the condition coverage is invalid."""
+
+    def __init__(self, coverage_xml: Path, source: Path) -> None:
+        super().__init__(f"Could not find {source} in {coverage_xml}")

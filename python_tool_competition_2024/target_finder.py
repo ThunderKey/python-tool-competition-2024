@@ -18,6 +18,9 @@ class Target:
     relative_source: Path
     """The relative source file of this target."""
 
+    source_module: str
+    """The module name of the source file"""
+
     test: Path
     """The absolute test file to generate for this target."""
 
@@ -39,8 +42,12 @@ def find_targets(config: Config) -> tuple[Target, ...]:
 
 def _find_target(source: Path, config: Config) -> Target:
     test = _to_test_file(source, config)
+    relative_source = source.relative_to(config.targets_dir)
     return Target(
-        source=source, relative_source=source.relative_to(config.targets_dir), test=test
+        source=source,
+        relative_source=relative_source,
+        source_module=_path_to_module(relative_source),
+        test=test,
     )
 
 
@@ -50,3 +57,10 @@ def _to_test_file(source: Path, config: Config) -> Path:
         relative_path = relative_path.parent
     name = f"test_{relative_path.stem}.py"
     return config.tests_dir / relative_path.parent / name
+
+
+def _path_to_module(path: Path) -> str:
+    path = path.with_suffix("")
+    if path.name == "__init__":
+        path = path.parent
+    return ".".join(path.parts)

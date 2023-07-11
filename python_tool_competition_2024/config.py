@@ -5,6 +5,8 @@ from pathlib import Path
 from typing import NewType
 from urllib.parse import ParseResult, urlparse
 
+from rich.console import Console
+
 from .validation import ensure_absolute
 
 GeneratorName = NewType("GeneratorName", str)
@@ -18,7 +20,10 @@ class Config:
     targets_dir: Path
     tests_dir: Path
     csv_file: Path
+    coverages_dir: Path
     default_targets_url: ParseResult
+    console: Console
+    verbose: bool
 
     def __post_init__(self) -> None:
         """Ensure that the data is correct."""
@@ -26,7 +31,12 @@ class Config:
 
 
 def get_config(
-    generator_name: GeneratorName, targets_dir: Path, results_dir: Path
+    generator_name: GeneratorName,
+    targets_dir: Path,
+    results_dir: Path,
+    console: Console,
+    *,
+    verbose: bool,
 ) -> Config:
     """Generate the config from the specific generator name."""
     results_dir /= generator_name
@@ -35,5 +45,8 @@ def get_config(
         targets_dir=targets_dir,
         tests_dir=results_dir / "generated_tests",
         csv_file=results_dir / "statistics.csv",
+        coverages_dir=results_dir / "coverages",
         default_targets_url=urlparse("TODO"),
+        console=console,
+        verbose=verbose,
     )

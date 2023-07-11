@@ -16,7 +16,7 @@ def calculate_results(targets: tuple[Target, ...], config: Config) -> Results:
 
 def _calculate_result(target: Target, config: Config) -> Result:
     generation_result = calculate_generation_result(target, config)
-    coverages = calculate_coverages(target)
+    coverages = calculate_coverages(target, config)
     mutation = calculate_mutation(target)
     return get_result(
         target=target,

@@ -6,7 +6,7 @@ from python_tool_competition_2024.generator_plugins import _load_plugins
 
 
 @pytest.fixture(autouse=True)
-def _reset_plugin_cache() -> None:
+def _reset_caches() -> None:
     _load_plugins.cache_clear()
 
 

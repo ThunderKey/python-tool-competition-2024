@@ -1,11 +1,11 @@
 """The main CLI for the Python tool competition 2024."""
 
-import contextlib
+import sys
 from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 
 import click
-from rich import get_console
 from rich.console import Console
 
 from .calculation import calculate_results
@@ -47,12 +47,13 @@ def main_cli(
     results_dir: Path,
 ) -> None:
     """Run the CLI to run the tool competition."""
-    console = get_console()
-    with _handle_errors(ctx, console, verbose=verbose):
+    with _create_console(ctx, verbose=verbose) as console:
         config = get_config(
             to_test_generator_plugin_name(generator_name),
             targets_dir.absolute(),
             results_dir.absolute(),
+            console,
+            verbose=verbose,
         )
         console.rule(f"Using generator {config.generator_name}")
         targets = find_targets(config)
@@ -60,12 +61,12 @@ def main_cli(
         report(results, console, config)
 
 
-@contextlib.contextmanager
-def _handle_errors(
-    ctx: click.Context, console: Console, *, verbose: bool
-) -> Iterator[None]:
+@contextmanager
+def _create_console(ctx: click.Context, *, verbose: bool) -> Iterator[Console]:
+    # use the stdout explicitly to not redirect it accidentaly
+    console = Console(file=sys.stdout)
     try:
-        yield
+        yield console
     except PythonToolCompetitionError as error:
         if verbose:
             console.print_exception()
