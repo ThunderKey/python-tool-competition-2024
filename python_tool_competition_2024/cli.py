@@ -17,7 +17,13 @@ from .target_finder import find_targets
 from .version import VERSION
 
 
-@click.command(context_settings={"help_option_names": ["-h", "--help"]})
+@click.group(context_settings={"help_option_names": ["-h", "--help"]})
+@click.version_option(VERSION)
+def main_cli() -> None:
+    """Run the main CLI of the Python Tool Competition 2024."""
+
+
+@main_cli.command
 @click.argument("generator_name")
 @click.option("-v", "--verbose", is_flag=True, help="Enables verbose mode")
 @click.option(
@@ -34,9 +40,8 @@ from .version import VERSION
     default=Path("results"),
     show_default=True,
 )
-@click.version_option(VERSION)
 @click.pass_context
-def main_cli(
+def run(
     ctx: click.Context,
     *,
     generator_name: str,
@@ -44,7 +49,7 @@ def main_cli(
     targets_dir: Path,
     results_dir: Path,
 ) -> None:
-    """Run the CLI to run the tool competition."""
+    """Run the tool competition with the specified generator."""
     with _create_console(ctx, verbose=verbose) as console:
         config = get_config(
             to_test_generator_plugin_name(generator_name),
@@ -71,6 +76,3 @@ def _create_console(ctx: click.Context, *, verbose: bool) -> Iterator[Console]:
         else:
             console.print(error.message, style="red")
         ctx.exit(1)
-
-
-__all__ = ["main_cli"]

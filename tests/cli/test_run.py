@@ -1,39 +1,23 @@
-import contextlib
-import math
 import os
 import re
 import shutil
-from collections.abc import Iterator, Mapping
-from functools import partial
-from importlib.metadata import EntryPoint
+from collections.abc import Iterator
 from pathlib import Path
-from types import MappingProxyType
-from typing import Final
-from unittest import mock
 
 import pytest
-from click.testing import CliRunner
-from rich.console import Console
 
-from python_tool_competition_2024.cli import main_cli
-from python_tool_competition_2024.generators import DummyTestGenerator, TestGenerator
+from ..example_generators import LengthTestGenerator, get_static_body
+from .helpers import ENTRY_POINT_GROUP, cli_title, run_cli, run_successful_cli
 
-from .example_generators import (
-    FailureTestGenerator,
-    LengthTestGenerator,
-    StaticTestGenerator,
-    get_static_body,
-)
-
-_PROJECT_ROOT = Path(__file__).parent.parent
+_PROJECT_ROOT = Path(__file__).parent.parent.parent
 _REAL_TARGETS_DIR = _PROJECT_ROOT / "targets"
 
 
-def test_main_in_wd(wd_tmp_path: Path) -> None:
+def test_run_in_wd(wd_tmp_path: Path) -> None:
     targets_dir = wd_tmp_path / "targets"
     shutil.copytree(_REAL_TARGETS_DIR, targets_dir)
-    assert _run_successful_cli(("length",)) == (
-        _cli_title("Using generator length"),
+    assert run_successful_cli(("run", "length")) == (
+        cli_title("Using generator length"),
         *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
@@ -89,11 +73,11 @@ def test_main_in_wd(wd_tmp_path: Path) -> None:
     }
 
 
-def test_main_in_wd_with_all_success(wd_tmp_path: Path) -> None:
+def test_run_in_wd_with_all_success(wd_tmp_path: Path) -> None:
     targets_dir = wd_tmp_path / "targets"
     shutil.copytree(_REAL_TARGETS_DIR, targets_dir)
-    assert _run_successful_cli(("dummy",)) == (
-        _cli_title("Using generator dummy"),
+    assert run_successful_cli(("run", "dummy")) == (
+        cli_title("Using generator dummy"),
         *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success  ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
@@ -153,11 +137,11 @@ def test_main_in_wd_with_all_success(wd_tmp_path: Path) -> None:
     }
 
 
-def test_main_in_wd_with_all_failures(wd_tmp_path: Path) -> None:
+def test_run_in_wd_with_all_failures(wd_tmp_path: Path) -> None:
     targets_dir = wd_tmp_path / "targets"
     shutil.copytree(_REAL_TARGETS_DIR, targets_dir)
-    assert _run_successful_cli(("failures",)) == (
-        _cli_title("Using generator failures"),
+    assert run_successful_cli(("run", "failures")) == (
+        cli_title("Using generator failures"),
         *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
@@ -199,9 +183,11 @@ def test_main_in_wd_with_all_failures(wd_tmp_path: Path) -> None:
     )
 
 
-def test_main_with_different_targets(wd_tmp_path: Path) -> None:
-    assert _run_successful_cli(("length", "--targets-dir", str(_REAL_TARGETS_DIR))) == (
-        _cli_title("Using generator length"),
+def test_run_with_different_targets(wd_tmp_path: Path) -> None:
+    assert run_successful_cli(
+        ("run", "length", "--targets-dir", str(_REAL_TARGETS_DIR))
+    ) == (
+        cli_title("Using generator length"),
         *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
@@ -252,9 +238,11 @@ def test_main_with_different_targets(wd_tmp_path: Path) -> None:
     }
 
 
-def test_main_with_real_tests(wd_tmp_path: Path) -> None:
-    assert _run_successful_cli(("static", "--targets-dir", str(_REAL_TARGETS_DIR))) == (
-        _cli_title("Using generator static"),
+def test_run_with_real_tests(wd_tmp_path: Path) -> None:
+    assert run_successful_cli(
+        ("run", "static", "--targets-dir", str(_REAL_TARGETS_DIR))
+    ) == (
+        cli_title("Using generator static"),
         *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
@@ -305,11 +293,11 @@ def test_main_with_real_tests(wd_tmp_path: Path) -> None:
     }
 
 
-def test_main_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
-    assert _run_successful_cli(
-        ("dummy", "--targets-dir", str(_REAL_TARGETS_DIR)), generators=None
+def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
+    assert run_successful_cli(
+        ("run", "dummy", "--targets-dir", str(_REAL_TARGETS_DIR)), generators=None
     ) == (
-        _cli_title("Using generator dummy"),
+        cli_title("Using generator dummy"),
         *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success  ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
@@ -370,9 +358,10 @@ def test_main_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
     }
 
 
-def test_main_with_different_targets_and_results(wd_tmp_path: Path) -> None:
-    assert _run_successful_cli(
+def test_run_with_different_targets_and_results(wd_tmp_path: Path) -> None:
+    assert run_successful_cli(
         (
+            "run",
             "length",
             "--targets-dir",
             str(_REAL_TARGETS_DIR),
@@ -380,7 +369,7 @@ def test_main_with_different_targets_and_results(wd_tmp_path: Path) -> None:
             "other_res",
         )
     ) == (
-        _cli_title("Using generator length"),
+        cli_title("Using generator length"),
         *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
@@ -432,11 +421,11 @@ def test_main_with_different_targets_and_results(wd_tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("help_arg", ("-h", "--help"))
-def test_main_with_help(help_arg: str) -> None:
-    assert _run_successful_cli((help_arg,), generators_called=False) == (
-        "Usage: main-cli [OPTIONS] GENERATOR_NAME",
+def test_run_with_help(help_arg: str) -> None:
+    assert run_successful_cli(("run", help_arg), generators_called=False) == (
+        "Usage: main-cli run [OPTIONS] GENERATOR_NAME",
         "",
-        "  Run the CLI to run the tool competition.",
+        "  Run the tool competition with the specified generator.",
         "",
         "Options:",
         "  -v, --verbose            Enables verbose mode",
@@ -444,19 +433,12 @@ def test_main_with_help(help_arg: str) -> None:
         "                           targets]",
         "  --results-dir DIRECTORY  The directory to store all results to.  [default:",
         "                           results]",
-        "  --version                Show the version and exit.",
         "  -h, --help               Show this message and exit.",
     )
 
 
-def test_main_with_version() -> None:
-    assert _run_successful_cli(("--version",), generators_called=False) == (
-        "main-cli, version 0.1.0",
-    )
-
-
-def test_main_with_unknown_generator_name() -> None:
-    assert _run_cli(("missing_generator",)) == (
+def test_run_with_unknown_generator_name() -> None:
+    assert run_cli(("run", "missing_generator")) == (
         1,
         (
             'The generator name "missing_generator" was not found. Available: '
@@ -466,9 +448,9 @@ def test_main_with_unknown_generator_name() -> None:
     )
 
 
-def test_main_with_invalid_generator_name() -> None:
-    assert _run_cli(
-        ("my generator",), generators={"my generator": LengthTestGenerator}
+def test_run_with_invalid_generator_name() -> None:
+    assert run_cli(
+        ("run", "my generator"), generators={"my generator": LengthTestGenerator}
     ) == (
         1,
         (
@@ -479,25 +461,25 @@ def test_main_with_invalid_generator_name() -> None:
     )
 
 
-def test_main_without_any_generator() -> None:
-    assert _run_cli(("my_generator",), generators={}) == (
+def test_run_without_any_generator() -> None:
+    assert run_cli(("run", "my_generator"), generators={}) == (
         1,
         (
             "Could not find any available plugin for test generators. "
-            f'Make sure, that it is exposed as "{_ENTRY_POINT_GROUP}"',
+            f'Make sure, that it is exposed as "{ENTRY_POINT_GROUP}"',
         ),
         (),
     )
 
 
-def test_main_with_a_generator_with_a_wrong_type() -> None:
-    assert _run_cli(
-        ("my_generator",),
+def test_run_with_a_generator_with_a_wrong_type() -> None:
+    assert run_cli(
+        ("run", "my_generator"),
         generators={"my_generator": object},  # type: ignore[dict-item]
     ) == (
         1,
         (
-            _cli_title("Using generator my_generator"),
+            cli_title("Using generator my_generator"),
             'Invalid plugin "my_generator": Needs to be a subclass of TestGenerator, '
             "but got: <class 'object'>",
         ),
@@ -505,12 +487,12 @@ def test_main_with_a_generator_with_a_wrong_type() -> None:
     )
 
 
-def test_main_without_targets(wd_tmp_path: Path) -> None:
+def test_run_without_targets(wd_tmp_path: Path) -> None:
     targets_dir = wd_tmp_path / "targets"
-    assert _run_cli(("failures",)) == (
+    assert run_cli(("run", "failures")) == (
         1,
         (
-            _cli_title("Using generator failures"),
+            cli_title("Using generator failures"),
             f"Could not find any *.py files in the targets dir: {targets_dir}",
             "Please download and extract the targets from TODO",
         ),
@@ -519,77 +501,17 @@ def test_main_without_targets(wd_tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("verbose_flag", ("-v", "--verbose"))
-def test_main_without_targets_verbose(wd_tmp_path: Path, verbose_flag: str) -> None:
+def test_run_without_targets_verbose(wd_tmp_path: Path, verbose_flag: str) -> None:
     targets_dir = wd_tmp_path / "targets"
-    exit_code, stdout, stderr = _run_cli((verbose_flag, "dummy"))
+    exit_code, stdout, stderr = run_cli(("run", verbose_flag, "dummy"))
     assert (exit_code, stderr) == (1, ())
-    assert stdout[0] == _cli_title("Using generator dummy")
+    assert stdout[0] == cli_title("Using generator dummy")
     assert re.fullmatch(r"╭─+ Traceback \(most recent call last\) ─+╮", stdout[1])
     assert stdout[-2] == (
         "NoTargetsFoundError: "
         f"Could not find any *.py files in the targets dir: {targets_dir}"
     )
     assert stdout[-1] == "Please download and extract the targets from TODO"
-
-
-_DEFAULT_GENERATORS = MappingProxyType(
-    {
-        "dummy": DummyTestGenerator,
-        "failures": FailureTestGenerator,
-        "static": StaticTestGenerator,
-        "length": LengthTestGenerator,
-    }
-)
-
-
-def _run_successful_cli(
-    args: tuple[str, ...],
-    *,
-    generators: Mapping[str, type[TestGenerator]] | None = _DEFAULT_GENERATORS,
-    generators_called: bool = True,
-) -> tuple[str, ...]:
-    exit_code, stdout, stderr = _run_cli(
-        args, generators=generators, generators_called=generators_called
-    )
-    assert (exit_code, stderr, stdout) == (0, (), mock.ANY)
-    return stdout
-
-
-def _run_cli(
-    args: tuple[str, ...],
-    *,
-    generators: Mapping[str, type[TestGenerator]] | None = _DEFAULT_GENERATORS,
-    generators_called: bool = True,
-) -> tuple[int, tuple[str, ...], tuple[str, ...]]:
-    with _cli_runner(generators, generators_called=generators_called) as runner:
-        result = runner.invoke(main_cli, args=args, catch_exceptions=False)
-    return (
-        result.exit_code,
-        tuple(result.stdout.splitlines()),
-        tuple(result.stderr.splitlines()),
-    )
-
-
-_CLI_COLUMNS: Final = 200
-
-
-@contextlib.contextmanager
-def _cli_runner(
-    generators: Mapping[str, type[TestGenerator]] | None = _DEFAULT_GENERATORS,
-    *,
-    generators_called: bool = True,
-) -> Iterator[CliRunner]:
-    with _register_generators(
-        generators, generators_called=generators_called
-    ), mock.patch("python_tool_competition_2024.cli.Console") as console_mock:
-        console_mock.side_effect = partial(Console, width=_CLI_COLUMNS)
-        mock.seal(console_mock)
-        yield CliRunner(mix_stderr=False)
-
-
-def _cli_title(content: str) -> str:
-    dashes = (_CLI_COLUMNS - len(content) - 2) / 2
-    return f"{'─' * math.floor(dashes)} {content} {'─' * math.ceil(dashes)}"
 
 
 def _find_files(directory: Path) -> tuple[Path, ...]:
@@ -602,39 +524,6 @@ def _each_file(directory: Path) -> Iterator[Path]:
             yield item
         elif item.name not in (".pytest_competition_cache", "__pycache__"):
             yield from _each_file(item)
-
-
-_ENTRY_POINT_GROUP = "python_tool_competition_2024.test_generators"
-
-
-@contextlib.contextmanager
-def _register_generators(
-    generators: Mapping[str, type[TestGenerator]] | None, *, generators_called: bool
-) -> Iterator[None]:
-    if generators is None:
-        yield
-        return
-    with mock.patch(
-        "python_tool_competition_2024.generator_plugins.entry_points"
-    ) as entry_points_mock:
-        entry_points_mock.return_value = tuple(
-            _to_entry_point(name, generator_cls)
-            for name, generator_cls in generators.items()
-        )
-        mock.seal(entry_points_mock)
-        yield
-        if generators_called:
-            entry_points_mock.assert_called_once_with(group=_ENTRY_POINT_GROUP)
-        else:
-            entry_points_mock.assert_not_called()
-
-
-def _to_entry_point(name: str, generator_cls: type[TestGenerator]) -> EntryPoint:
-    return EntryPoint(
-        name,
-        f"{generator_cls.__module__}:{generator_cls.__qualname__}",
-        _ENTRY_POINT_GROUP,
-    )
 
 
 def _dummy_body(target_file: Path) -> str:
