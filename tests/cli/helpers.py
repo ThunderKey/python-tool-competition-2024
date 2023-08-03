@@ -68,7 +68,7 @@ def _cli_runner(
 ) -> Iterator[CliRunner]:
     with _register_generators(
         generators, generators_called=generators_called
-    ), mock.patch("python_tool_competition_2024.cli.Console") as console_mock:
+    ), mock.patch("python_tool_competition_2024.cli.helpers.Console") as console_mock:
         console_mock.side_effect = partial(Console, width=_CLI_COLUMNS)
         mock.seal(console_mock)
         yield CliRunner(mix_stderr=False)

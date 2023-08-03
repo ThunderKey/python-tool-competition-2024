@@ -1,29 +1,18 @@
-"""The main CLI for the Python tool competition 2024."""
+"""The CLI command to run the Python tool competition 2024."""
 
-import sys
-from collections.abc import Iterator
-from contextlib import contextmanager
 from pathlib import Path
 
 import click
-from rich.console import Console
 
-from .calculation import calculate_results
-from .config import get_config
-from .errors import PythonToolCompetitionError
-from .generator_plugins import to_test_generator_plugin_name
-from .reporters import report
-from .target_finder import find_targets
-from .version import VERSION
+from ..calculation import calculate_results
+from ..config import get_config
+from ..generator_plugins import to_test_generator_plugin_name
+from ..reporters import report
+from ..target_finder import find_targets
+from .helpers import create_console
 
 
-@click.group(context_settings={"help_option_names": ["-h", "--help"]})
-@click.version_option(VERSION)
-def main_cli() -> None:
-    """Run the main CLI of the Python Tool Competition 2024."""
-
-
-@main_cli.command
+@click.command
 @click.argument("generator_name")
 @click.option("-v", "--verbose", is_flag=True, help="Enables verbose mode")
 @click.option(
@@ -50,7 +39,7 @@ def run(
     results_dir: Path,
 ) -> None:
     """Run the tool competition with the specified generator."""
-    with _create_console(ctx, verbose=verbose) as console:
+    with create_console(ctx, verbose=verbose) as console:
         config = get_config(
             to_test_generator_plugin_name(generator_name),
             targets_dir.absolute(),
@@ -62,17 +51,3 @@ def run(
         targets = find_targets(config)
         results = calculate_results(targets, config)
         report(results, console, config)
-
-
-@contextmanager
-def _create_console(ctx: click.Context, *, verbose: bool) -> Iterator[Console]:
-    # use the stdout explicitly to not redirect it accidentaly
-    console = Console(file=sys.stdout)
-    try:
-        yield console
-    except PythonToolCompetitionError as error:
-        if verbose:
-            console.print_exception()
-        else:
-            console.print(error.message, style="red")
-        ctx.exit(1)
