@@ -3,7 +3,7 @@
 import click
 
 from ..version import VERSION
-from . import run_command
+from . import init_command, run_command
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
@@ -13,3 +13,4 @@ def main_cli() -> None:
 
 
 main_cli.add_command(run_command.run)
+main_cli.add_command(init_command.init)

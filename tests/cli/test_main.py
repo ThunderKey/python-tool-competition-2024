@@ -18,7 +18,8 @@ def test_main_with_help(help_arg: str) -> None:
         "  -h, --help  Show this message and exit.",
         "",
         "Commands:",
-        "  run  Run the tool competition with the specified generator.",
+        "  init  Interactively initialize a new project for a generator.",
+        "  run   Run the tool competition with the specified generator.",
     )
 
 

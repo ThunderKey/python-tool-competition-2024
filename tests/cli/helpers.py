@@ -1,5 +1,6 @@
 import contextlib
 import math
+import os
 from collections.abc import Iterator, Mapping
 from functools import partial
 from importlib.metadata import EntryPoint
@@ -8,7 +9,7 @@ from typing import Final
 from unittest import mock
 
 from click.testing import CliRunner
-from rich.console import Console
+from rich.console import Console, RenderableType
 
 from python_tool_competition_2024.cli import main_cli
 from python_tool_competition_2024.generators import DummyTestGenerator, TestGenerator
@@ -50,9 +51,15 @@ def run_cli(
     *,
     generators: Mapping[str, type[TestGenerator]] | None = _DEFAULT_GENERATORS,
     generators_called: bool = True,
+    stdin: tuple[str, ...] | None = None,
 ) -> tuple[int, tuple[str, ...], tuple[str, ...]]:
     with _cli_runner(generators, generators_called=generators_called) as runner:
-        result = runner.invoke(main_cli, args=args, catch_exceptions=False)
+        result = runner.invoke(
+            main_cli,
+            args=args,
+            catch_exceptions=False,
+            input=os.linesep.join(stdin) if stdin else None,
+        )
     return (
         result.exit_code,
         tuple(result.stdout.splitlines()),
@@ -72,6 +79,13 @@ def _cli_runner(
         console_mock.side_effect = partial(Console, width=_CLI_COLUMNS)
         mock.seal(console_mock)
         yield CliRunner(mix_stderr=False)
+
+
+def renderable_to_strs(renderable: RenderableType) -> tuple[str, ...]:
+    console = Console(width=_CLI_COLUMNS)
+    with console.capture() as capture:
+        console.print(renderable)
+    return tuple(capture.get().splitlines())
 
 
 def cli_title(content: str) -> str:
