@@ -11,6 +11,9 @@ from .helpers import ENTRY_POINT_GROUP, cli_title, run_cli, run_successful_cli
 
 _PROJECT_ROOT = Path(__file__).parent.parent.parent
 _REAL_TARGETS_DIR = _PROJECT_ROOT / "targets"
+_TARGETS_URL = (
+    "https://github.com/ThunderKey/python-tool-competition-2024/tree/main/targets"
+)
 
 
 def test_run_in_wd(wd_tmp_path: Path) -> None:
@@ -496,7 +499,7 @@ def test_run_without_targets(wd_tmp_path: Path) -> None:
         (
             cli_title("Using generator failures"),
             f"Could not find any *.py files in the targets dir: {targets_dir}",
-            "Please download and extract the targets from TODO",
+            f"Please download the targets from {_TARGETS_URL}",
         ),
         (),
     )
@@ -513,7 +516,7 @@ def test_run_without_targets_verbose(wd_tmp_path: Path, verbose_flag: str) -> No
         "NoTargetsFoundError: "
         f"Could not find any *.py files in the targets dir: {targets_dir}"
     )
-    assert stdout[-1] == "Please download and extract the targets from TODO"
+    assert stdout[-1] == f"Please download the targets from {_TARGETS_URL}"
 
 
 def _find_files(directory: Path) -> tuple[Path, ...]:

@@ -46,7 +46,9 @@ def get_config(
         tests_dir=results_dir / "generated_tests",
         csv_file=results_dir / "statistics.csv",
         coverages_dir=results_dir / "coverages",
-        default_targets_url=urlparse("TODO"),
+        default_targets_url=urlparse(
+            "https://github.com/ThunderKey/python-tool-competition-2024/tree/main/targets"
+        ),
         console=console,
         verbose=verbose,
     )

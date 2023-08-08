@@ -29,7 +29,7 @@ class NoTargetsFoundError(PythonToolCompetitionError):
             os.linesep.join(
                 (
                     f"Could not find any *.py files in the targets dir: {targets_dir}",
-                    f"Please download and extract the targets from {url}",
+                    f"Please download the targets from {url}",
                 )
             )
         )
