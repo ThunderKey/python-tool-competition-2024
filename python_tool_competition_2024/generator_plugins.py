@@ -14,7 +14,7 @@ from .errors import (
 )
 from .generators import TestGenerator
 
-_ENTRY_POINT_GROUP_NAME = "python_tool_competition_2024.test_generators"
+ENTRY_POINT_GROUP_NAME = "python_tool_competition_2024.test_generators"
 
 
 def plugin_names() -> tuple[GeneratorName, ...]:
@@ -29,7 +29,7 @@ def to_test_generator_plugin_name(name: str) -> GeneratorName:
     if generator_name in plugins:
         return generator_name
     if not plugins:
-        raise NoGeneratorFoundError(_ENTRY_POINT_GROUP_NAME)
+        raise NoGeneratorFoundError(ENTRY_POINT_GROUP_NAME)
     raise GeneratorNotFoundError(name, plugin_names())
 
 
@@ -70,7 +70,7 @@ _GENERATOR_NAME_PATTERN = re.compile(r"\A[\w.-]+\Z")
 @cache
 def _load_plugins() -> _Plugins:
     plugins = {}
-    for entry_point in entry_points(group=_ENTRY_POINT_GROUP_NAME):
+    for entry_point in entry_points(group=ENTRY_POINT_GROUP_NAME):
         if not _GENERATOR_NAME_PATTERN.fullmatch(entry_point.name):
             raise InvalidGeneratorNameError(entry_point.name, _GENERATOR_NAME_PATTERN)
         plugins[cast(GeneratorName, entry_point.name)] = entry_point

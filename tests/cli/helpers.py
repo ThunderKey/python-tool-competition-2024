@@ -67,6 +67,9 @@ def run_cli(
     )
 
 
+_create_console = partial(Console, width=_CLI_COLUMNS)
+
+
 @contextlib.contextmanager
 def _cli_runner(
     generators: Mapping[str, type[TestGenerator]] | None = _DEFAULT_GENERATORS,
@@ -76,13 +79,13 @@ def _cli_runner(
     with _register_generators(
         generators, generators_called=generators_called
     ), mock.patch("python_tool_competition_2024.cli.helpers.Console") as console_mock:
-        console_mock.side_effect = partial(Console, width=_CLI_COLUMNS)
+        console_mock.side_effect = _create_console
         mock.seal(console_mock)
         yield CliRunner(mix_stderr=False)
 
 
 def renderable_to_strs(renderable: RenderableType) -> tuple[str, ...]:
-    console = Console(width=_CLI_COLUMNS)
+    console = _create_console()
     with console.capture() as capture:
         console.print(renderable)
     return tuple(capture.get().splitlines())

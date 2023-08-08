@@ -111,3 +111,12 @@ class TargetNotFoundInCoveragesError(PythonToolCompetitionError):
 
     def __init__(self, coverage_xml: Path, source: Path) -> None:
         super().__init__(f"Could not find {source} in {coverage_xml}")
+
+
+class PyprojectTomlNotCreatedError(PythonToolCompetitionError):
+    """Raised if the condition coverage is invalid."""
+
+    def __init__(self, pyproject_path: Path) -> None:
+        super().__init__(
+            f"Poetry init was not able to create the file {pyproject_path}"
+        )
