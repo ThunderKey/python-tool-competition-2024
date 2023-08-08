@@ -158,7 +158,7 @@ def _create_project(config: _InitConfig, console: Console) -> None:
     _copy_python_files(_TARGETS_DIR, config.project_dir / "targets")
 
     console.print("Installing Dependencies...")
-    _run_poetry(config, console, "install", "--no-interaction")
+    _run_poetry(config, console, "install")
 
 
 def _copy_python_files(source_path: Path, target_path: Path) -> None:

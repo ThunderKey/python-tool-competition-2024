@@ -139,7 +139,7 @@ def test_init_with_confirm(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
             f"└── Working Dir: {project_dir}",
             "Installing Dependencies...",
             "Running Command:",
-            "├── Command: poetry install --no-interaction",
+            "├── Command: poetry install",
             f"└── Working Dir: {project_dir}",
         ),
         (),
@@ -161,7 +161,7 @@ def test_init_with_confirm(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
             ),
             run_kwargs,
         ),
-        ((("poetry", "install", "--no-interaction"),), run_kwargs),
+        ((("poetry", "install"),), run_kwargs),
     )
 
     assert _list_dir(parent_dir) == {
@@ -262,7 +262,7 @@ def test_init_with_tmp_file(tmp_path: Path) -> None:
             ),
             run_kwargs,
         ),
-        ((("poetry", "install", "--no-interaction"),), run_kwargs),
+        ((("poetry", "install"),), run_kwargs),
     )
 
     assert _list_dir(parent_dir) == {
