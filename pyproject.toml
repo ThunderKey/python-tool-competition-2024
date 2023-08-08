@@ -162,8 +162,6 @@ external = [
     "SLF001",
 ]
 "targets/**/*.py" = [
-    # ignore missing docstrings
-    "D1",
     # ignore missing __init__.py
     "INP001",
 ]
