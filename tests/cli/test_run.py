@@ -427,6 +427,8 @@ def test_run_with_help(help_arg: str) -> None:
         "",
         "  Run the tool competition with the specified generator.",
         "",
+        "  GENERATOR_NAME is the name of the generator to use (detected: dummy)",
+        "",
         "Options:",
         "  -v, --verbose            Enables verbose mode",
         "  --targets-dir DIRECTORY  The directory containing all targets.  [default:",

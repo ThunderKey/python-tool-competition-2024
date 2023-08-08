@@ -6,7 +6,7 @@ import click
 
 from ..calculation import calculate_results
 from ..config import get_config
-from ..generator_plugins import to_test_generator_plugin_name
+from ..generator_plugins import plugin_names, to_test_generator_plugin_name
 from ..reporters import report
 from ..target_finder import find_targets
 from .helpers import create_console
@@ -51,3 +51,17 @@ def run(
         targets = find_targets(config)
         results = calculate_results(targets, config)
         report(results, console, config)
+
+
+def _extend_help(command: click.Command, extend_with: str) -> None:
+    command.help += extend_with  # type: ignore[operator]  # noqa: V101
+
+
+_extend_help(
+    run,
+    f"""
+
+GENERATOR_NAME is the name of the generator to use
+(detected: {", ".join(plugin_names())})
+""",
+)
