@@ -21,6 +21,9 @@ from ..errors import PyprojectTomlNotCreatedError
 from ..generator_plugins import ENTRY_POINT_GROUP_NAME
 from .helpers import create_console
 
+_ROOT_DIR = Path(__file__).parent.parent.parent
+_TARGETS_DIR = _ROOT_DIR / "targets"
+
 
 @click.command
 @click.option("-v", "--verbose", is_flag=True, help="Enables verbose mode")
@@ -152,8 +155,23 @@ def _create_project(config: _InitConfig, console: Console) -> None:
     (source_dir / f"{config.sub_module_name}.py").write_text(_class_content(config))
     _create_pyproject_toml(config, console)
 
+    _copy_python_files(_TARGETS_DIR, config.project_dir / "targets")
+
     console.print("Installing Dependencies...")
     _run_poetry(config, console, "install", "--no-interaction")
+
+
+def _copy_python_files(source_path: Path, target_path: Path) -> None:
+    files = tuple(
+        (path, target_path / path.relative_to(source_path))
+        for path in source_path.glob("**/*.py")
+    )
+    # sorted to create parents first; set to only create them once
+    for parent in sorted({target.parent for _, target in files}):
+        parent.mkdir()
+
+    for source, target in files:
+        shutil.copy(source, target)
 
 
 def _class_content(names: _Names) -> str:

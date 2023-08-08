@@ -34,6 +34,17 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 """
 
+_ROOT_DIR = Path(__file__).parent.parent.parent
+_TARGETS_DIR = _ROOT_DIR / "targets"
+_TARGET_FILES = {
+    "example1.py": (_TARGETS_DIR / "example1.py").read_text(),
+    "example2.py": (_TARGETS_DIR / "example2.py").read_text(),
+    "sub_example": {
+        "__init__.py": (_TARGETS_DIR / "sub_example" / "__init__.py").read_text(),
+        "example3.py": (_TARGETS_DIR / "sub_example" / "example3.py").read_text(),
+    },
+}
+
 
 @pytest.mark.parametrize("help_arg", ("-h", "--help"))
 def test_init_with_help(help_arg: str) -> None:
@@ -194,6 +205,7 @@ class SomeGenerator(TestGenerator):
         raise NotImplementedError("Implement the test generator")
 """,
             },
+            "targets": _TARGET_FILES,
         }
     }
 
@@ -295,6 +307,7 @@ class Testgen(TestGenerator):
         raise NotImplementedError("Implement the test generator")
 """,
             },
+            "targets": _TARGET_FILES,
         },
     }
 
