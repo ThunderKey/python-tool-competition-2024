@@ -101,6 +101,7 @@ exclude_lines = [
 ]
 fail_under = 100
 sort = 'Cover'
+show_missing = true
 
 [tool.vulture]
 paths = ['python_tool_competition_2024']
