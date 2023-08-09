@@ -48,7 +48,6 @@ class _Names:
     readable_name: str
     project_name: str
     module_name: str
-    sub_module_name: str
     fqdn_module_name: str
     class_name: str
     fqdn_class_name: str
@@ -73,14 +72,12 @@ def _names_from_readable_name(readable_name: str) -> _Names:
     lower_name_parts = [part.lower() for part in name_parts]
     project_name = f"python-tool-competition-2024-{'-'.join(lower_name_parts)}"
     module_name = f"python_tool_competition_2024_{'_'.join(lower_name_parts)}"
-    module = "generator"
-    fqdn_module_name = f"{module_name}.{module}"
+    fqdn_module_name = f"{module_name}.generator"
     class_name = "".join(part.capitalize() for part in name_parts) + "TestGenerator"
     return _Names(
         readable_name=readable_name,
         project_name=project_name,
         module_name=module_name,
-        sub_module_name=module,
         fqdn_module_name=fqdn_module_name,
         class_name=class_name,
         fqdn_class_name=f"{fqdn_module_name}.{class_name}",
@@ -155,7 +152,7 @@ def _create_project(config: _InitConfig, console: Console) -> None:
     source_dir = config.project_dir / config.module_name
     source_dir.mkdir()
     (source_dir / "__init__.py").touch()
-    (source_dir / f"{config.sub_module_name}.py").write_text(_class_content(config))
+    (source_dir / "generator.py").write_text(_class_content(config))
     _create_pyproject_toml(config, console)
 
     _copy_python_files(_TARGETS_DIR, config.project_dir / "targets")

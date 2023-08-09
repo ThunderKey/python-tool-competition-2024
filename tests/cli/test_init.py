@@ -68,7 +68,6 @@ def test_init_with_help(help_arg: str) -> None:
                 readable_name="My Test Generator",
                 project_name="python-tool-competition-2024-my-test-generator",
                 module_name="python_tool_competition_2024_my_test_generator",
-                sub_module_name="generator",
                 fqdn_module_name="python_tool_competition_2024_my_test_generator.generator",
                 class_name="MyTestGeneratorTestGenerator",
                 fqdn_class_name="python_tool_competition_2024_my_test_generator.generator.MyTestGeneratorTestGenerator",
@@ -81,7 +80,6 @@ def test_init_with_help(help_arg: str) -> None:
                 readable_name="some other",
                 project_name="python-tool-competition-2024-some-other",
                 module_name="python_tool_competition_2024_some_other",
-                sub_module_name="generator",
                 fqdn_module_name="python_tool_competition_2024_some_other.generator",
                 class_name="SomeOtherTestGenerator",
                 fqdn_class_name="python_tool_competition_2024_some_other.generator.SomeOtherTestGenerator",
@@ -94,7 +92,6 @@ def test_init_with_help(help_arg: str) -> None:
                 readable_name="MY-complex/NAME_plus25",
                 project_name="python-tool-competition-2024-my-complex-name-plus25",
                 module_name="python_tool_competition_2024_my_complex_name_plus25",
-                sub_module_name="generator",
                 fqdn_module_name="python_tool_competition_2024_my_complex_name_plus25.generator",
                 class_name="MyComplexNamePlus25TestGenerator",
                 fqdn_class_name="python_tool_competition_2024_my_complex_name_plus25.generator.MyComplexNamePlus25TestGenerator",
@@ -578,8 +575,7 @@ def _confirmation_table_lines(
     table = Table(show_header=False)
     table.add_row("Readable Name", names.readable_name)
     table.add_row(
-        "Fully Qualified Class",
-        f"{names.module_name}.{names.sub_module_name}.{names.class_name}",
+        "Fully Qualified Class", f"{names.module_name}.generator.{names.class_name}"
     )
     table.add_row("Generator Name", names.generator_name)
     table.add_row("Target Dir", str(parent_dir / names.project_name))
