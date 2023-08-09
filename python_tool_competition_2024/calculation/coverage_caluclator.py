@@ -10,13 +10,9 @@ from xml.etree.ElementTree import Element  # nosec B405
 
 from defusedxml import ElementTree
 
-from python_tool_competition_2024.errors import (
-    ConditionCoverageError,
-    TargetNotFoundInCoveragesError,
-)
-
 from ..calculation.cli_runner import run_command
 from ..config import Config
+from ..errors import ConditionCoverageError, TargetNotFoundInCoveragesError
 from ..results import RatioResult
 from ..target_finder import Target
 
