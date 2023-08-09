@@ -8,8 +8,7 @@ from python_tool_competition_2024.generation_results import (
 )
 from python_tool_competition_2024.generators import DummyTestGenerator, TestGenerator
 
-_PROJECT_ROOT = Path(__file__).parent.parent
-_REAL_TARGETS_DIR = _PROJECT_ROOT / "targets"
+from .helpers import TARGETS_DIR
 
 
 class FailureTestGenerator(TestGenerator):
@@ -20,16 +19,16 @@ class FailureTestGenerator(TestGenerator):
 
 
 _REAL_TESTS = {
-    _REAL_TARGETS_DIR
+    TARGETS_DIR
     / "example1.py": """
 import example1
 
 def test_some_method() -> None:
     assert example1.some_method(5) == "25"
 """,
-    _REAL_TARGETS_DIR / "example2.py": None,
-    _REAL_TARGETS_DIR / "sub_example" / "__init__.py": None,
-    _REAL_TARGETS_DIR
+    TARGETS_DIR / "example2.py": None,
+    TARGETS_DIR / "sub_example" / "__init__.py": None,
+    TARGETS_DIR
     / "sub_example"
     / "example3.py": """
 from sub_example.example3 import example

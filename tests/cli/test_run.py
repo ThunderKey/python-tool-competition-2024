@@ -7,10 +7,9 @@ from pathlib import Path
 import pytest
 
 from ..example_generators import LengthTestGenerator, get_static_body
+from ..helpers import TARGETS_DIR
 from .helpers import ENTRY_POINT_GROUP, cli_title, run_cli, run_successful_cli
 
-_PROJECT_ROOT = Path(__file__).parent.parent.parent
-_REAL_TARGETS_DIR = _PROJECT_ROOT / "targets"
 _TARGETS_URL = (
     "https://github.com/ThunderKey/python-tool-competition-2024/tree/main/targets"
 )
@@ -18,7 +17,7 @@ _TARGETS_URL = (
 
 def test_run_in_wd(wd_tmp_path: Path) -> None:
     targets_dir = wd_tmp_path / "targets"
-    shutil.copytree(_REAL_TARGETS_DIR, targets_dir)
+    shutil.copytree(TARGETS_DIR, targets_dir)
     assert run_successful_cli(("run", "length")) == (
         cli_title("Using generator length"),
         *"""\
@@ -78,7 +77,7 @@ def test_run_in_wd(wd_tmp_path: Path) -> None:
 
 def test_run_in_wd_with_all_success(wd_tmp_path: Path) -> None:
     targets_dir = wd_tmp_path / "targets"
-    shutil.copytree(_REAL_TARGETS_DIR, targets_dir)
+    shutil.copytree(TARGETS_DIR, targets_dir)
     assert run_successful_cli(("run", "dummy")) == (
         cli_title("Using generator dummy"),
         *"""\
@@ -142,7 +141,7 @@ def test_run_in_wd_with_all_success(wd_tmp_path: Path) -> None:
 
 def test_run_in_wd_with_all_failures(wd_tmp_path: Path) -> None:
     targets_dir = wd_tmp_path / "targets"
-    shutil.copytree(_REAL_TARGETS_DIR, targets_dir)
+    shutil.copytree(TARGETS_DIR, targets_dir)
     assert run_successful_cli(("run", "failures")) == (
         cli_title("Using generator failures"),
         *"""\
@@ -187,9 +186,7 @@ def test_run_in_wd_with_all_failures(wd_tmp_path: Path) -> None:
 
 
 def test_run_with_different_targets(wd_tmp_path: Path) -> None:
-    assert run_successful_cli(
-        ("run", "length", "--targets-dir", str(_REAL_TARGETS_DIR))
-    ) == (
+    assert run_successful_cli(("run", "length", "--targets-dir", str(TARGETS_DIR))) == (
         cli_title("Using generator length"),
         *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
@@ -232,8 +229,8 @@ def test_run_with_different_targets(wd_tmp_path: Path) -> None:
         "total,0.5,4,2,0.0,18,0,0.0,4,0,0.0,4000,0",
     )
     targets = (
-        _REAL_TARGETS_DIR / "sub_example" / "example3.py",
-        _REAL_TARGETS_DIR / "sub_example" / "__init__.py",
+        TARGETS_DIR / "sub_example" / "example3.py",
+        TARGETS_DIR / "sub_example" / "__init__.py",
     )
     assert {f: f.read_text() for f in test_files} == {
         test: _dummy_body(target)
@@ -242,9 +239,7 @@ def test_run_with_different_targets(wd_tmp_path: Path) -> None:
 
 
 def test_run_with_real_tests(wd_tmp_path: Path) -> None:
-    assert run_successful_cli(
-        ("run", "static", "--targets-dir", str(_REAL_TARGETS_DIR))
-    ) == (
+    assert run_successful_cli(("run", "static", "--targets-dir", str(TARGETS_DIR))) == (
         cli_title("Using generator static"),
         *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
@@ -286,10 +281,7 @@ def test_run_with_real_tests(wd_tmp_path: Path) -> None:
         "sub_example/example3.py,1.0,1,1,1.0,3,3,0.0,0,0,0.0,1000,0",
         "total,0.5,4,2,0.3888888888888889,18,7,0.16666666666666666,6,1,0.0,4000,0",
     )
-    targets = (
-        _REAL_TARGETS_DIR / "sub_example" / "example3.py",
-        _REAL_TARGETS_DIR / "example1.py",
-    )
+    targets = (TARGETS_DIR / "sub_example" / "example3.py", TARGETS_DIR / "example1.py")
     assert {f: f.read_text() for f in test_files} == {
         test: get_static_body(target)
         for test, target in zip(test_files, targets, strict=True)
@@ -298,7 +290,7 @@ def test_run_with_real_tests(wd_tmp_path: Path) -> None:
 
 def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
     assert run_successful_cli(
-        ("run", "dummy", "--targets-dir", str(_REAL_TARGETS_DIR)), generators=None
+        ("run", "dummy", "--targets-dir", str(TARGETS_DIR)), generators=None
     ) == (
         cli_title("Using generator dummy"),
         *"""\
@@ -344,10 +336,10 @@ def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
         "total,1.0,4,4,0.0,18,0,0.0,4,0,0.0,4000,0",
     )
     targets = (
-        _REAL_TARGETS_DIR / "sub_example" / "example3.py",
-        _REAL_TARGETS_DIR / "example1.py",
-        _REAL_TARGETS_DIR / "example2.py",
-        _REAL_TARGETS_DIR / "sub_example" / "__init__.py",
+        TARGETS_DIR / "sub_example" / "example3.py",
+        TARGETS_DIR / "example1.py",
+        TARGETS_DIR / "example2.py",
+        TARGETS_DIR / "sub_example" / "__init__.py",
     )
     assert {f: tuple(f.read_text().splitlines()) for f in test_files} == {
         test: (
@@ -367,7 +359,7 @@ def test_run_with_different_targets_and_results(wd_tmp_path: Path) -> None:
             "run",
             "length",
             "--targets-dir",
-            str(_REAL_TARGETS_DIR),
+            str(TARGETS_DIR),
             "--results-dir",
             "other_res",
         )
@@ -414,8 +406,8 @@ def test_run_with_different_targets_and_results(wd_tmp_path: Path) -> None:
         "total,0.5,4,2,0.0,18,0,0.0,4,0,0.0,4000,0",
     )
     targets = (
-        _REAL_TARGETS_DIR / "sub_example" / "example3.py",
-        _REAL_TARGETS_DIR / "sub_example" / "__init__.py",
+        TARGETS_DIR / "sub_example" / "example3.py",
+        TARGETS_DIR / "sub_example" / "__init__.py",
     )
     assert {f: f.read_text() for f in test_files} == {
         test: _dummy_body(target)
