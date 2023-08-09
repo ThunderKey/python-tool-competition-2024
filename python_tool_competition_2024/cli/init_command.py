@@ -47,6 +47,7 @@ def init(ctx: click.Context, *, verbose: bool) -> None:
 class _Names:
     readable_name: str
     project_name: str
+    module_name: str
     sub_module_name: str
     fqdn_module_name: str
     class_name: str
@@ -70,13 +71,15 @@ _VALID_NAME_REGEX = re.compile(rf"[{_VALID_NAME_CHARACTER_RANGES}]")
 def _names_from_readable_name(readable_name: str) -> _Names:
     name_parts = _NAME_SPLIT_REGEX.split(readable_name)
     lower_name_parts = [part.lower() for part in name_parts]
-    project_name = f"python_tool_competition_2024_{'_'.join(lower_name_parts)}"
+    project_name = f"python-tool-competition-2024-{'-'.join(lower_name_parts)}"
+    module_name = f"python_tool_competition_2024_{'_'.join(lower_name_parts)}"
     module = "generator"
-    fqdn_module_name = f"{project_name}.{module}"
+    fqdn_module_name = f"{module_name}.{module}"
     class_name = "".join(part.capitalize() for part in name_parts)
     return _Names(
         readable_name=readable_name,
         project_name=project_name,
+        module_name=module_name,
         sub_module_name=module,
         fqdn_module_name=fqdn_module_name,
         class_name=class_name,
@@ -149,7 +152,7 @@ def _create_project(config: _InitConfig, console: Console) -> None:
         shutil.rmtree(config.project_dir)
     config.project_dir.mkdir()
     (config.project_dir / "README.md").touch()
-    source_dir = config.project_dir / config.project_name
+    source_dir = config.project_dir / config.module_name
     source_dir.mkdir()
     (source_dir / "__init__.py").touch()
     (source_dir / f"{config.sub_module_name}.py").write_text(_class_content(config))

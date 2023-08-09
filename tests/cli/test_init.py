@@ -66,7 +66,8 @@ def test_init_with_help(help_arg: str) -> None:
             "My Test Generator",
             _Names(
                 readable_name="My Test Generator",
-                project_name="python_tool_competition_2024_my_test_generator",
+                project_name="python-tool-competition-2024-my-test-generator",
+                module_name="python_tool_competition_2024_my_test_generator",
                 sub_module_name="generator",
                 fqdn_module_name="python_tool_competition_2024_my_test_generator.generator",
                 class_name="MyTestGenerator",
@@ -78,7 +79,8 @@ def test_init_with_help(help_arg: str) -> None:
             "some other",
             _Names(
                 readable_name="some other",
-                project_name="python_tool_competition_2024_some_other",
+                project_name="python-tool-competition-2024-some-other",
+                module_name="python_tool_competition_2024_some_other",
                 sub_module_name="generator",
                 fqdn_module_name="python_tool_competition_2024_some_other.generator",
                 class_name="SomeOther",
@@ -90,7 +92,8 @@ def test_init_with_help(help_arg: str) -> None:
             "MY-complex/NAME_plus25",
             _Names(
                 readable_name="MY-complex/NAME_plus25",
-                project_name="python_tool_competition_2024_my_complex_name_plus25",
+                project_name="python-tool-competition-2024-my-complex-name-plus25",
+                module_name="python_tool_competition_2024_my_complex_name_plus25",
                 sub_module_name="generator",
                 fqdn_module_name="python_tool_competition_2024_my_complex_name_plus25.generator",
                 class_name="MyComplexNamePlus25",
@@ -107,7 +110,7 @@ def test_names_from_readable_name(readable_name: str, expected_names: _Names) ->
 def test_init_with_confirm(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.chdir(tmp_path)
     parent_dir = tmp_path
-    project_dir = parent_dir / "python_tool_competition_2024_some_generator"
+    project_dir = parent_dir / "python-tool-competition-2024-some-generator"
     table_strs = _confirmation_table_lines(
         readable_name="Some Generator",
         parent_dir=parent_dir,
@@ -131,7 +134,7 @@ def test_init_with_confirm(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
             "Creating File Structure...",
             "Running Command:",
             "├── Command: poetry init "
-            "--name=python_tool_competition_2024_some_generator "
+            "--name=python-tool-competition-2024-some-generator "
             "--description=Python Tool Competition 2024 implementation using Some "
             "Generator --author=Some Name <some@test.com> ",
             "│   "
@@ -144,7 +147,7 @@ def test_init_with_confirm(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
         ),
         (),
     )
-    project_dir = parent_dir / "python_tool_competition_2024_some_generator"
+    project_dir = parent_dir / "python-tool-competition-2024-some-generator"
     run_kwargs = {"cwd": project_dir, "env": mock.ANY, "check": True}
     assert _get_simple_args(subprocess_mock.run) == (
         (
@@ -152,7 +155,7 @@ def test_init_with_confirm(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
                 (
                     "poetry",
                     "init",
-                    "--name=python_tool_competition_2024_some_generator",
+                    "--name=python-tool-competition-2024-some-generator",
                     "--description=Python Tool Competition 2024 implementation "
                     "using Some Generator",
                     "--author=Some Name <some@test.com>",
@@ -165,7 +168,7 @@ def test_init_with_confirm(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
     )
 
     assert _list_dir(parent_dir) == {
-        "python_tool_competition_2024_some_generator": {
+        "python-tool-competition-2024-some-generator": {
             "README.md": "",
             "pyproject.toml": _EXAMPLE_PYPROJECT
             + """\
@@ -212,7 +215,7 @@ class SomeGenerator(TestGenerator):
 
 def test_init_with_tmp_file(tmp_path: Path) -> None:
     parent_dir = tmp_path
-    project_dir = tmp_path / "python_tool_competition_2024_testgen"
+    project_dir = tmp_path / "python-tool-competition-2024-testgen"
     project_dir.mkdir()
     (project_dir / "inner_existing.py").touch()
     (tmp_path / "outer_existing.py").touch()
@@ -243,7 +246,7 @@ def test_init_with_tmp_file(tmp_path: Path) -> None:
         (),
     )
     run_kwargs = {
-        "cwd": parent_dir / "python_tool_competition_2024_testgen",
+        "cwd": parent_dir / "python-tool-competition-2024-testgen",
         "env": mock.ANY,
         "check": True,
     }
@@ -253,7 +256,7 @@ def test_init_with_tmp_file(tmp_path: Path) -> None:
                 (
                     "poetry",
                     "init",
-                    "--name=python_tool_competition_2024_testgen",
+                    "--name=python-tool-competition-2024-testgen",
                     "--description=Python Tool Competition 2024 implementation "
                     "using TestGen",
                     "--author=Other Name <other@test.com>",
@@ -267,7 +270,7 @@ def test_init_with_tmp_file(tmp_path: Path) -> None:
 
     assert _list_dir(parent_dir) == {
         "outer_existing.py": "",
-        "python_tool_competition_2024_testgen": {
+        "python-tool-competition-2024-testgen": {
             "README.md": "",
             "pyproject.toml": _EXAMPLE_PYPROJECT
             + """\
@@ -314,7 +317,7 @@ class Testgen(TestGenerator):
 
 def test_init_without_overwriting_exsiting(tmp_path: Path) -> None:
     parent_dir = tmp_path
-    project_dir = tmp_path / "python_tool_competition_2024_some_generator"
+    project_dir = tmp_path / "python-tool-competition-2024-some-generator"
     project_dir.mkdir()
     (project_dir / "inner_existing.py").touch()
     (tmp_path / "outer_existing.py").touch()
@@ -347,7 +350,7 @@ def test_init_without_overwriting_exsiting(tmp_path: Path) -> None:
 
     assert _list_dir(parent_dir) == {
         "outer_existing.py": "",
-        "python_tool_competition_2024_some_generator": {"inner_existing.py": ""},
+        "python-tool-competition-2024-some-generator": {"inner_existing.py": ""},
     }
 
 
@@ -457,7 +460,7 @@ def test_init_with_missing_target_dir(tmp_path: Path) -> None:
 
 def test_init_with_failing_init(tmp_path: Path) -> None:
     parent_dir = tmp_path
-    project_dir = parent_dir / "python_tool_competition_2024_some_generator"
+    project_dir = parent_dir / "python-tool-competition-2024-some-generator"
     pyproject_path = project_dir / "pyproject.toml"
     table_strs = _confirmation_table_lines(
         readable_name="Some Generator",
@@ -492,7 +495,7 @@ def test_init_with_failing_init(tmp_path: Path) -> None:
                 (
                     "poetry",
                     "init",
-                    "--name=python_tool_competition_2024_some_generator",
+                    "--name=python-tool-competition-2024-some-generator",
                     "--description=Python Tool Competition 2024 implementation "
                     "using Some Generator",
                     "--author=Some Name <some@test.com>",
@@ -576,7 +579,7 @@ def _confirmation_table_lines(
     table.add_row("Readable Name", names.readable_name)
     table.add_row(
         "Fully Qualified Class",
-        f"{names.project_name}.{names.sub_module_name}.{names.class_name}",
+        f"{names.module_name}.{names.sub_module_name}.{names.class_name}",
     )
     table.add_row("Generator Name", names.generator_name)
     table.add_row("Target Dir", str(parent_dir / names.project_name))
