@@ -123,7 +123,9 @@ def _run_with_coverage_xml(
     with mock.patch(
         "python_tool_competition_2024.calculation.cli_runner.subprocess.run"
     ) as run_mock:
-        config = get_test_config(show_commands=False, root_dir=tmp_path)
+        config = get_test_config(
+            show_commands=False, show_failures=False, root_dir=tmp_path
+        )
         _write_coverage_xml_in_mock(run_mock, xml_creator(config))
         mock.seal(run_mock)
         config.targets_dir.mkdir()

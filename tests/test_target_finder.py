@@ -18,7 +18,12 @@ def test_find_targets(generator_name: GeneratorName) -> None:
     results = project_root / "results"
     tests = results / generator_name / "generated_tests"
     config = get_config(
-        generator_name, targets, results, get_console(), show_commands=False
+        generator_name,
+        targets,
+        results,
+        get_console(),
+        show_commands=False,
+        show_failures=False,
     )
     assert find_targets(config) == (
         Target(

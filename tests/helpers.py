@@ -16,7 +16,9 @@ def sealed_mock(**kwargs: object) -> mock.MagicMock:
     return magic_mock
 
 
-def get_test_config(*, show_commands: bool, root_dir: Path | None = None) -> Config:
+def get_test_config(
+    *, show_commands: bool, show_failures: bool, root_dir: Path | None = None
+) -> Config:
     if root_dir is None:
         root_dir = Path.cwd() / "inexisting"
     targets = root_dir / "targets"
@@ -28,4 +30,5 @@ def get_test_config(*, show_commands: bool, root_dir: Path | None = None) -> Con
         results,
         console,
         show_commands=show_commands,
+        show_failures=show_failures,
     )

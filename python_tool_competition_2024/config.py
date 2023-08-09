@@ -24,19 +24,21 @@ class Config:
     default_targets_url: ParseResult
     console: Console
     show_commands: bool
+    show_failures: bool
 
     def __post_init__(self) -> None:
         """Ensure that the data is correct."""
         ensure_absolute(self.targets_dir, self.tests_dir, self.csv_file)
 
 
-def get_config(
+def get_config(  # noqa: PLR0913
     generator_name: GeneratorName,
     targets_dir: Path,
     results_dir: Path,
     console: Console,
     *,
     show_commands: bool,
+    show_failures: bool,
 ) -> Config:
     """Generate the config from the specific generator name."""
     results_dir /= generator_name
@@ -51,4 +53,5 @@ def get_config(
         ),
         console=console,
         show_commands=show_commands,
+        show_failures=show_failures,
     )

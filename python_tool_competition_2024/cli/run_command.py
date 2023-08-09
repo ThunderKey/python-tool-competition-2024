@@ -12,6 +12,7 @@ from ..target_finder import find_targets
 from .helpers import create_console
 
 _MIN_VERBOSITY_SHOW_COMMANDS = 2
+_MIN_VERBOSITY_SHOW_FAILURES = 1
 _MIN_VERBOSITY_SHOW_FULL_ERRORS = 1
 
 
@@ -53,6 +54,7 @@ def run(
             results_dir.absolute(),
             console,
             show_commands=verbose >= _MIN_VERBOSITY_SHOW_COMMANDS,
+            show_failures=verbose >= _MIN_VERBOSITY_SHOW_FAILURES,
         )
         console.rule(f"Using generator {config.generator_name}")
         targets = find_targets(config)

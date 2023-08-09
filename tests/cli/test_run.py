@@ -20,7 +20,11 @@ def test_run_in_wd(wd_tmp_path: Path) -> None:
     shutil.copytree(TARGETS_DIR, targets_dir)
     assert run_successful_cli(("run", "length", "-v")) == (
         cli_title("Using generator length"),
-        *"""\
+        *f"""\
+Target {targets_dir / "example1.py"} failed with FailureReason.UNEXPECTED_ERROR
+- Not implemented...
+Target {targets_dir / "example2.py"} failed with FailureReason.UNEXPECTED_ERROR
+- Not implemented...
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
