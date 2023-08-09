@@ -11,10 +11,15 @@ from ..reporters import report
 from ..target_finder import find_targets
 from .helpers import create_console
 
+_MIN_VERBOSITY_SHOW_COMMANDS = 2
+_MIN_VERBOSITY_SHOW_FULL_ERRORS = 1
+
 
 @click.command
 @click.argument("generator_name")
-@click.option("-v", "--verbose", is_flag=True, help="Enables verbose mode")
+@click.option(
+    "-v", "--verbose", count=True, help="Enables verbose mode. Can be repeated."
+)
 @click.option(
     "--targets-dir",
     type=click.Path(file_okay=False, writable=True, path_type=Path),
@@ -34,18 +39,20 @@ def run(
     ctx: click.Context,
     *,
     generator_name: str,
-    verbose: bool,
+    verbose: int,
     targets_dir: Path,
     results_dir: Path,
 ) -> None:
     """Run the tool competition with the specified generator."""
-    with create_console(ctx, verbose=verbose) as console:
+    with create_console(
+        ctx, show_full_errors=verbose >= _MIN_VERBOSITY_SHOW_FULL_ERRORS
+    ) as console:
         config = get_config(
             to_test_generator_plugin_name(generator_name),
             targets_dir.absolute(),
             results_dir.absolute(),
             console,
-            verbose=verbose,
+            show_commands=verbose >= _MIN_VERBOSITY_SHOW_COMMANDS,
         )
         console.rule(f"Using generator {config.generator_name}")
         targets = find_targets(config)

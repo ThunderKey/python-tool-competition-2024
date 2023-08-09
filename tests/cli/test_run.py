@@ -18,7 +18,7 @@ _TARGETS_URL = (
 def test_run_in_wd(wd_tmp_path: Path) -> None:
     targets_dir = wd_tmp_path / "targets"
     shutil.copytree(TARGETS_DIR, targets_dir)
-    assert run_successful_cli(("run", "length")) == (
+    assert run_successful_cli(("run", "length", "-v")) == (
         cli_title("Using generator length"),
         *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
@@ -425,7 +425,7 @@ def test_run_with_help(help_arg: str) -> None:
         "  GENERATOR_NAME is the name of the generator to use (detected: dummy)",
         "",
         "Options:",
-        "  -v, --verbose            Enables verbose mode",
+        "  -v, --verbose            Enables verbose mode. Can be repeated.",
         "  --targets-dir DIRECTORY  The directory containing all targets.  [default:",
         "                           targets]",
         "  --results-dir DIRECTORY  The directory to store all results to.  [default:",

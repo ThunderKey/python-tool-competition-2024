@@ -26,7 +26,7 @@ def run_command(config: Config, command: _COMMAND, *args: str) -> None:
     Returns:
         Whether this command was successful or not.
     """
-    if config.verbose:
+    if config.show_commands:
         _run_command(config, command, args)
         return
 

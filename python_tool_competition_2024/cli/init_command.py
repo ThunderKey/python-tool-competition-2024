@@ -26,18 +26,25 @@ _ROOT_DIR = Path(__file__).parent.parent.parent
 _TARGETS_DIR = _ROOT_DIR / "targets"
 _TEMPLATES_DIR = _ROOT_DIR / "templates"
 
+_MIN_VERBOSITY_SHOW_COMMANDS = 1
+_MIN_VERBOSITY_SHOW_FULL_ERRORS = 1
+
 
 @click.command
-@click.option("-v", "--verbose", is_flag=True, help="Enables verbose mode")
+@click.option("-v", "--verbose", count=True, help="Enables verbose mode")
 @click.pass_context
-def init(ctx: click.Context, *, verbose: bool) -> None:
+def init(ctx: click.Context, *, verbose: int) -> None:
     """Interactively initialize a new project for a generator."""
-    with create_console(ctx, verbose=verbose) as console:
+    with create_console(
+        ctx, show_full_errors=verbose >= _MIN_VERBOSITY_SHOW_FULL_ERRORS
+    ) as console:
         console.print(
             "Interactively generate a new project configuration for a generator."
         )
         console.line()
-        config = _gather_init_config(console, verbose=verbose)
+        config = _gather_init_config(
+            console, show_commands=verbose >= _MIN_VERBOSITY_SHOW_COMMANDS
+        )
         console.print(config.to_table())
         if not Confirm.ask("Create the project with these settings?", console=console):
             ctx.exit(1)
@@ -91,7 +98,7 @@ def _names_from_readable_name(readable_name: str) -> _Names:
 class _InitConfig(_Names):
     project_dir: Path
     author: str
-    verbose: bool
+    show_commands: bool
 
     def to_table(self) -> Table:
         table = super().to_table()
@@ -100,7 +107,7 @@ class _InitConfig(_Names):
         return table
 
 
-def _gather_init_config(console: Console, *, verbose: bool) -> _InitConfig:
+def _gather_init_config(console: Console, *, show_commands: bool) -> _InitConfig:
     names = _names_from_readable_name(
         _ask_until_valid(
             console, "What is the [bold]human-readable[/bold] name of the generator?"
@@ -124,7 +131,7 @@ def _gather_init_config(console: Console, *, verbose: bool) -> _InitConfig:
         **dataclasses.asdict(names),
         project_dir=target_dir / names.project_name,
         author=f"{author_name} <{author_email}>",
-        verbose=verbose,
+        show_commands=show_commands,
     )
 
 
@@ -214,7 +221,7 @@ def _run_poetry(
     cwd = config.project_dir
     # reset env to ignore current virtualenv
     env = _env_without_venv()
-    if config.verbose:
+    if config.show_commands:
         tree = Tree("Running Command:")
         tree.add(f"Command: {' '.join(cmd)}")
         tree.add(f"Working Dir: {cwd}")

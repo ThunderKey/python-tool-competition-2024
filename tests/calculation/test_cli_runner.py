@@ -14,9 +14,9 @@ from ..helpers import get_test_config
 _EXAMPLE_LINES = ("Example Line 1", "Example Line 2", "Example Line 3")
 
 
-@pytest.mark.parametrize("verbose", (True, False))
-def test_output(capsys: pytest.CaptureFixture[str], *, verbose: bool) -> None:
-    config = get_test_config(verbose=verbose)
+@pytest.mark.parametrize("show_commands", (True, False))
+def test_output(capsys: pytest.CaptureFixture[str], *, show_commands: bool) -> None:
+    config = get_test_config(show_commands=show_commands)
     with _patch_run(exit_code=0) as run_mock:
         run_command(config, "pytest", "some", "args")
 
@@ -28,7 +28,7 @@ def test_output(capsys: pytest.CaptureFixture[str], *, verbose: bool) -> None:
         cwd=config.targets_dir,
         env=os.environ | {"PYTHONPATH": "."},
     )
-    if verbose:
+    if show_commands:
         assert _read_output(capsys) == (
             ("Running: pytest some args", *_EXAMPLE_LINES),
             (),
@@ -37,11 +37,11 @@ def test_output(capsys: pytest.CaptureFixture[str], *, verbose: bool) -> None:
         assert _read_output(capsys) == ((), ())
 
 
-@pytest.mark.parametrize(("verbose", "exit_code"), ((True, 1), (False, 25)))
+@pytest.mark.parametrize(("show_commands", "exit_code"), ((True, 1), (False, 25)))
 def test_output_with_error(
-    capsys: pytest.CaptureFixture[str], *, verbose: bool, exit_code: int
+    capsys: pytest.CaptureFixture[str], *, show_commands: bool, exit_code: int
 ) -> None:
-    config = get_test_config(verbose=verbose)
+    config = get_test_config(show_commands=show_commands)
     with _patch_run(exit_code=exit_code) as run_mock, pytest.raises(
         CommandFailedError, match=r"\AThe following command failed: pytest some args\Z"
     ):
@@ -61,13 +61,15 @@ def test_output_with_error(
     )
 
 
-@pytest.mark.parametrize("verbose", (True, False))
-def test_invalid_command(capsys: pytest.CaptureFixture[str], *, verbose: bool) -> None:
+@pytest.mark.parametrize("show_commands", (True, False))
+def test_invalid_command(
+    capsys: pytest.CaptureFixture[str], *, show_commands: bool
+) -> None:
     with _patch_run(exit_code=0) as run_mock, pytest.raises(
         ValueError, match=r"\Aunknown not in \('pytest', 'coverage'\)\Z"
     ):
         run_command(
-            get_test_config(verbose=verbose),
+            get_test_config(show_commands=show_commands),
             "unknown",  # type: ignore[arg-type]
             "arg1",
             "arg2",

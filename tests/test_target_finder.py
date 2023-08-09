@@ -17,7 +17,9 @@ def test_find_targets(generator_name: GeneratorName) -> None:
     targets = project_root / "targets"
     results = project_root / "results"
     tests = results / generator_name / "generated_tests"
-    config = get_config(generator_name, targets, results, get_console(), verbose=False)
+    config = get_config(
+        generator_name, targets, results, get_console(), show_commands=False
+    )
     assert find_targets(config) == (
         Target(
             source=targets / "example1.py",

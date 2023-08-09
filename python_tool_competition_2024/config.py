@@ -23,7 +23,7 @@ class Config:
     coverages_dir: Path
     default_targets_url: ParseResult
     console: Console
-    verbose: bool
+    show_commands: bool
 
     def __post_init__(self) -> None:
         """Ensure that the data is correct."""
@@ -36,7 +36,7 @@ def get_config(
     results_dir: Path,
     console: Console,
     *,
-    verbose: bool,
+    show_commands: bool,
 ) -> Config:
     """Generate the config from the specific generator name."""
     results_dir /= generator_name
@@ -50,5 +50,5 @@ def get_config(
             "https://github.com/ThunderKey/python-tool-competition-2024/tree/main/targets"
         ),
         console=console,
-        verbose=verbose,
+        show_commands=show_commands,
     )

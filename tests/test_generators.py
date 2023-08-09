@@ -11,7 +11,7 @@ from .helpers import TARGETS_DIR, get_test_config
 
 
 def test_import_module() -> None:
-    config = get_test_config(verbose=False, root_dir=Path.cwd())
+    config = get_test_config(show_commands=False, root_dir=Path.cwd())
 
     module_names = {}
 

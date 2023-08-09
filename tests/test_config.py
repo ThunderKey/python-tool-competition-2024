@@ -25,6 +25,6 @@ def test_non_absolute_project_path(
     generator_name = cast(GeneratorName, "some_name")
     with pytest.raises(PathNotAbsoluteError) as error_info:
         get_config(
-            generator_name, targets_dir, results_dir, get_console(), verbose=False
+            generator_name, targets_dir, results_dir, get_console(), show_commands=False
         )
     assert error_info.value.message == f"The path must be absolute: {error_dir}"

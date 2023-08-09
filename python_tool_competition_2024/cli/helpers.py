@@ -11,7 +11,7 @@ from ..errors import PythonToolCompetitionError
 
 
 @contextmanager
-def create_console(ctx: click.Context, *, verbose: bool) -> Iterator[Console]:
+def create_console(ctx: click.Context, *, show_full_errors: bool) -> Iterator[Console]:
     """
     Create a rich console and report errors.
 
@@ -23,7 +23,7 @@ def create_console(ctx: click.Context, *, verbose: bool) -> Iterator[Console]:
     try:
         yield console
     except PythonToolCompetitionError as error:
-        if verbose:
+        if show_full_errors:
             console.print_exception()
         else:
             console.print(error.message, style="red")
