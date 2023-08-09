@@ -70,8 +70,8 @@ def test_init_with_help(help_arg: str) -> None:
                 module_name="python_tool_competition_2024_my_test_generator",
                 sub_module_name="generator",
                 fqdn_module_name="python_tool_competition_2024_my_test_generator.generator",
-                class_name="MyTestGenerator",
-                fqdn_class_name="python_tool_competition_2024_my_test_generator.generator.MyTestGenerator",
+                class_name="MyTestGeneratorTestGenerator",
+                fqdn_class_name="python_tool_competition_2024_my_test_generator.generator.MyTestGeneratorTestGenerator",
                 generator_name="my-test-generator",
             ),
         ),
@@ -83,8 +83,8 @@ def test_init_with_help(help_arg: str) -> None:
                 module_name="python_tool_competition_2024_some_other",
                 sub_module_name="generator",
                 fqdn_module_name="python_tool_competition_2024_some_other.generator",
-                class_name="SomeOther",
-                fqdn_class_name="python_tool_competition_2024_some_other.generator.SomeOther",
+                class_name="SomeOtherTestGenerator",
+                fqdn_class_name="python_tool_competition_2024_some_other.generator.SomeOtherTestGenerator",
                 generator_name="some-other",
             ),
         ),
@@ -96,8 +96,8 @@ def test_init_with_help(help_arg: str) -> None:
                 module_name="python_tool_competition_2024_my_complex_name_plus25",
                 sub_module_name="generator",
                 fqdn_module_name="python_tool_competition_2024_my_complex_name_plus25.generator",
-                class_name="MyComplexNamePlus25",
-                fqdn_class_name="python_tool_competition_2024_my_complex_name_plus25.generator.MyComplexNamePlus25",
+                class_name="MyComplexNamePlus25TestGenerator",
+                fqdn_class_name="python_tool_competition_2024_my_complex_name_plus25.generator.MyComplexNamePlus25TestGenerator",
                 generator_name="my-complex-name-plus25",
             ),
         ),
@@ -174,8 +174,8 @@ def test_init_with_confirm(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
             + """\
 
 [tool.poetry.plugins."python_tool_competition_2024.test_generators"]
-some-generator = "python_tool_competition_2024_some_generator.generator:SomeGenerator"
-""",
+some-generator = "python_tool_competition_2024_some_generator.generator:SomeGeneratorTestGenerator"
+""",  # noqa: E501
             "python_tool_competition_2024_some_generator": {
                 "__init__.py": "",
                 "generator.py": """\
@@ -191,7 +191,7 @@ from python_tool_competition_2024.generation_results import (
 from python_tool_competition_2024.generators import TestGenerator
 
 
-class SomeGenerator(TestGenerator):
+class SomeGeneratorTestGenerator(TestGenerator):
     \"""A test generator using Some Generator.\"""
 
     def build_test(self, target_file: Path) -> TestGenerationResult:  # noqa: V107
@@ -276,7 +276,7 @@ def test_init_with_tmp_file(tmp_path: Path) -> None:
             + """\
 
 [tool.poetry.plugins."python_tool_competition_2024.test_generators"]
-testgen = "python_tool_competition_2024_testgen.generator:Testgen"
+testgen = "python_tool_competition_2024_testgen.generator:TestgenTestGenerator"
 """,
             "python_tool_competition_2024_testgen": {
                 "__init__.py": "",
@@ -293,7 +293,7 @@ from python_tool_competition_2024.generation_results import (
 from python_tool_competition_2024.generators import TestGenerator
 
 
-class Testgen(TestGenerator):
+class TestgenTestGenerator(TestGenerator):
     \"""A test generator using TestGen.\"""
 
     def build_test(self, target_file: Path) -> TestGenerationResult:  # noqa: V107

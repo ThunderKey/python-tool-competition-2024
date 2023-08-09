@@ -75,7 +75,7 @@ def _names_from_readable_name(readable_name: str) -> _Names:
     module_name = f"python_tool_competition_2024_{'_'.join(lower_name_parts)}"
     module = "generator"
     fqdn_module_name = f"{module_name}.{module}"
-    class_name = "".join(part.capitalize() for part in name_parts)
+    class_name = "".join(part.capitalize() for part in name_parts) + "TestGenerator"
     return _Names(
         readable_name=readable_name,
         project_name=project_name,
