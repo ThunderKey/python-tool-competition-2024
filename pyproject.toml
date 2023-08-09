@@ -88,6 +88,7 @@ disallow_any_decorated = true
 exclude = [
   '.venv',
   '.tox',
+  'templates',
 ]
 
 [tool.coverage.run]
@@ -133,6 +134,7 @@ ignore = [
     # don't separate typing imports
     "TCH",
 ]
+extend-exclude = ["templates"]
 
 # Avoiding flagging (and removing) `V101` from any `# noqa`
 # directives, despite Ruff's lack of support for `vulture`.
@@ -253,3 +255,4 @@ skips = [
 
 [tool.black]
 skip_magic_trailing_comma = true
+extend_exclude = "templates"

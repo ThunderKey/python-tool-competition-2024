@@ -20,6 +20,7 @@ repos:
       # black with default configs
       - id: black
         args: ["--skip-magic-trailing-comma"]
+        exclude: 'templates/.*'
 
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.32.0

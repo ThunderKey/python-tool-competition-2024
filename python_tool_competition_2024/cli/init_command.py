@@ -8,6 +8,7 @@ import subprocess  # nosec: B404
 import sys
 from collections.abc import Mapping
 from pathlib import Path
+from string import Template
 from typing import Literal
 
 import click
@@ -23,6 +24,7 @@ from .helpers import create_console
 
 _ROOT_DIR = Path(__file__).parent.parent.parent
 _TARGETS_DIR = _ROOT_DIR / "targets"
+_TEMPLATES_DIR = _ROOT_DIR / "templates"
 
 
 @click.command
@@ -148,11 +150,7 @@ def _create_project(config: _InitConfig, console: Console) -> None:
             sys.exit(1)
         shutil.rmtree(config.project_dir)
     config.project_dir.mkdir()
-    (config.project_dir / "README.md").touch()
-    source_dir = config.project_dir / config.module_name
-    source_dir.mkdir()
-    (source_dir / "__init__.py").touch()
-    (source_dir / "generator.py").write_text(_class_content(config))
+    _copy_templates(_TEMPLATES_DIR, config.project_dir, config)
     _create_pyproject_toml(config, console)
 
     _copy_python_files(_TARGETS_DIR, config.project_dir / "targets")
@@ -172,38 +170,6 @@ def _copy_python_files(source_path: Path, target_path: Path) -> None:
 
     for source, target in files:
         shutil.copy(source, target)
-
-
-def _class_content(names: _Names) -> str:
-    return f"""\
-\"""A test generator using {names.readable_name}.\"""
-
-from pathlib import Path
-
-from python_tool_competition_2024.generation_results import (
-    TestGenerationFailure,
-    TestGenerationResult,
-    TestGenerationSuccess,
-)
-from python_tool_competition_2024.generators import FileInfo, TestGenerator
-
-
-class {names.class_name}(TestGenerator):
-    \"""A test generator using {names.readable_name}.\"""
-
-    def build_test(self, target_file_info: FileInfo) -> TestGenerationResult:
-        \"""
-        Genereate a test for the specific target file.
-
-        Args:
-            target_file: The `FileInfo` of the file to generate a test for.
-
-        Returns:
-            Either a `TestGenerationSuccess` if it was successful, or a
-            `TestGenerationFailure` otherwise.
-        \"""
-        raise NotImplementedError("Implement the test generator")
-"""
 
 
 def _create_pyproject_toml(config: _InitConfig, console: Console) -> None:
@@ -267,3 +233,28 @@ def _env_without_venv() -> Mapping[str, str]:
                 if not path.lstrip().startswith(virtual_env)
             )
     return env
+
+
+_VAR_FILE_PREFIX = "__var__"
+
+
+def _copy_templates(template_dir: Path, target_dir: Path, names: _Names) -> None:
+    names_dict = dataclasses.asdict(names)
+    for path in template_dir.iterdir():
+        target_path = target_dir / path.name
+        if target_path.stem.startswith(_VAR_FILE_PREFIX):
+            target_path = target_path.with_stem(
+                names_dict[target_path.stem.removeprefix(_VAR_FILE_PREFIX)]
+            )
+        if path.is_file():
+            _copy_template(path, target_path, names_dict)
+        else:
+            target_path.mkdir()
+            _copy_templates(path, target_path, names)
+
+
+def _copy_template(
+    template_path: Path, target: Path, substitutes: Mapping[str, str]
+) -> None:
+    template = Template(template_path.read_text())
+    target.write_text(template.substitute(substitutes))
