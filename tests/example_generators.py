@@ -6,15 +6,20 @@ from python_tool_competition_2024.generation_results import (
     TestGenerationResult,
     TestGenerationSuccess,
 )
-from python_tool_competition_2024.generators import DummyTestGenerator, TestGenerator
+from python_tool_competition_2024.generators import (
+    DummyTestGenerator,
+    FileInfo,
+    TestGenerator,
+)
 
 from .helpers import TARGETS_DIR
 
 
 class FailureTestGenerator(TestGenerator):
-    def build_test(self, target_file: Path) -> TestGenerationFailure:
+    def build_test(self, target_file_info: FileInfo) -> TestGenerationFailure:
         return TestGenerationFailure(
-            (f"Some error for file {target_file}",), FailureReason.NOTHING_GENERATED
+            (f"Some error for file {target_file_info.absolute_path}",),
+            FailureReason.NOTHING_GENERATED,
         )
 
 
@@ -46,17 +51,19 @@ def get_static_body(target_file: Path) -> str:
 
 
 class StaticTestGenerator(TestGenerator):
-    def build_test(self, target_file: Path) -> TestGenerationResult:
-        body = _REAL_TESTS[target_file]
+    def build_test(self, target_file_info: FileInfo) -> TestGenerationResult:
+        body = _REAL_TESTS[target_file_info.absolute_path]
         if body is None:
             return TestGenerationFailure(
-                (f"Some error for file {target_file}",), FailureReason.NOTHING_GENERATED
+                (f"Some error for file {target_file_info.absolute_path}",),
+                FailureReason.NOTHING_GENERATED,
             )
         return TestGenerationSuccess(body)
 
 
 class LengthTestGenerator(DummyTestGenerator):
-    def build_test(self, target_file: Path) -> TestGenerationResult:
+    def build_test(self, target_file_info: FileInfo) -> TestGenerationResult:
+        target_file = target_file_info.absolute_path
         project_root = next(
             parent for parent in target_file.parents if parent.name == "targets"
         ).parent
@@ -64,4 +71,4 @@ class LengthTestGenerator(DummyTestGenerator):
             return TestGenerationFailure(
                 ("Not implemented...",), FailureReason.UNEXPECTED_ERROR
             )
-        return super().build_test(target_file)
+        return super().build_test(target_file_info)
