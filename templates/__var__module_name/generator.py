@@ -1,7 +1,5 @@
 """A test generator using $readable_name."""
 
-from pathlib import Path
-
 from python_tool_competition_2024.generation_results import (
     TestGenerationFailure,
     TestGenerationResult,

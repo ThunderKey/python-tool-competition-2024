@@ -203,8 +203,6 @@ some-generator = "python_tool_competition_2024_some_generator.generator:SomeGene
                 "generator.py": """\
 \"""A test generator using Some Generator.\"""
 
-from pathlib import Path
-
 from python_tool_competition_2024.generation_results import (
     TestGenerationFailure,
     TestGenerationResult,
@@ -329,8 +327,6 @@ testgen = "python_tool_competition_2024_testgen.generator:TestgenTestGenerator"
                 "__init__.py": "",
                 "generator.py": """\
 \"""A test generator using TestGen.\"""
-
-from pathlib import Path
 
 from python_tool_competition_2024.generation_results import (
     TestGenerationFailure,
