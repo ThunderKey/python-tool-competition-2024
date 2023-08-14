@@ -4,6 +4,9 @@ import pytest
 
 from python_tool_competition_2024.generator_plugins import _load_plugins
 
+# let pytest show the assertions in tests.cli.helpers
+pytest.register_assert_rewrite("tests.cli.helpers")
+
 
 @pytest.fixture(autouse=True)
 def _reset_caches() -> None:
