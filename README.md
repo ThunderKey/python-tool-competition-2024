@@ -1,5 +1,7 @@
 # Python Tool Competition Runner
 
+![GitHub Actions](https://github.com/ThunderKey/python-tool-competition-2024/actions/workflows/check.yaml/badge.svg)
+
 ## Usage
 
 ### Installation
