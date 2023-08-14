@@ -46,10 +46,10 @@ Target {targets_dir / "example2.py"} failed with FailureReason.UNEXPECTED_ERROR
     )
     csv_file = results_dir / "statistics.csv"
     assert _find_files(wd_tmp_path) == (
+        results_dir / ".coverage",
         *_coverages_files(results_dir),
         *test_files,
         csv_file,
-        wd_tmp_path / "targets" / ".coverage",
         wd_tmp_path / "targets" / "example1.py",
         wd_tmp_path / "targets" / "example2.py",
         wd_tmp_path / "targets" / "sub_example" / "__init__.py",
@@ -65,9 +65,9 @@ Target {targets_dir / "example2.py"} failed with FailureReason.UNEXPECTED_ERROR
         ),
         "example1.py,0.0,1,0,0.0,9,0,0.0,4,0,0.0,1000,0",
         "example2.py,0.0,1,0,0.0,2,0,0.0,0,0,0.0,1000,0",
-        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,0,0,0.0,1000,0",
+        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,2,0,0.0,1000,0",
         "sub_example/example3.py,1.0,1,1,0.0,3,0,0.0,0,0,0.0,1000,0",
-        "total,0.5,4,2,0.0,18,0,0.0,4,0,0.0,4000,0",
+        "total,0.5,4,2,0.0,18,0,0.0,6,0,0.0,4000,0",
     )
     targets = (
         targets_dir / "sub_example" / "example3.py",
@@ -108,10 +108,10 @@ def test_run_in_wd_with_all_success(wd_tmp_path: Path) -> None:
     )
     csv_file = results_dir / "statistics.csv"
     assert _find_files(wd_tmp_path) == (
+        results_dir / ".coverage",
         *_coverages_files(results_dir),
         *test_files,
         csv_file,
-        wd_tmp_path / "targets" / ".coverage",
         wd_tmp_path / "targets" / "example1.py",
         wd_tmp_path / "targets" / "example2.py",
         wd_tmp_path / "targets" / "sub_example" / "__init__.py",
@@ -127,9 +127,9 @@ def test_run_in_wd_with_all_success(wd_tmp_path: Path) -> None:
         ),
         "example1.py,1.0,1,1,0.0,9,0,0.0,4,0,0.0,1000,0",
         "example2.py,1.0,1,1,0.0,2,0,0.0,0,0,0.0,1000,0",
-        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,0,0,0.0,1000,0",
+        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,2,0,0.0,1000,0",
         "sub_example/example3.py,1.0,1,1,0.0,3,0,0.0,0,0,0.0,1000,0",
-        "total,1.0,4,4,0.0,18,0,0.0,4,0,0.0,4000,0",
+        "total,1.0,4,4,0.0,18,0,0.0,6,0,0.0,4000,0",
     )
     targets = (
         targets_dir / "sub_example" / "example3.py",
@@ -165,9 +165,9 @@ def test_run_in_wd_with_all_failures(wd_tmp_path: Path) -> None:
     results_dir = wd_tmp_path / "results" / "failures"
     csv_file = results_dir / "statistics.csv"
     assert _find_files(wd_tmp_path) == (
+        results_dir / ".coverage",
         *_coverages_files(results_dir),
         csv_file,
-        wd_tmp_path / "targets" / ".coverage",
         wd_tmp_path / "targets" / "example1.py",
         wd_tmp_path / "targets" / "example2.py",
         wd_tmp_path / "targets" / "sub_example" / "__init__.py",
@@ -214,6 +214,7 @@ def test_run_with_different_targets(wd_tmp_path: Path) -> None:
     )
     csv_file = results_dir / "statistics.csv"
     assert _find_files(wd_tmp_path) == (
+        results_dir / ".coverage",
         *_coverages_files(results_dir),
         *test_files,
         csv_file,
@@ -228,9 +229,9 @@ def test_run_with_different_targets(wd_tmp_path: Path) -> None:
         ),
         "example1.py,0.0,1,0,0.0,9,0,0.0,4,0,0.0,1000,0",
         "example2.py,0.0,1,0,0.0,2,0,0.0,0,0,0.0,1000,0",
-        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,0,0,0.0,1000,0",
+        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,2,0,0.0,1000,0",
         "sub_example/example3.py,1.0,1,1,0.0,3,0,0.0,0,0,0.0,1000,0",
-        "total,0.5,4,2,0.0,18,0,0.0,4,0,0.0,4000,0",
+        "total,0.5,4,2,0.0,18,0,0.0,6,0,0.0,4000,0",
     )
     targets = (
         TARGETS_DIR / "sub_example" / "example3.py",
@@ -267,6 +268,7 @@ def test_run_with_real_tests(wd_tmp_path: Path) -> None:
     )
     csv_file = results_dir / "statistics.csv"
     assert _find_files(wd_tmp_path) == (
+        results_dir / ".coverage",
         *_coverages_files(results_dir),
         *test_files,
         csv_file,
@@ -321,6 +323,7 @@ def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
     )
     csv_file = results_dir / "statistics.csv"
     assert _find_files(wd_tmp_path) == (
+        results_dir / ".coverage",
         *_coverages_files(results_dir),
         *test_files,
         csv_file,
@@ -335,9 +338,9 @@ def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
         ),
         "example1.py,1.0,1,1,0.0,9,0,0.0,4,0,0.0,1000,0",
         "example2.py,1.0,1,1,0.0,2,0,0.0,0,0,0.0,1000,0",
-        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,0,0,0.0,1000,0",
+        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,2,0,0.0,1000,0",
         "sub_example/example3.py,1.0,1,1,0.0,3,0,0.0,0,0,0.0,1000,0",
-        "total,1.0,4,4,0.0,18,0,0.0,4,0,0.0,4000,0",
+        "total,1.0,4,4,0.0,18,0,0.0,6,0,0.0,4000,0",
     )
     targets = (
         TARGETS_DIR / "sub_example" / "example3.py",
@@ -391,6 +394,7 @@ def test_run_with_different_targets_and_results(wd_tmp_path: Path) -> None:
     )
     csv_file = results_dir / "statistics.csv"
     assert _find_files(wd_tmp_path) == (
+        results_dir / ".coverage",
         *_coverages_files(results_dir),
         *test_files,
         csv_file,
@@ -405,9 +409,9 @@ def test_run_with_different_targets_and_results(wd_tmp_path: Path) -> None:
         ),
         "example1.py,0.0,1,0,0.0,9,0,0.0,4,0,0.0,1000,0",
         "example2.py,0.0,1,0,0.0,2,0,0.0,0,0,0.0,1000,0",
-        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,0,0,0.0,1000,0",
+        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,2,0,0.0,1000,0",
         "sub_example/example3.py,1.0,1,1,0.0,3,0,0.0,0,0,0.0,1000,0",
-        "total,0.5,4,2,0.0,18,0,0.0,4,0,0.0,4000,0",
+        "total,0.5,4,2,0.0,18,0,0.0,6,0,0.0,4000,0",
     )
     targets = (
         TARGETS_DIR / "sub_example" / "example3.py",

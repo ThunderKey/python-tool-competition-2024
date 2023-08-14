@@ -11,6 +11,7 @@ from .mutation_caluclator import calculate_mutation
 
 def calculate_results(targets: tuple[Target, ...], config: Config) -> Results:
     """Calculate the results for all targets."""
+    config.results_dir.mkdir(exist_ok=True, parents=True)
     return get_results(_calculate_result(target, config) for target in targets)
 
 

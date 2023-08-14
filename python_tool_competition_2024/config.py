@@ -18,6 +18,7 @@ class Config:
 
     generator_name: GeneratorName
     targets_dir: Path
+    results_dir: Path
     tests_dir: Path
     csv_file: Path
     coverages_dir: Path
@@ -45,6 +46,7 @@ def get_config(  # noqa: PLR0913
     return Config(
         generator_name=generator_name,
         targets_dir=targets_dir,
+        results_dir=results_dir,
         tests_dir=results_dir / "generated_tests",
         csv_file=results_dir / "statistics.csv",
         coverages_dir=results_dir / "coverages",

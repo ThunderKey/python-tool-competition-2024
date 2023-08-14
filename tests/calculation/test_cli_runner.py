@@ -25,8 +25,13 @@ def test_output(capsys: pytest.CaptureFixture[str], *, verbose: bool) -> None:
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         encoding="utf-8",
-        cwd=config.targets_dir,
-        env=os.environ | {"PYTHONPATH": "."},
+        cwd=config.results_dir,
+        env=os.environ
+        | {
+            "PYTHONPATH": os.pathsep.join(
+                (str(config.targets_dir), str(config.results_dir))
+            )
+        },
     )
     if verbose:
         assert _read_output(capsys) == (
@@ -52,8 +57,13 @@ def test_output_with_error(
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         encoding="utf-8",
-        cwd=config.targets_dir,
-        env=os.environ | {"PYTHONPATH": "."},
+        cwd=config.results_dir,
+        env=os.environ
+        | {
+            "PYTHONPATH": os.pathsep.join(
+                (str(config.targets_dir), str(config.results_dir))
+            )
+        },
     )
     assert _read_output(capsys) == (
         ("Running: pytest some args", *_EXAMPLE_LINES, f"Exited with code {exit_code}"),

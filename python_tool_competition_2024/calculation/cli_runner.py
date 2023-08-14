@@ -49,8 +49,13 @@ def _run_command(config: Config, command: _COMMAND, args: tuple[str, ...]) -> No
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         encoding="utf-8",
-        cwd=config.targets_dir,
-        env=os.environ | {"PYTHONPATH": "."},
+        cwd=config.results_dir,
+        env=os.environ
+        | {
+            "PYTHONPATH": os.pathsep.join(
+                (str(config.targets_dir), str(config.results_dir))
+            )
+        },
     )
     config.console.out(result.stdout, highlight=False, end="")
     if result.returncode == 0:

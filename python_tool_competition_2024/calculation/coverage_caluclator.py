@@ -114,12 +114,11 @@ class _BranchCoverageVisitor(_CoverageVisitor):
 
 def _parse_coverage_xml(coverage_xml: Path, target: Target) -> Coverages:
     coverage = ElementTree.parse(coverage_xml).getroot()
-    source = _find_source(coverage)
     line_visitor = _LineCoverageVisitor()
     branch_visitor = _BranchCoverageVisitor()
     file_found = False
     for file in coverage.iter("class"):
-        if source / file.attrib["filename"] != target.source:
+        if Path(file.attrib["filename"]) != target.source:
             continue
         line_visitor.visit_file(file)
         branch_visitor.visit_file(file)
@@ -129,11 +128,3 @@ def _parse_coverage_xml(coverage_xml: Path, target: Target) -> Coverages:
     return Coverages(
         line=line_visitor.get_coverages(), branch=branch_visitor.get_coverages()
     )
-
-
-def _find_source(coverage_tag: Element) -> Path:
-    sources = tuple(coverage_tag.iter("source"))
-    if len(sources) == 1 and sources[0].text is not None:
-        return Path(sources[0].text)
-    msg = f"Expected exactly one source, not {len(sources)}"
-    raise ValueError(msg)

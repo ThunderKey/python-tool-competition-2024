@@ -29,15 +29,13 @@ def test_with_broken_condition_coverage(tmp_path: Path) -> None:
             action()
 
     def xml_creator(config: Config) -> str:
+        file = config.targets_dir / "example.py"
         return f"""<?xml version="1.0" ?>
 <coverage>
-    <sources>
-        <source>{config.targets_dir}</source>
-    </sources>
     <packages>
         <package>
             <classes>
-                <class line-rate="1.0" filename="example.py">
+                <class line-rate="1.0" filename="{file}">
                     <lines>
                         <line hits="1" condition-coverage="unexpected text" />
                     </lines>
@@ -60,48 +58,13 @@ def test_with_missing_file(tmp_path: Path) -> None:
             action()
 
     def xml_creator(config: Config) -> str:
+        file = config.targets_dir / "other_example.py"
         return f"""<?xml version="1.0" ?>
 <coverage>
-    <sources>
-        <source>{config.targets_dir}</source>
-    </sources>
     <packages>
         <package>
             <classes>
-                <class line-rate="1.0" filename="other_example.py">
-                    <lines>
-                        <line hits="1" condition-coverage="unexpected text" />
-                    </lines>
-                </class>
-            </classes>
-        </package>
-    </packages>
-</coverage>
-"""
-
-    _run_with_coverage_xml(tmp_path, xml_creator, test)
-
-
-@pytest.mark.parametrize("amount_of_sources", (0, 2, 3))
-def test_with_wrong_sources(tmp_path: Path, amount_of_sources: int) -> None:
-    def test(action: Callable[[], Coverages]) -> None:
-        with pytest.raises(
-            ValueError,
-            match=rf"\AExpected exactly one source, not {amount_of_sources}\Z",
-        ):
-            action()
-
-    def xml_creator(config: Config) -> str:
-        sources = f"<source>{config.targets_dir}</source>" * amount_of_sources
-        return f"""<?xml version="1.0" ?>
-<coverage>
-    <sources>
-        {sources}
-    </sources>
-    <packages>
-        <package>
-            <classes>
-                <class line-rate="1.0" filename="other_example.py">
+                <class line-rate="1.0" filename="{file}">
                     <lines>
                         <line hits="1" condition-coverage="unexpected text" />
                     </lines>
@@ -159,8 +122,13 @@ def _run_with_coverage_xml(
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             encoding="utf-8",
-            cwd=config.targets_dir,
-            env=os.environ | {"PYTHONPATH": "."},
+            cwd=config.results_dir,
+            env=os.environ
+            | {
+                "PYTHONPATH": os.pathsep.join(
+                    (str(config.targets_dir), str(config.results_dir))
+                )
+            },
         )
 
 
