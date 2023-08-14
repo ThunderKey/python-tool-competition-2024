@@ -19,7 +19,7 @@ class Target:
     """The relative source file of this target."""
 
     source_module: str
-    """The module name of the source file"""
+    """The module name of the source file."""
 
     test: Path
     """The absolute test file to generate for this target."""

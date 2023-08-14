@@ -31,9 +31,7 @@ def calculate_coverages(target: Target, config: Config) -> Coverages:
 
 
 def _generate_coverage_xml(target: Target, config: Config) -> Path:
-    coverage_xml = (
-        config.coverages_dir / f"{'.'.join(target.relative_source.parts)}"
-    ).with_suffix(".xml")
+    coverage_xml = config.coverages_dir / f"{target.source_module}.xml"
     coverage_xml.unlink(missing_ok=True)
     if target.test.exists():
         run_command(

@@ -53,7 +53,7 @@ def test_with_missing_file(tmp_path: Path) -> None:
     def test(action: Callable[[], Coverages]) -> None:
         with pytest.raises(
             TargetNotFoundInCoveragesError,
-            match=r"\ACould not find [\w/\\-]+.py in [\w/\\-]+.xml\Z",
+            match=r"\ACould not find [\w/\\-]+.py in [\w/\\.-]+\.xml\Z",
         ):
             action()
 

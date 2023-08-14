@@ -547,6 +547,6 @@ def _coverages_files(results_dir: Path) -> tuple[Path, ...]:
     return (
         results_dir / "coverages" / "example1.xml",
         results_dir / "coverages" / "example2.xml",
-        results_dir / "coverages" / "sub_example.__init__.xml",
         results_dir / "coverages" / "sub_example.example3.xml",
+        results_dir / "coverages" / "sub_example.xml",
     )
