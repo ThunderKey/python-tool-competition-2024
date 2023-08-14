@@ -1,5 +1,5 @@
 ---
-name: Python package
+name: Python Tool Competition 2024
 on: [push]
 jobs:
   build:
