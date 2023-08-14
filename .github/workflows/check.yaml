@@ -2,7 +2,7 @@
 name: Python Tool Competition 2024
 on: [push]
 jobs:
-  build:
+  tox:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -19,3 +19,11 @@ jobs:
       - name: Run tox
         # Run tox using the version of Python in `PATH`
         run: tox ${{ matrix.tox_args }}
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: --all-files
