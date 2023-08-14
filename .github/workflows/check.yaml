@@ -1,0 +1,21 @@
+---
+name: Python package
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tox_args: ["-e py311", "--skip-env 'py\\d+'"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          cache: "pip"
+      - name: Install tox and any other packages
+        run: pip install tox poetry
+      - name: Run tox
+        # Run tox using the version of Python in `PATH`
+        run: tox ${{ matrix.tox_args }}
