@@ -8,7 +8,7 @@ from ..results import Result, Results, get_result, get_results
 from ..target_finder import Target
 from .coverage_caluclator import calculate_coverages
 from .generation_results_calculator import calculate_generation_result
-from .mutation_calculator import calculate_mutation
+from .mutation_calculator import MutationCalculatorName, calculate_mutation
 
 
 def calculate_results(targets: tuple[Target, ...], config: Config) -> Results:
@@ -22,7 +22,7 @@ def calculate_results(targets: tuple[Target, ...], config: Config) -> Results:
 def _calculate_result(target: Target, config: Config) -> Result:
     generation_result = calculate_generation_result(target, config)
     coverages = calculate_coverages(target, config)
-    mutation = calculate_mutation(target, config, "mutpy")
+    mutation = calculate_mutation(target, config, MutationCalculatorName.MUTPY)
     return get_result(
         target=target,
         generation_result=generation_result,

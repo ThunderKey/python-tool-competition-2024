@@ -12,6 +12,9 @@ from click.testing import CliRunner
 from rich.console import Console, RenderableType
 
 from python_tool_competition_2024.calculation.coverage_caluclator import Coverages
+from python_tool_competition_2024.calculation.mutation_calculator import (
+    MutationCalculatorName,
+)
 from python_tool_competition_2024.cli import main_cli
 from python_tool_competition_2024.generators import DummyTestGenerator, TestGenerator
 from python_tool_competition_2024.results import RatioResult
@@ -169,7 +172,7 @@ def _register_mutation_scores(*, mock_scores: bool) -> Iterator[None]:
         mock.seal(calculate_coverages_mock)
         yield
         assert calculate_mutation_mock.call_args_list == [
-            mock.call(mock.ANY, mock.ANY, "mutpy")
+            mock.call(mock.ANY, mock.ANY, MutationCalculatorName.MUTPY)
         ] * len(_MUTATION_SCORES)
         assert calculate_coverages_mock.call_args_list == [
             mock.call(mock.ANY, mock.ANY)

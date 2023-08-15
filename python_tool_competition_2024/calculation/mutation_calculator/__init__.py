@@ -1,14 +1,22 @@
 """Calculator to gather mutation analysis results."""
 
+import enum
 from collections.abc import Callable, Mapping
-from typing import Literal
 
 from ...config import Config
 from ...results import RatioResult
 from ...target_finder import Target
 from . import cosmic_ray_calculator, mutpy_calculator
 
-MutationCalculatorName = Literal["cosmic-ray", "mutpy"]
+
+class MutationCalculatorName(enum.Enum):
+    """A name of the calculator name to use."""
+
+    COSMIC_RAY = enum.auto()
+    """See: https://cosmic-ray.readthedocs.io/"""
+
+    MUTPY = enum.auto()
+    """See: https://github.com/mutpy/mutpy"""
 
 
 def calculate_mutation(
@@ -21,6 +29,6 @@ def calculate_mutation(
 _MUTATION_CALCULATORS: Mapping[
     MutationCalculatorName, Callable[[Target, Config], RatioResult]
 ] = {
-    "cosmic-ray": cosmic_ray_calculator.calculate_mutation,
-    "mutpy": mutpy_calculator.calculate_mutation,
+    MutationCalculatorName.COSMIC_RAY: cosmic_ray_calculator.calculate_mutation,
+    MutationCalculatorName.MUTPY: mutpy_calculator.calculate_mutation,
 }
