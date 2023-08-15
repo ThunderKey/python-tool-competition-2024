@@ -446,8 +446,9 @@ def test_run_with_help(help_arg: str) -> None:
     )
 
 
+@pytest.mark.usefixtures("wd_tmp_path")
 def test_run_with_unknown_generator_name() -> None:
-    assert run_cli(("run", "missing_generator")) == (
+    assert run_cli(("run", "missing_generator", "--targets-dir", str(TARGETS_DIR))) == (
         1,
         (
             'The generator name "missing_generator" was not found. Available: '
@@ -457,9 +458,11 @@ def test_run_with_unknown_generator_name() -> None:
     )
 
 
+@pytest.mark.usefixtures("wd_tmp_path")
 def test_run_with_invalid_generator_name() -> None:
     assert run_cli(
-        ("run", "my generator"), generators={"my generator": LengthTestGenerator}
+        ("run", "my generator", "--targets-dir", str(TARGETS_DIR)),
+        generators={"my generator": LengthTestGenerator},
     ) == (
         1,
         (
@@ -470,8 +473,11 @@ def test_run_with_invalid_generator_name() -> None:
     )
 
 
+@pytest.mark.usefixtures("wd_tmp_path")
 def test_run_without_any_generator() -> None:
-    assert run_cli(("run", "my_generator"), generators={}) == (
+    assert run_cli(
+        ("run", "my_generator", "--targets-dir", str(TARGETS_DIR)), generators={}
+    ) == (
         1,
         (
             "Could not find any available plugin for test generators. "
@@ -481,9 +487,10 @@ def test_run_without_any_generator() -> None:
     )
 
 
+@pytest.mark.usefixtures("wd_tmp_path")
 def test_run_with_a_generator_with_a_wrong_type() -> None:
     assert run_cli(
-        ("run", "my_generator"),
+        ("run", "my_generator", "--targets-dir", str(TARGETS_DIR)),
         generators={"my_generator": object},  # type: ignore[dict-item]
     ) == (
         1,
