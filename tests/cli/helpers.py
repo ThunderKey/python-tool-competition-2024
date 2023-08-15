@@ -65,17 +65,20 @@ def run_cli(
         generators_called=generators_called,
         mock_scores=mock_scores,
     ) as runner:
-        result = runner.invoke(
+        full_result = runner.invoke(
             main_cli,
             args=args,
             catch_exceptions=False,
             input=os.linesep.join(stdin) if stdin else None,
         )
-    return (
-        result.exit_code,
-        tuple(result.stdout.splitlines()),
-        tuple(result.stderr.splitlines()),
-    )
+        result = (
+            full_result.exit_code,
+            tuple(full_result.stdout.splitlines()),
+            tuple(full_result.stderr.splitlines()),
+        )
+        # debug output if generators not called
+        print(result)  # noqa: T201
+    return result
 
 
 _create_console = partial(Console, width=_CLI_COLUMNS)
