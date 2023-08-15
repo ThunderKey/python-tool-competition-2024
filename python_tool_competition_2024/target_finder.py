@@ -24,6 +24,9 @@ class Target:
     test: Path
     """The absolute test file to generate for this target."""
 
+    test_module: str
+    """The module name of the generated test file."""
+
     def __post_init__(self) -> None:
         """Ensure that the target is absolute."""
         ensure_absolute(self.source, self.test)
@@ -48,6 +51,7 @@ def _find_target(source: Path, config: Config) -> Target:
         relative_source=relative_source,
         source_module=_path_to_module(relative_source),
         test=test,
+        test_module=_path_to_module(test.relative_to(config.results_dir)),
     )
 
 

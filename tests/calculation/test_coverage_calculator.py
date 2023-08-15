@@ -1,4 +1,3 @@
-import os
 import subprocess
 from collections.abc import Callable
 from pathlib import Path
@@ -6,6 +5,7 @@ from unittest import mock
 
 import pytest
 
+from python_tool_competition_2024.calculation.cli_runner import _extend_env
 from python_tool_competition_2024.calculation.coverage_caluclator import (
     Coverages,
     calculate_coverages,
@@ -101,6 +101,7 @@ def _run_with_coverage_xml(
                 relative_source=Path("example.py"),
                 source_module="example",
                 test=config.tests_dir / "test_example.py",
+                test_module="generated_tests.test_example",
             ),
         )
         target = targets[0]
@@ -123,12 +124,7 @@ def _run_with_coverage_xml(
             stderr=subprocess.STDOUT,
             encoding="utf-8",
             cwd=config.results_dir,
-            env=os.environ
-            | {
-                "PYTHONPATH": os.pathsep.join(
-                    (str(config.targets_dir), str(config.results_dir))
-                )
-            },
+            env=_extend_env(config),
         )
 
 

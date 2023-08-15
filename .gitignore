@@ -4,7 +4,9 @@
 
 __pycache__
 
-/results/*/statistics.csv
-/results/*/generated_tests/**/test_*.py
-/results/*/coverages/*.xml
 /results/*/.coverage
+/results/*/cosmic_ray/*.toml
+/results/*/coverages/*.xml
+/results/*/generated_tests/**/__init__.py
+/results/*/generated_tests/**/test_*.py
+/results/*/statistics.csv

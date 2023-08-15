@@ -31,23 +31,27 @@ def test_find_targets(generator_name: GeneratorName) -> None:
             relative_source=Path("example1.py"),
             source_module="example1",
             test=tests / "test_example1.py",
+            test_module="generated_tests.test_example1",
         ),
         Target(
             source=targets / "example2.py",
             relative_source=Path("example2.py"),
             source_module="example2",
             test=tests / "test_example2.py",
+            test_module="generated_tests.test_example2",
         ),
         Target(
             source=targets / "sub_example" / "__init__.py",
             relative_source=Path("sub_example", "__init__.py"),
             source_module="sub_example",
             test=tests / "test_sub_example.py",
+            test_module="generated_tests.test_sub_example",
         ),
         Target(
             source=targets / "sub_example" / "example3.py",
             relative_source=Path("sub_example", "example3.py"),
             source_module="sub_example.example3",
             test=tests / "sub_example" / "test_example3.py",
+            test_module="generated_tests.sub_example.test_example3",
         ),
     )

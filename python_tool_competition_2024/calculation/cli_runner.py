@@ -2,16 +2,33 @@
 
 import os
 import subprocess  # nosec B404
-from typing import Literal, get_args
+from collections.abc import Mapping
+from typing import Literal, get_args, overload
 
 from ..config import Config
 from ..errors import CommandFailedError
 
-_COMMAND = Literal["pytest", "coverage"]
+_COMMAND = Literal["pytest", "coverage", "cosmic-ray", "cr-report", "mut.py"]
 _VALID_COMMANDS = get_args(_COMMAND)
 
 
-def run_command(config: Config, command: _COMMAND, *args: str) -> None:
+@overload
+def run_command(
+    config: Config, command: _COMMAND, *args: str, capture: Literal[True]
+) -> str:
+    ...
+
+
+@overload
+def run_command(
+    config: Config, command: _COMMAND, *args: str, capture: Literal[False] = ...
+) -> None:
+    ...
+
+
+def run_command(
+    config: Config, command: _COMMAND, *args: str, capture: Literal[True, False] = False
+) -> None | str:
     """
     Run a command on the command line.
 
@@ -19,26 +36,27 @@ def run_command(config: Config, command: _COMMAND, *args: str) -> None:
     it was unsuccessful.
 
     Args:
+        config: The configuration for this run.
         command: The executable to run.
         args: The arguments to pass to the executable.
-        config: The configuration for this run.
+        caputre: Whether or not to return the output.
 
     Returns:
-        Whether this command was successful or not.
+        `None` if `capture` is `False`, otherwise the output.
     """
     if config.show_commands:
-        _run_command(config, command, args)
-        return
+        output = _run_command(config, command, args)
+    else:
+        try:
+            with config.console.capture() as console_capture:
+                output = _run_command(config, command, args)
+        except CommandFailedError:
+            config.console.out(console_capture.get(), highlight=False, end="")
+            raise
+    return output if capture else None
 
-    try:
-        with config.console.capture() as capture:
-            _run_command(config, command, args)
-    except CommandFailedError:
-        config.console.out(capture.get(), highlight=False, end="")
-        raise
 
-
-def _run_command(config: Config, command: _COMMAND, args: tuple[str, ...]) -> None:
+def _run_command(config: Config, command: _COMMAND, args: tuple[str, ...]) -> str:
     if command not in _VALID_COMMANDS:
         msg = f"{command} not in {_VALID_COMMANDS}"
         raise ValueError(msg)
@@ -50,16 +68,22 @@ def _run_command(config: Config, command: _COMMAND, args: tuple[str, ...]) -> No
         stderr=subprocess.STDOUT,
         encoding="utf-8",
         cwd=config.results_dir,
-        env=os.environ
-        | {
-            "PYTHONPATH": os.pathsep.join(
-                (str(config.targets_dir), str(config.results_dir))
-            )
-        },
+        env=_extend_env(config),
     )
     config.console.out(result.stdout, highlight=False, end="")
     if result.returncode == 0:
-        return
+        return result.stdout
 
     config.console.print(f"Exited with code {result.returncode}", style="red")
     raise CommandFailedError((command, *args))
+
+
+def _extend_env(config: Config) -> Mapping[str, str]:
+    env = os.environ | {
+        "PYTHONPATH": os.pathsep.join(
+            (str(config.targets_dir), str(config.results_dir))
+        )
+    }
+    # reset the tox env to not confuse pytest
+    env.pop("TOX_ENV_DIR", None)
+    return env

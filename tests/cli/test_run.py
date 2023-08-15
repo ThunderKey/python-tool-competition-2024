@@ -1,7 +1,7 @@
 import os
 import re
 import shutil
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 
 import pytest
@@ -18,7 +18,7 @@ _TARGETS_URL = (
 def test_run_in_wd(wd_tmp_path: Path) -> None:
     targets_dir = wd_tmp_path / "targets"
     shutil.copytree(TARGETS_DIR, targets_dir)
-    assert run_successful_cli(("run", "length", "-v")) == (
+    assert run_successful_cli(("run", "length", "-v"), mock_scores=True) == (
         cli_title("Using generator length"),
         *f"""\
 Target {targets_dir / "example1.py"} failed with FailureReason.UNEXPECTED_ERROR
@@ -28,12 +28,12 @@ Target {targets_dir / "example2.py"} failed with FailureReason.UNEXPECTED_ERROR
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
-│ example1.py             │    ✖    │        0.00 % │          0.00 % │         0.00 % │
-│ example2.py             │    ✖    │        0.00 % │          0.00 % │         0.00 % │
-│ sub_example/__init__.py │    ✔    │        0.00 % │          0.00 % │         0.00 % │
-│ sub_example/example3.py │    ✔    │        0.00 % │          0.00 % │         0.00 % │
+│ example1.py             │    ✖    │       50.00 % │         40.00 % │        40.00 % │
+│ example2.py             │    ✖    │        0.00 % │         25.00 % │         2.00 % │
+│ sub_example/__init__.py │    ✔    │      100.00 % │         50.00 % │       100.00 % │
+│ sub_example/example3.py │    ✔    │       25.00 % │         64.00 % │         0.00 % │
 ├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
-│ Total                   │ 50.00 % │        0.00 % │          0.00 % │         0.00 % │
+│ Total                   │ 50.00 % │       42.50 % │         50.00 % │        21.00 % │
 └─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
 """.splitlines(),
     )
@@ -41,13 +41,13 @@ Target {targets_dir / "example2.py"} failed with FailureReason.UNEXPECTED_ERROR
     results_dir = wd_tmp_path / "results" / "length"
     test_dir = results_dir / "generated_tests"
     test_files = (
+        test_dir / "__init__.py",
+        test_dir / "sub_example" / "__init__.py",
         test_dir / "sub_example" / "test_example3.py",
         test_dir / "test_sub_example.py",
     )
     csv_file = results_dir / "statistics.csv"
     assert _find_files(wd_tmp_path) == (
-        results_dir / ".coverage",
-        *_coverages_files(results_dir),
         *test_files,
         csv_file,
         wd_tmp_path / "targets" / "example1.py",
@@ -63,11 +63,11 @@ Target {targets_dir / "example2.py"} failed with FailureReason.UNEXPECTED_ERROR
             "branch coverage,branches,covered branches,"
             "mutation score,mutants,killed mutants"
         ),
-        "example1.py,0.0,1,0,0.0,9,0,0.0,4,0,0.0,1000,0",
-        "example2.py,0.0,1,0,0.0,2,0,0.0,0,0,0.0,1000,0",
-        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,2,0,0.0,1000,0",
-        "sub_example/example3.py,1.0,1,1,0.0,3,0,0.0,0,0,0.0,1000,0",
-        "total,0.5,4,2,0.0,18,0,0.0,6,0,0.0,4000,0",
+        "example1.py,0.0,1,0,0.5,10,5,0.4,15,6,0.4,100,40",
+        "example2.py,0.0,1,0,0.0,3,0,0.25,8,2,0.02,50,1",
+        "sub_example/__init__.py,1.0,1,1,1.0,7,7,0.5,12,6,1.0,1,1",
+        "sub_example/example3.py,1.0,1,1,0.25,20,5,0.64,25,16,0.0,49,0",
+        "total,0.5,4,2,0.425,40,17,0.5,60,30,0.21,200,42",
     )
     targets = (
         targets_dir / "sub_example" / "example3.py",
@@ -75,25 +75,25 @@ Target {targets_dir / "example2.py"} failed with FailureReason.UNEXPECTED_ERROR
     )
     assert {f: f.read_text() for f in test_files} == {
         test: _dummy_body(target)
-        for test, target in zip(test_files, targets, strict=True)
+        for test, target in _tests_and_targets(test_files, targets)
     }
 
 
 def test_run_in_wd_with_all_success(wd_tmp_path: Path) -> None:
     targets_dir = wd_tmp_path / "targets"
     shutil.copytree(TARGETS_DIR, targets_dir)
-    assert run_successful_cli(("run", "dummy")) == (
+    assert run_successful_cli(("run", "dummy"), mock_scores=True) == (
         cli_title("Using generator dummy"),
         *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success  ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
-│ example1.py             │    ✔     │        0.00 % │          0.00 % │         0.00 % │
-│ example2.py             │    ✔     │        0.00 % │          0.00 % │         0.00 % │
-│ sub_example/__init__.py │    ✔     │        0.00 % │          0.00 % │         0.00 % │
-│ sub_example/example3.py │    ✔     │        0.00 % │          0.00 % │         0.00 % │
+│ example1.py             │    ✔     │       50.00 % │         40.00 % │        40.00 % │
+│ example2.py             │    ✔     │        0.00 % │         25.00 % │         2.00 % │
+│ sub_example/__init__.py │    ✔     │      100.00 % │         50.00 % │       100.00 % │
+│ sub_example/example3.py │    ✔     │       25.00 % │         64.00 % │         0.00 % │
 ├─────────────────────────┼──────────┼───────────────┼─────────────────┼────────────────┤
-│ Total                   │ 100.00 % │        0.00 % │          0.00 % │         0.00 % │
+│ Total                   │ 100.00 % │       42.50 % │         50.00 % │        21.00 % │
 └─────────────────────────┴──────────┴───────────────┴─────────────────┴────────────────┘
 """.splitlines(),  # noqa: E501
     )
@@ -101,6 +101,8 @@ def test_run_in_wd_with_all_success(wd_tmp_path: Path) -> None:
     results_dir = wd_tmp_path / "results" / "dummy"
     test_dir = results_dir / "generated_tests"
     test_files = (
+        test_dir / "__init__.py",
+        test_dir / "sub_example" / "__init__.py",
         test_dir / "sub_example" / "test_example3.py",
         test_dir / "test_example1.py",
         test_dir / "test_example2.py",
@@ -108,8 +110,6 @@ def test_run_in_wd_with_all_success(wd_tmp_path: Path) -> None:
     )
     csv_file = results_dir / "statistics.csv"
     assert _find_files(wd_tmp_path) == (
-        results_dir / ".coverage",
-        *_coverages_files(results_dir),
         *test_files,
         csv_file,
         wd_tmp_path / "targets" / "example1.py",
@@ -125,11 +125,11 @@ def test_run_in_wd_with_all_success(wd_tmp_path: Path) -> None:
             "branch coverage,branches,covered branches,"
             "mutation score,mutants,killed mutants"
         ),
-        "example1.py,1.0,1,1,0.0,9,0,0.0,4,0,0.0,1000,0",
-        "example2.py,1.0,1,1,0.0,2,0,0.0,0,0,0.0,1000,0",
-        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,2,0,0.0,1000,0",
-        "sub_example/example3.py,1.0,1,1,0.0,3,0,0.0,0,0,0.0,1000,0",
-        "total,1.0,4,4,0.0,18,0,0.0,6,0,0.0,4000,0",
+        "example1.py,1.0,1,1,0.5,10,5,0.4,15,6,0.4,100,40",
+        "example2.py,1.0,1,1,0.0,3,0,0.25,8,2,0.02,50,1",
+        "sub_example/__init__.py,1.0,1,1,1.0,7,7,0.5,12,6,1.0,1,1",
+        "sub_example/example3.py,1.0,1,1,0.25,20,5,0.64,25,16,0.0,49,0",
+        "total,1.0,4,4,0.425,40,17,0.5,60,30,0.21,200,42",
     )
     targets = (
         targets_dir / "sub_example" / "example3.py",
@@ -139,25 +139,25 @@ def test_run_in_wd_with_all_success(wd_tmp_path: Path) -> None:
     )
     assert {f: f.read_text() for f in test_files} == {
         test: _dummy_body(target)
-        for test, target in zip(test_files, targets, strict=True)
+        for test, target in _tests_and_targets(test_files, targets)
     }
 
 
 def test_run_in_wd_with_all_failures(wd_tmp_path: Path) -> None:
     targets_dir = wd_tmp_path / "targets"
     shutil.copytree(TARGETS_DIR, targets_dir)
-    assert run_successful_cli(("run", "failures")) == (
+    assert run_successful_cli(("run", "failures"), mock_scores=True) == (
         cli_title("Using generator failures"),
         *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
-│ example1.py             │    ✖    │        0.00 % │          0.00 % │         0.00 % │
-│ example2.py             │    ✖    │        0.00 % │          0.00 % │         0.00 % │
-│ sub_example/__init__.py │    ✖    │        0.00 % │          0.00 % │         0.00 % │
-│ sub_example/example3.py │    ✖    │        0.00 % │          0.00 % │         0.00 % │
+│ example1.py             │    ✖    │       50.00 % │         40.00 % │        40.00 % │
+│ example2.py             │    ✖    │        0.00 % │         25.00 % │         2.00 % │
+│ sub_example/__init__.py │    ✖    │      100.00 % │         50.00 % │       100.00 % │
+│ sub_example/example3.py │    ✖    │       25.00 % │         64.00 % │         0.00 % │
 ├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
-│ Total                   │ 0.00 %  │        0.00 % │          0.00 % │         0.00 % │
+│ Total                   │ 0.00 %  │       42.50 % │         50.00 % │        21.00 % │
 └─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
 """.splitlines(),
     )
@@ -165,8 +165,6 @@ def test_run_in_wd_with_all_failures(wd_tmp_path: Path) -> None:
     results_dir = wd_tmp_path / "results" / "failures"
     csv_file = results_dir / "statistics.csv"
     assert _find_files(wd_tmp_path) == (
-        results_dir / ".coverage",
-        *_coverages_files(results_dir),
         csv_file,
         wd_tmp_path / "targets" / "example1.py",
         wd_tmp_path / "targets" / "example2.py",
@@ -181,27 +179,29 @@ def test_run_in_wd_with_all_failures(wd_tmp_path: Path) -> None:
             "branch coverage,branches,covered branches,"
             "mutation score,mutants,killed mutants"
         ),
-        "example1.py,0.0,1,0,0.0,9,0,0.0,4,0,0.0,1000,0",
-        "example2.py,0.0,1,0,0.0,2,0,0.0,0,0,0.0,1000,0",
-        "sub_example/__init__.py,0.0,1,0,0.0,4,0,0.0,2,0,0.0,1000,0",
-        "sub_example/example3.py,0.0,1,0,0.0,3,0,0.0,0,0,0.0,1000,0",
-        "total,0.0,4,0,0.0,18,0,0.0,6,0,0.0,4000,0",
+        "example1.py,0.0,1,0,0.5,10,5,0.4,15,6,0.4,100,40",
+        "example2.py,0.0,1,0,0.0,3,0,0.25,8,2,0.02,50,1",
+        "sub_example/__init__.py,0.0,1,0,1.0,7,7,0.5,12,6,1.0,1,1",
+        "sub_example/example3.py,0.0,1,0,0.25,20,5,0.64,25,16,0.0,49,0",
+        "total,0.0,4,0,0.425,40,17,0.5,60,30,0.21,200,42",
     )
 
 
 def test_run_with_different_targets(wd_tmp_path: Path) -> None:
-    assert run_successful_cli(("run", "length", "--targets-dir", str(TARGETS_DIR))) == (
+    assert run_successful_cli(
+        ("run", "length", "--targets-dir", str(TARGETS_DIR)), mock_scores=True
+    ) == (
         cli_title("Using generator length"),
         *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
-│ example1.py             │    ✖    │        0.00 % │          0.00 % │         0.00 % │
-│ example2.py             │    ✖    │        0.00 % │          0.00 % │         0.00 % │
-│ sub_example/__init__.py │    ✔    │        0.00 % │          0.00 % │         0.00 % │
-│ sub_example/example3.py │    ✔    │        0.00 % │          0.00 % │         0.00 % │
+│ example1.py             │    ✖    │       50.00 % │         40.00 % │        40.00 % │
+│ example2.py             │    ✖    │        0.00 % │         25.00 % │         2.00 % │
+│ sub_example/__init__.py │    ✔    │      100.00 % │         50.00 % │       100.00 % │
+│ sub_example/example3.py │    ✔    │       25.00 % │         64.00 % │         0.00 % │
 ├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
-│ Total                   │ 50.00 % │        0.00 % │          0.00 % │         0.00 % │
+│ Total                   │ 50.00 % │       42.50 % │         50.00 % │        21.00 % │
 └─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
 """.splitlines(),
     )
@@ -209,16 +209,13 @@ def test_run_with_different_targets(wd_tmp_path: Path) -> None:
     results_dir = wd_tmp_path / "results" / "length"
     test_dir = results_dir / "generated_tests"
     test_files = (
+        test_dir / "__init__.py",
+        test_dir / "sub_example" / "__init__.py",
         test_dir / "sub_example" / "test_example3.py",
         test_dir / "test_sub_example.py",
     )
     csv_file = results_dir / "statistics.csv"
-    assert _find_files(wd_tmp_path) == (
-        results_dir / ".coverage",
-        *_coverages_files(results_dir),
-        *test_files,
-        csv_file,
-    )
+    assert _find_files(wd_tmp_path) == (*test_files, csv_file)
     assert tuple(csv_file.read_text().splitlines()) == (
         (
             "target,"
@@ -227,11 +224,11 @@ def test_run_with_different_targets(wd_tmp_path: Path) -> None:
             "branch coverage,branches,covered branches,"
             "mutation score,mutants,killed mutants"
         ),
-        "example1.py,0.0,1,0,0.0,9,0,0.0,4,0,0.0,1000,0",
-        "example2.py,0.0,1,0,0.0,2,0,0.0,0,0,0.0,1000,0",
-        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,2,0,0.0,1000,0",
-        "sub_example/example3.py,1.0,1,1,0.0,3,0,0.0,0,0,0.0,1000,0",
-        "total,0.5,4,2,0.0,18,0,0.0,6,0,0.0,4000,0",
+        "example1.py,0.0,1,0,0.5,10,5,0.4,15,6,0.4,100,40",
+        "example2.py,0.0,1,0,0.0,3,0,0.25,8,2,0.02,50,1",
+        "sub_example/__init__.py,1.0,1,1,1.0,7,7,0.5,12,6,1.0,1,1",
+        "sub_example/example3.py,1.0,1,1,0.25,20,5,0.64,25,16,0.0,49,0",
+        "total,0.5,4,2,0.425,40,17,0.5,60,30,0.21,200,42",
     )
     targets = (
         TARGETS_DIR / "sub_example" / "example3.py",
@@ -239,7 +236,7 @@ def test_run_with_different_targets(wd_tmp_path: Path) -> None:
     )
     assert {f: f.read_text() for f in test_files} == {
         test: _dummy_body(target)
-        for test, target in zip(test_files, targets, strict=True)
+        for test, target in _tests_and_targets(test_files, targets)
     }
 
 
@@ -250,12 +247,12 @@ def test_run_with_real_tests(wd_tmp_path: Path) -> None:
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
-│ example1.py             │    ✔    │       44.44 % │         25.00 % │         0.00 % │
+│ example1.py             │    ✔    │       44.44 % │         25.00 % │        62.50 % │
 │ example2.py             │    ✖    │        0.00 % │          0.00 % │         0.00 % │
 │ sub_example/__init__.py │    ✖    │        0.00 % │          0.00 % │         0.00 % │
 │ sub_example/example3.py │    ✔    │      100.00 % │          0.00 % │         0.00 % │
 ├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
-│ Total                   │ 50.00 % │       38.89 % │         16.67 % │         0.00 % │
+│ Total                   │ 50.00 % │       38.89 % │         16.67 % │        45.45 % │
 └─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
 """.splitlines(),
     )
@@ -263,12 +260,15 @@ def test_run_with_real_tests(wd_tmp_path: Path) -> None:
     results_dir = wd_tmp_path / "results" / "static"
     test_dir = results_dir / "generated_tests"
     test_files = (
+        test_dir / "__init__.py",
+        test_dir / "sub_example" / "__init__.py",
         test_dir / "sub_example" / "test_example3.py",
         test_dir / "test_example1.py",
     )
     csv_file = results_dir / "statistics.csv"
     assert _find_files(wd_tmp_path) == (
         results_dir / ".coverage",
+        results_dir / ".pytest_cache",
         *_coverages_files(results_dir),
         *test_files,
         csv_file,
@@ -281,16 +281,16 @@ def test_run_with_real_tests(wd_tmp_path: Path) -> None:
             "branch coverage,branches,covered branches,"
             "mutation score,mutants,killed mutants"
         ),
-        "example1.py,1.0,1,1,0.4444444444444444,9,4,0.25,4,1,0.0,1000,0",
-        "example2.py,0.0,1,0,0.0,2,0,0.0,0,0,0.0,1000,0",
-        "sub_example/__init__.py,0.0,1,0,0.0,4,0,0.0,2,0,0.0,1000,0",
-        "sub_example/example3.py,1.0,1,1,1.0,3,3,0.0,0,0,0.0,1000,0",
-        "total,0.5,4,2,0.3888888888888889,18,7,0.16666666666666666,6,1,0.0,4000,0",
+        "example1.py,1.0,1,1,0.4444444444444444,9,4,0.25,4,1,0.625,8,5",
+        "example2.py,0.0,1,0,0.0,2,0,0.0,0,0,0.0,1,0",
+        "sub_example/__init__.py,0.0,1,0,0.0,4,0,0.0,2,0,0.0,1,0",
+        "sub_example/example3.py,1.0,1,1,1.0,3,3,0.0,0,0,0.0,1,0",
+        "total,0.5,4,2,0.3888888888888889,18,7,0.16666666666666666,6,1,0.45454545454545453,11,5",
     )
     targets = (TARGETS_DIR / "sub_example" / "example3.py", TARGETS_DIR / "example1.py")
     assert {f: f.read_text() for f in test_files} == {
-        test: get_static_body(target)
-        for test, target in zip(test_files, targets, strict=True)
+        test: "" if target is None else get_static_body(target)
+        for test, target in _tests_and_targets(test_files, targets)
     }
 
 
@@ -316,6 +316,8 @@ def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
     results_dir = wd_tmp_path / "results" / "dummy"
     test_dir = results_dir / "generated_tests"
     test_files = (
+        test_dir / "__init__.py",
+        test_dir / "sub_example" / "__init__.py",
         test_dir / "sub_example" / "test_example3.py",
         test_dir / "test_example1.py",
         test_dir / "test_example2.py",
@@ -324,6 +326,7 @@ def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
     csv_file = results_dir / "statistics.csv"
     assert _find_files(wd_tmp_path) == (
         results_dir / ".coverage",
+        results_dir / ".pytest_cache",
         *_coverages_files(results_dir),
         *test_files,
         csv_file,
@@ -336,11 +339,11 @@ def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
             "branch coverage,branches,covered branches,"
             "mutation score,mutants,killed mutants"
         ),
-        "example1.py,1.0,1,1,0.0,9,0,0.0,4,0,0.0,1000,0",
-        "example2.py,1.0,1,1,0.0,2,0,0.0,0,0,0.0,1000,0",
-        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,2,0,0.0,1000,0",
-        "sub_example/example3.py,1.0,1,1,0.0,3,0,0.0,0,0,0.0,1000,0",
-        "total,1.0,4,4,0.0,18,0,0.0,6,0,0.0,4000,0",
+        "example1.py,1.0,1,1,0.0,9,0,0.0,4,0,0.0,8,0",
+        "example2.py,1.0,1,1,0.0,2,0,0.0,0,0,0.0,1,0",
+        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,2,0,0.0,1,0",
+        "sub_example/example3.py,1.0,1,1,0.0,3,0,0.0,0,0,0.0,1,0",
+        "total,1.0,4,4,0.0,18,0,0.0,6,0,0.0,11,0",
     )
     targets = (
         TARGETS_DIR / "sub_example" / "example3.py",
@@ -348,15 +351,9 @@ def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
         TARGETS_DIR / "example2.py",
         TARGETS_DIR / "sub_example" / "__init__.py",
     )
-    assert {f: tuple(f.read_text().splitlines()) for f in test_files} == {
-        test: (
-            f"# dummy test for {target}",
-            "",
-            "",
-            "def test_dummy() -> None:",
-            "    assert True",
-        )
-        for test, target in zip(test_files, targets, strict=True)
+    assert {f: f.read_text() for f in test_files} == {
+        test: _dummy_body(target)
+        for test, target in _tests_and_targets(test_files, targets)
     }
 
 
@@ -389,12 +386,15 @@ def test_run_with_different_targets_and_results(wd_tmp_path: Path) -> None:
     results_dir = wd_tmp_path / "other_res" / "length"
     test_dir = results_dir / "generated_tests"
     test_files = (
+        test_dir / "__init__.py",
+        test_dir / "sub_example" / "__init__.py",
         test_dir / "sub_example" / "test_example3.py",
         test_dir / "test_sub_example.py",
     )
     csv_file = results_dir / "statistics.csv"
     assert _find_files(wd_tmp_path) == (
         results_dir / ".coverage",
+        results_dir / ".pytest_cache",
         *_coverages_files(results_dir),
         *test_files,
         csv_file,
@@ -407,11 +407,11 @@ def test_run_with_different_targets_and_results(wd_tmp_path: Path) -> None:
             "branch coverage,branches,covered branches,"
             "mutation score,mutants,killed mutants"
         ),
-        "example1.py,0.0,1,0,0.0,9,0,0.0,4,0,0.0,1000,0",
-        "example2.py,0.0,1,0,0.0,2,0,0.0,0,0,0.0,1000,0",
-        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,2,0,0.0,1000,0",
-        "sub_example/example3.py,1.0,1,1,0.0,3,0,0.0,0,0,0.0,1000,0",
-        "total,0.5,4,2,0.0,18,0,0.0,6,0,0.0,4000,0",
+        "example1.py,0.0,1,0,0.0,9,0,0.0,4,0,0.0,8,0",
+        "example2.py,0.0,1,0,0.0,2,0,0.0,0,0,0.0,1,0",
+        "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,2,0,0.0,1,0",
+        "sub_example/example3.py,1.0,1,1,0.0,3,0,0.0,0,0,0.0,1,0",
+        "total,0.5,4,2,0.0,18,0,0.0,6,0,0.0,11,0",
     )
     targets = (
         TARGETS_DIR / "sub_example" / "example3.py",
@@ -419,7 +419,7 @@ def test_run_with_different_targets_and_results(wd_tmp_path: Path) -> None:
     )
     assert {f: f.read_text() for f in test_files} == {
         test: _dummy_body(target)
-        for test, target in zip(test_files, targets, strict=True)
+        for test, target in _tests_and_targets(test_files, targets)
     }
 
 
@@ -524,6 +524,10 @@ def _find_files(directory: Path) -> tuple[Path, ...]:
 
 
 def _each_file(directory: Path) -> Iterator[Path]:
+    # only show cache dir as one, because content can change
+    if directory.name == ".pytest_cache":
+        yield directory
+        return
     for item in directory.iterdir():
         if item.is_file():
             yield item
@@ -531,7 +535,9 @@ def _each_file(directory: Path) -> Iterator[Path]:
             yield from _each_file(item)
 
 
-def _dummy_body(target_file: Path) -> str:
+def _dummy_body(target_file: Path | None) -> str:
+    if target_file is None:
+        return ""
     return os.linesep.join(
         (
             f"# dummy test for {target_file}",
@@ -550,3 +556,18 @@ def _coverages_files(results_dir: Path) -> tuple[Path, ...]:
         results_dir / "coverages" / "sub_example.example3.xml",
         results_dir / "coverages" / "sub_example.xml",
     )
+
+
+_SENTINEL = object()
+
+
+def _tests_and_targets(
+    tests: Iterable[Path], targets: Iterable[Path]
+) -> Iterable[tuple[Path, Path | None]]:
+    targets_iter = iter(targets)
+    for test in tests:
+        if test.name == "__init__.py":
+            yield test, None
+        else:
+            yield test, next(targets_iter)
+    assert next(targets_iter, _SENTINEL) == _SENTINEL, "Targets not equal length"
