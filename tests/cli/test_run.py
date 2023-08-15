@@ -358,6 +358,11 @@ def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
 
 
 def test_run_with_different_targets_and_results(wd_tmp_path: Path) -> None:
+    results_dir = wd_tmp_path / "other_res" / "length"
+    results_dir.parent.mkdir()
+    results_dir.mkdir()
+    (results_dir / "old_file").touch()
+
     assert run_successful_cli(
         (
             "run",
@@ -383,7 +388,6 @@ def test_run_with_different_targets_and_results(wd_tmp_path: Path) -> None:
 """.splitlines(),
     )
 
-    results_dir = wd_tmp_path / "other_res" / "length"
     test_dir = results_dir / "generated_tests"
     test_files = (
         test_dir / "__init__.py",
