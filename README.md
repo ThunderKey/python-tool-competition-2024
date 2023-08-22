@@ -6,6 +6,8 @@
 
 ### Installation
 
+This tool requires Python 3.11.
+
 `pip install git+ssh://git@github.com/ThunderKey/python-tool-competition-2024.git`
 (until made public)
 
