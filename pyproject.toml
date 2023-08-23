@@ -90,11 +90,14 @@ disallow_any_decorated = true
 exclude = [
   '.venv',
   '.tox',
-  'templates',
+  'python_tool_competition_2024/templates',
 ]
 
 [tool.coverage.run]
 branch = true
+omit = [
+    "python_tool_competition_2024/targets/*",
+]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -117,7 +120,10 @@ ignore_names = [
     'side_effect',
     'return_value',
 ]
-
+exclude = [
+    'python_tool_competition_2024/targets',
+    'python_tool_competition_2024/templates',
+]
 
 [tool.ruff]
 target-version = "py311"
@@ -136,7 +142,7 @@ ignore = [
     # don't separate typing imports
     "TCH",
 ]
-extend-exclude = ["templates"]
+extend-exclude = ["python_tool_competition_2024/templates"]
 
 # Avoiding flagging (and removing) `V101` from any `# noqa`
 # directives, despite Ruff's lack of support for `vulture`.
@@ -165,7 +171,7 @@ external = [
     # allow accessing private members in tests
     "SLF001",
 ]
-"targets/**/*.py" = [
+"python_tool_competition_2024/targets/**/*.py" = [
     # ignore missing __init__.py
     "INP001",
 ]
@@ -261,4 +267,4 @@ skips = [
 
 [tool.black]
 skip_magic_trailing_comma = true
-extend_exclude = "templates"
+extend_exclude = "python_tool_competition_2024/templates"

@@ -12,6 +12,7 @@ from python_tool_competition_2024.cli.init_command import (
     _names_from_readable_name,
 )
 
+from ..helpers import TARGETS_DIR
 from .helpers import renderable_to_strs, run_cli, run_successful_cli
 
 _EXAMPLE_PYPROJECT = """\
@@ -34,14 +35,12 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 """
 
-_ROOT_DIR = Path(__file__).parent.parent.parent
-_TARGETS_DIR = _ROOT_DIR / "targets"
 _TARGET_FILES = {
-    "example1.py": (_TARGETS_DIR / "example1.py").read_text(),
-    "example2.py": (_TARGETS_DIR / "example2.py").read_text(),
+    "example1.py": (TARGETS_DIR / "example1.py").read_text(),
+    "example2.py": (TARGETS_DIR / "example2.py").read_text(),
     "sub_example": {
-        "__init__.py": (_TARGETS_DIR / "sub_example" / "__init__.py").read_text(),
-        "example3.py": (_TARGETS_DIR / "sub_example" / "example3.py").read_text(),
+        "__init__.py": (TARGETS_DIR / "sub_example" / "__init__.py").read_text(),
+        "example3.py": (TARGETS_DIR / "sub_example" / "example3.py").read_text(),
     },
 }
 

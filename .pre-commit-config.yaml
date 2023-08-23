@@ -21,7 +21,7 @@ repos:
       # black with default configs
       - id: black
         args: ["--skip-magic-trailing-comma"]
-        exclude: 'templates/.*'
+        exclude: 'python_tool_competition_2024/templates/.*'
 
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.32.0

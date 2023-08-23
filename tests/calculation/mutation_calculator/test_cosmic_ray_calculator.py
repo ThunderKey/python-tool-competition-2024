@@ -27,7 +27,7 @@ def test_cosmic_ray_calculator(tmp_path: Path) -> None:
         config = get_test_config(
             show_commands=False,
             show_failures=False,
-            targets_dir=Path.cwd() / "targets",
+            targets_dir=TARGETS_DIR,
             results_dir=tmp_path,
         )
         targets = find_targets(config)

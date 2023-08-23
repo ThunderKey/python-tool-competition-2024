@@ -8,7 +8,7 @@ from python_tool_competition_2024.config import Config
 from python_tool_competition_2024.results import RatioResult
 from python_tool_competition_2024.target_finder import find_targets
 
-from ...helpers import get_test_config
+from ...helpers import TARGETS_DIR, get_test_config
 
 
 def test_mutpy_calculator(tmp_path: Path) -> None:
@@ -24,7 +24,7 @@ def test_mutpy_calculator(tmp_path: Path) -> None:
         config = get_test_config(
             show_commands=False,
             show_failures=False,
-            targets_dir=Path.cwd() / "targets",
+            targets_dir=TARGETS_DIR,
             results_dir=tmp_path,
         )
         targets = find_targets(config)

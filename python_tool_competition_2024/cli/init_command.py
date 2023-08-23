@@ -22,9 +22,9 @@ from ..errors import PyprojectTomlNotCreatedError
 from ..generator_plugins import ENTRY_POINT_GROUP_NAME
 from .helpers import create_console
 
-_ROOT_DIR = Path(__file__).parent.parent.parent
-_TARGETS_DIR = _ROOT_DIR / "targets"
-_TEMPLATES_DIR = _ROOT_DIR / "templates"
+_SOURCE_DIR = Path(__file__).parent.parent
+_TARGETS_DIR = _SOURCE_DIR / "targets"
+_TEMPLATES_DIR = _SOURCE_DIR / "templates"
 
 _MIN_VERBOSITY_SHOW_COMMANDS = 1
 _MIN_VERBOSITY_SHOW_FULL_ERRORS = 1
