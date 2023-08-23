@@ -1,4 +1,4 @@
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import TypeAlias
 from unittest import mock
@@ -12,7 +12,7 @@ from python_tool_competition_2024.cli.init_command import (
     _names_from_readable_name,
 )
 
-from ..helpers import TARGETS_DIR
+from ..helpers import TARGETS_DIR, TEMPLATES_DIR
 from .helpers import renderable_to_strs, run_cli, run_successful_cli
 
 _EXAMPLE_PYPROJECT = """\
@@ -103,6 +103,18 @@ def test_names_from_readable_name(readable_name: str, expected_names: _Names) ->
     assert _names_from_readable_name(readable_name) == expected_names
 
 
+@pytest.fixture()
+def _with_pycache_in_templates() -> Iterable[None]:
+    pycache = TEMPLATES_DIR / "__var__module_name" / "__pycache__"
+    pycache.mkdir()
+    example_file = pycache / "hidden_example.txt"
+    example_file.touch()
+    yield
+    example_file.unlink()
+    pycache.rmdir()
+
+
+@pytest.mark.usefixtures("_with_pycache_in_templates")
 def test_init_with_confirm(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.chdir(tmp_path)
     parent_dir = tmp_path

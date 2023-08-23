@@ -8,6 +8,7 @@ from python_tool_competition_2024.generator_plugins import to_test_generator_plu
 
 _SOURCE_DIR = Path(__file__).parent.parent / "python_tool_competition_2024"
 TARGETS_DIR = _SOURCE_DIR / "targets"
+TEMPLATES_DIR = _SOURCE_DIR / "templates"
 
 
 def sealed_mock(**kwargs: object) -> mock.MagicMock:

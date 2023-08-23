@@ -248,6 +248,8 @@ _VAR_FILE_PREFIX = "__var__"
 def _copy_templates(template_dir: Path, target_dir: Path, names: _Names) -> None:
     names_dict = dataclasses.asdict(names)
     for path in template_dir.iterdir():
+        if path.name == "__pycache__":
+            continue
         target_path = target_dir / path.name
         if target_path.stem.startswith(_VAR_FILE_PREFIX):
             target_path = target_path.with_stem(
