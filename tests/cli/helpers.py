@@ -20,8 +20,10 @@ from python_tool_competition_2024.generators import DummyTestGenerator, TestGene
 from python_tool_competition_2024.results import RatioResult
 
 from ..example_generators import (
+    AbortingTestGenerator,
     FailureTestGenerator,
     LengthTestGenerator,
+    RaisingTestGenerator,
     StaticTestGenerator,
 )
 
@@ -32,6 +34,8 @@ _DEFAULT_GENERATORS = MappingProxyType(
     {
         "dummy": DummyTestGenerator,
         "failures": FailureTestGenerator,
+        "raising": RaisingTestGenerator,
+        "aborting": AbortingTestGenerator,
         "static": StaticTestGenerator,
         "length": LengthTestGenerator,
     }
@@ -44,29 +48,33 @@ def run_successful_cli(
     generators: Mapping[str, type[TestGenerator]] | None = _DEFAULT_GENERATORS,
     generators_called: bool = True,
     mock_scores: bool = False,
+    scores_called: bool = True,
 ) -> tuple[str, ...]:
     exit_code, stdout, stderr = run_cli(
         args,
         generators=generators,
         generators_called=generators_called,
         mock_scores=mock_scores,
+        scores_called=scores_called,
     )
     assert (exit_code, stderr, stdout) == (0, (), mock.ANY)
     return stdout
 
 
-def run_cli(
+def run_cli(  # noqa: PLR0913
     args: tuple[str, ...],
     *,
     generators: Mapping[str, type[TestGenerator]] | None = _DEFAULT_GENERATORS,
     generators_called: bool = True,
     mock_scores: bool = False,
+    scores_called: bool = True,
     stdin: tuple[str, ...] | None = None,
 ) -> tuple[int, tuple[str, ...], tuple[str, ...]]:
     with _cli_runner(
         generators=generators,
         generators_called=generators_called,
         mock_scores=mock_scores,
+        scores_called=scores_called,
     ) as runner:
         full_result = runner.invoke(
             main_cli,
@@ -91,12 +99,15 @@ _create_console = partial(Console, width=_CLI_COLUMNS)
 def _cli_runner(
     *,
     generators: Mapping[str, type[TestGenerator]] | None = _DEFAULT_GENERATORS,
-    mock_scores: bool = False,
-    generators_called: bool = True,
+    mock_scores: bool,
+    scores_called: bool,
+    generators_called: bool,
 ) -> Iterator[CliRunner]:
     with _register_generators(
         generators, generators_called=generators_called
-    ), _register_mutation_scores(mock_scores=mock_scores), mock.patch(
+    ), _register_mutation_scores(
+        mock_scores=mock_scores, scores_called=scores_called
+    ), mock.patch(
         "python_tool_competition_2024.cli.helpers.Console"
     ) as console_mock:
         console_mock.side_effect = _create_console
@@ -157,7 +168,9 @@ _COVERAGES = (
 
 
 @contextlib.contextmanager
-def _register_mutation_scores(*, mock_scores: bool) -> Iterator[None]:
+def _register_mutation_scores(
+    *, mock_scores: bool, scores_called: bool
+) -> Iterator[None]:
     if not mock_scores:
         yield
         return
@@ -171,12 +184,17 @@ def _register_mutation_scores(*, mock_scores: bool) -> Iterator[None]:
         calculate_coverages_mock.side_effect = _COVERAGES
         mock.seal(calculate_coverages_mock)
         yield
-        assert calculate_mutation_mock.call_args_list == [
-            mock.call(mock.ANY, mock.ANY, MutationCalculatorName.MUTPY)
-        ] * len(_MUTATION_SCORES)
-        assert calculate_coverages_mock.call_args_list == [
-            mock.call(mock.ANY, mock.ANY)
-        ] * len(_COVERAGES)
+        num_mutations = len(_MUTATION_SCORES) if scores_called else 0
+        num_coverages = len(_COVERAGES) if scores_called else 0
+        assert (
+            calculate_mutation_mock.call_args_list
+            == [mock.call(mock.ANY, mock.ANY, MutationCalculatorName.MUTPY)]
+            * num_mutations
+        )
+        assert (
+            calculate_coverages_mock.call_args_list
+            == [mock.call(mock.ANY, mock.ANY)] * num_coverages
+        )
 
 
 def _to_entry_point(name: str, generator_cls: type[TestGenerator]) -> EntryPoint:

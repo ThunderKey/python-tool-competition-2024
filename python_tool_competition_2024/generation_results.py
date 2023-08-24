@@ -46,7 +46,7 @@ __pdoc__ = {str(reason): reason.__doc__ for reason in FailureReason}
 class TestGenerationFailure(TestGenerationResult):
     """A failure result of a test generation."""
 
-    error_lines: tuple[str, ...]  # noqa: V107
+    error_lines: tuple[str | BaseException, ...]  # noqa: V107
     """The description of the failures."""
 
     reason: FailureReason

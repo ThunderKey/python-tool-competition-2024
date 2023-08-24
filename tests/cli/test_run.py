@@ -187,6 +187,67 @@ def test_run_in_wd_with_all_failures(wd_tmp_path: Path) -> None:
     )
 
 
+def test_run_in_wd_with_all_exceptions(wd_tmp_path: Path) -> None:
+    targets_dir = wd_tmp_path / "targets"
+    shutil.copytree(TARGETS_DIR, targets_dir)
+    assert run_successful_cli(("run", "raising"), mock_scores=True) == (
+        cli_title("Using generator raising"),
+        *"""\
+┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│ example1.py             │    ✖    │       50.00 % │         40.00 % │        40.00 % │
+│ example2.py             │    ✖    │        0.00 % │         25.00 % │         2.00 % │
+│ sub_example/__init__.py │    ✖    │      100.00 % │         50.00 % │       100.00 % │
+│ sub_example/example3.py │    ✖    │       25.00 % │         64.00 % │         0.00 % │
+├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
+│ Total                   │ 0.00 %  │       42.50 % │         50.00 % │        21.00 % │
+└─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
+""".splitlines(),
+    )
+
+    results_dir = wd_tmp_path / "results" / "raising"
+    csv_file = results_dir / "statistics.csv"
+    assert _find_files(wd_tmp_path) == (
+        csv_file,
+        wd_tmp_path / "targets" / "example1.py",
+        wd_tmp_path / "targets" / "example2.py",
+        wd_tmp_path / "targets" / "sub_example" / "__init__.py",
+        wd_tmp_path / "targets" / "sub_example" / "example3.py",
+    )
+    assert tuple(csv_file.read_text().splitlines()) == (
+        (
+            "target,"
+            "successful ratio,files,successful files,"
+            "line coverage,lines,covered lines,"
+            "branch coverage,branches,covered branches,"
+            "mutation score,mutants,killed mutants"
+        ),
+        "example1.py,0.0,1,0,0.5,10,5,0.4,15,6,0.4,100,40",
+        "example2.py,0.0,1,0,0.0,3,0,0.25,8,2,0.02,50,1",
+        "sub_example/__init__.py,0.0,1,0,1.0,7,7,0.5,12,6,1.0,1,1",
+        "sub_example/example3.py,0.0,1,0,0.25,20,5,0.64,25,16,0.0,49,0",
+        "total,0.0,4,0,0.425,40,17,0.5,60,30,0.21,200,42",
+    )
+
+
+def test_run_in_wd_with_abort(wd_tmp_path: Path) -> None:
+    targets_dir = wd_tmp_path / "targets"
+    shutil.copytree(TARGETS_DIR, targets_dir)
+    assert run_cli(("run", "aborting"), mock_scores=True, scores_called=False) == (
+        1,
+        (cli_title("Using generator aborting"),),
+        ("", "Aborted!"),
+    )
+
+    assert _find_files(wd_tmp_path) == (
+        wd_tmp_path / "targets" / "example1.py",
+        wd_tmp_path / "targets" / "example2.py",
+        wd_tmp_path / "targets" / "sub_example" / "__init__.py",
+        wd_tmp_path / "targets" / "sub_example" / "example3.py",
+    )
+
+
 def test_run_with_different_targets(wd_tmp_path: Path) -> None:
     assert run_successful_cli(
         ("run", "length", "--targets-dir", str(TARGETS_DIR)), mock_scores=True
@@ -452,7 +513,7 @@ def test_run_with_unknown_generator_name() -> None:
         1,
         (
             'The generator name "missing_generator" was not found. Available: '
-            "dummy, failures, static, length",
+            "dummy, failures, raising, aborting, static, length",
         ),
         (),
     )

@@ -23,6 +23,17 @@ class FailureTestGenerator(TestGenerator):
         )
 
 
+class RaisingTestGenerator(TestGenerator):
+    def build_test(self, _target_file_info: FileInfo) -> TestGenerationFailure:
+        msg = "Some error in the generator"
+        raise RuntimeError(msg)
+
+
+class AbortingTestGenerator(TestGenerator):
+    def build_test(self, _target_file_info: FileInfo) -> TestGenerationFailure:
+        raise KeyboardInterrupt
+
+
 _REAL_TESTS = {
     TARGETS_DIR
     / "example1.py": """
