@@ -1,4 +1,4 @@
-import subprocess
+import subprocess  # nosec B404
 from collections.abc import Callable
 from pathlib import Path
 from unittest import mock
