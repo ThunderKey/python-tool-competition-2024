@@ -81,7 +81,7 @@ def _run_command(config: Config, command: _COMMAND, args: tuple[str, ...]) -> st
         raise ValueError(msg)
     full_command = (command, *args)
     config.console.print(f"Running: {' '.join(full_command)}")
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: PLW1510
         full_command,  # noqa: S603
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
