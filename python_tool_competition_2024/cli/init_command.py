@@ -42,7 +42,6 @@ from ..generator_plugins import ENTRY_POINT_GROUP_NAME
 from .helpers import create_console
 
 _SOURCE_DIR = Path(__file__).parent.parent
-_TARGETS_DIR = _SOURCE_DIR / "targets"
 _TEMPLATES_DIR = _SOURCE_DIR / "templates"
 
 _MIN_VERBOSITY_SHOW_COMMANDS = 1
@@ -179,23 +178,8 @@ def _create_project(config: _InitConfig, console: Console) -> None:
     _copy_templates(_TEMPLATES_DIR, config.project_dir, config)
     _create_pyproject_toml(config, console)
 
-    _copy_python_files(_TARGETS_DIR, config.project_dir / "targets")
-
     console.print("Installing Dependencies...")
     _run_poetry(config, console, "install")
-
-
-def _copy_python_files(source_path: Path, target_path: Path) -> None:
-    files = tuple(
-        (path, target_path / path.relative_to(source_path))
-        for path in source_path.glob("**/*.py")
-    )
-    # sorted to create parents first; set to only create them once
-    for parent in sorted({target.parent for _, target in files}):
-        parent.mkdir()
-
-    for source, target in files:
-        shutil.copy(source, target)
 
 
 def _create_pyproject_toml(config: _InitConfig, console: Console) -> None:

@@ -97,7 +97,7 @@ exclude = [
 [tool.coverage.run]
 branch = true
 omit = [
-    "python_tool_competition_2024/targets/*",
+    "python_tool_competition_2024/templates/targets/*",
 ]
 
 [tool.coverage.report]
@@ -122,7 +122,6 @@ ignore_names = [
     'return_value',
 ]
 exclude = [
-    'python_tool_competition_2024/targets',
     'python_tool_competition_2024/templates',
 ]
 
@@ -172,7 +171,7 @@ external = [
     # allow accessing private members in tests
     "SLF001",
 ]
-"python_tool_competition_2024/targets/**/*.py" = [
+"python_tool_competition_2024/templates/targets/**/*.py" = [
     # ignore missing __init__.py
     "INP001",
 ]
