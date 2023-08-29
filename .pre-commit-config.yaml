@@ -51,4 +51,5 @@ repos:
           - -u
           - https://github.com/ThunderKey/python-tool-competition-2024/
           - -f
-        files: "python_tool_competition_2024/.*\\.py"
+        files: "^python_tool_competition_2024/.*\\.py$"
+        exclude: "^python_tool_competition_2024/(templates|targets)/"
