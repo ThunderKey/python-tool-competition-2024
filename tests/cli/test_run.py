@@ -10,9 +10,7 @@ from ..example_generators import LengthTestGenerator, get_static_body
 from ..helpers import TARGETS_DIR
 from .helpers import ENTRY_POINT_GROUP, cli_title, run_cli, run_successful_cli
 
-_TARGETS_URL = (
-    "https://github.com/ThunderKey/python-tool-competition-2024/tree/main/targets"
-)
+_TARGETS_URL = "https://github.com/ThunderKey/python-tool-competition-2024/tree/main/python_tool_competition_2024/targets"
 
 
 def test_run_in_wd(wd_tmp_path: Path) -> None:

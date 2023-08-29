@@ -51,7 +51,7 @@ def get_config(  # noqa: PLR0913
         csv_file=results_dir / "statistics.csv",
         coverages_dir=results_dir / "coverages",
         default_targets_url=urlparse(
-            "https://github.com/ThunderKey/python-tool-competition-2024/tree/main/targets"
+            "https://github.com/ThunderKey/python-tool-competition-2024/tree/main/python_tool_competition_2024/targets"
         ),
         console=console,
         show_commands=show_commands,
