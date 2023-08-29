@@ -33,3 +33,22 @@ repos:
     hooks:
       - id: markdownlint
         args: ["--fix"]
+        exclude: "LICENSE.md"
+
+  - repo: https://github.com/johann-petrak/licenseheaders.git
+    rev: v0.8.8
+    hooks:
+      - id: licenseheaders
+        args:
+          - --tmpl
+          - .gpl-v3.tmpl
+          - --years
+          - "2023"
+          - --owner
+          - Nicolas Erni
+          - -n
+          - python-tool-competition-2024
+          - -u
+          - https://github.com/ThunderKey/python-tool-competition-2024/
+          - -f
+        files: "python_tool_competition_2024/.*\\.py"
