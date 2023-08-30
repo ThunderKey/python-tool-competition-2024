@@ -30,6 +30,11 @@ The success contains the body of the generated test file.
 Storing the file is handled by the runner that runs `build_test`.
 The failure contains a reason and lines that describe the failure.
 
+For examples see:
+
+* <https://github.com/ThunderKey/python-tool-competition-2024-klara>
+* <https://github.com/ThunderKey/python-tool-competition-2024-hypothesis-ghostwriter>
+
 ### Running inside of the Project
 
 Inside of the create project run
