@@ -6,7 +6,7 @@
 
 ### Installation
 
-This tool requires Python 3.11.
+This tool requires Python 3.11 and [poetry](https://python-poetry.org/).
 
 `pip install git+ssh://git@github.com/ThunderKey/python-tool-competition-2024.git`
 (until made public)
@@ -24,7 +24,7 @@ Additionally, some very basic example targets are created as well.
 You can add your own files to the `targets` directory.
 
 Now you can implement the `build_test` function of your generator.
-This will be called for each file and it expects that either a
+This will be called for each target file and it expects that either a
 `TestGenerationSuccess` or `TestGenerationFailure` is returned.
 The success contains the body of the generated test file.
 Storing the file is handled by the runner that runs `build_test`.
