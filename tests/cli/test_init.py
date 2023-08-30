@@ -177,6 +177,10 @@ def test_init_with_confirm(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
 
     assert _list_dir(parent_dir) == {
         "python-tool-competition-2024-some-generator": {
+            ".gitignore": """\
+__pycache__/
+/results/
+""",
             "README.md": """\
 # Python Tool Competition Implementation Using Some Generator
 
@@ -302,6 +306,10 @@ def test_init_with_tmp_file(tmp_path: Path) -> None:
     assert _list_dir(parent_dir) == {
         "outer_existing.py": "",
         "python-tool-competition-2024-testgen": {
+            ".gitignore": """\
+__pycache__/
+/results/
+""",
             "README.md": """\
 # Python Tool Competition Implementation Using TestGen
 
