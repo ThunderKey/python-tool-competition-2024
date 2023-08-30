@@ -202,7 +202,7 @@ method in `python_tool_competition_2024_some_generator/generator.py`.
 
 ## Calculating Metrics
 
-Run `poetry run python-tool-competition-2024 run <generator name>`.
+Run `poetry run python-tool-competition-2024 run some-generator`.
 
 With `poetry run python-tool-competition-2024 run -h` you can find out what
 generators were detected.
@@ -331,7 +331,7 @@ method in `python_tool_competition_2024_testgen/generator.py`.
 
 ## Calculating Metrics
 
-Run `poetry run python-tool-competition-2024 run <generator name>`.
+Run `poetry run python-tool-competition-2024 run testgen`.
 
 With `poetry run python-tool-competition-2024 run -h` you can find out what
 generators were detected.

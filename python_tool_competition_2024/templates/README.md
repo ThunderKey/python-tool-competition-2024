@@ -18,7 +18,7 @@ method in `$module_name/generator.py`.
 
 ## Calculating Metrics
 
-Run `poetry run python-tool-competition-2024 run <generator name>`.
+Run `poetry run python-tool-competition-2024 run $generator_name`.
 
 With `poetry run python-tool-competition-2024 run -h` you can find out what
 generators were detected.
