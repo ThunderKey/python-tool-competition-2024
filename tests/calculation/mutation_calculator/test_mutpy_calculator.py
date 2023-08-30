@@ -1,10 +1,13 @@
 from pathlib import Path
 from unittest import mock
 
+import pytest
+
 from python_tool_competition_2024.calculation.mutation_calculator.mutpy_calculator import (  # noqa: E501
     calculate_mutation,
 )
 from python_tool_competition_2024.config import Config
+from python_tool_competition_2024.errors import CommandFailedError
 from python_tool_competition_2024.results import RatioResult
 from python_tool_competition_2024.target_finder import find_targets
 
@@ -46,6 +49,129 @@ def test_mutpy_calculator(tmp_path: Path) -> None:
         ]
 
 
+def test_mutpy_calculator_always_failing(tmp_path: Path) -> None:
+    with mock.patch(
+        "python_tool_competition_2024.calculation.mutation_calculator.mutpy_calculator.run_command"
+    ) as run_command_mock:
+        run_command_mock.side_effect = _OutputCounter(fail=True)
+        mock.seal(run_command_mock)
+        generated_tests = tmp_path / "dummy" / "generated_tests"
+        generated_tests.mkdir(parents=True)
+        (generated_tests / "test_example1.py").touch()
+        (generated_tests / "test_example2.py").touch()
+        config = get_test_config(
+            show_commands=False,
+            show_failures=False,
+            targets_dir=TARGETS_DIR,
+            results_dir=tmp_path,
+        )
+        targets = find_targets(config)
+
+        for target in targets:
+            with pytest.raises(CommandFailedError):
+                calculate_mutation(target, config)
+
+        assert run_command_mock.call_args_list == [
+            _mutpy_call(config, "example1", "generated_tests.test_example1"),
+            _mutpy_call(config, "example1", None),
+            _mutpy_call(config, "example2", "generated_tests.test_example2"),
+            _mutpy_call(config, "example2", None),
+            _mutpy_call(config, "sub_example", None),
+            _mutpy_call(config, "sub_example.example3", None),
+        ]
+
+
+def test_mutpy_calculator_failing(tmp_path: Path) -> None:
+    with mock.patch(
+        "python_tool_competition_2024.calculation.mutation_calculator.mutpy_calculator.run_command"
+    ) as run_command_mock:
+        run_command_mock.side_effect = _OutputCounter(fail_if_not_typing=True)
+        mock.seal(run_command_mock)
+        generated_tests = tmp_path / "dummy" / "generated_tests"
+        generated_tests.mkdir(parents=True)
+        (generated_tests / "test_example1.py").touch()
+        (generated_tests / "test_example2.py").touch()
+        config = get_test_config(
+            show_commands=False,
+            show_failures=False,
+            targets_dir=TARGETS_DIR,
+            results_dir=tmp_path,
+        )
+        targets = find_targets(config)
+
+        with config.console.capture() as capture:
+            assert {
+                target.source_module: calculate_mutation(target, config)
+                for target in targets
+            } == {
+                "example1": RatioResult(10, 0),
+                "example2": RatioResult(11, 1),
+                "sub_example": RatioResult(12, 2),
+                "sub_example.example3": RatioResult(13, 3),
+            }
+
+        assert tuple(capture.get().splitlines()) == tuple(
+            (
+                f"Could not run mutation testing for {module}. "
+                "Add -vv to show the console output."
+            )
+            for module in ("example1", "example2")
+        )
+
+        assert run_command_mock.call_args_list == [
+            _mutpy_call(config, "example1", "generated_tests.test_example1"),
+            _mutpy_call(config, "example1", None),
+            _mutpy_call(config, "example2", "generated_tests.test_example2"),
+            _mutpy_call(config, "example2", None),
+            _mutpy_call(config, "sub_example", None),
+            _mutpy_call(config, "sub_example.example3", None),
+        ]
+
+
+def test_mutpy_calculator_failing_with_output(tmp_path: Path) -> None:
+    with mock.patch(
+        "python_tool_competition_2024.calculation.mutation_calculator.mutpy_calculator.run_command"
+    ) as run_command_mock:
+        run_command_mock.side_effect = _OutputCounter(fail_if_not_typing=True)
+        mock.seal(run_command_mock)
+        generated_tests = tmp_path / "dummy" / "generated_tests"
+        generated_tests.mkdir(parents=True)
+        (generated_tests / "test_example1.py").touch()
+        (generated_tests / "test_example2.py").touch()
+        config = get_test_config(
+            show_commands=True,
+            show_failures=False,
+            targets_dir=TARGETS_DIR,
+            results_dir=tmp_path,
+        )
+        targets = find_targets(config)
+
+        with config.console.capture() as capture:
+            assert {
+                target.source_module: calculate_mutation(target, config)
+                for target in targets
+            } == {
+                "example1": RatioResult(10, 0),
+                "example2": RatioResult(11, 1),
+                "sub_example": RatioResult(12, 2),
+                "sub_example.example3": RatioResult(13, 3),
+            }
+
+        assert tuple(capture.get().splitlines()) == tuple(
+            f"Could not run mutation testing for {module}."
+            for module in ("example1", "example2")
+        )
+
+        assert run_command_mock.call_args_list == [
+            _mutpy_call(config, "example1", "generated_tests.test_example1"),
+            _mutpy_call(config, "example1", None),
+            _mutpy_call(config, "example2", "generated_tests.test_example2"),
+            _mutpy_call(config, "example2", None),
+            _mutpy_call(config, "sub_example", None),
+            _mutpy_call(config, "sub_example.example3", None),
+        ]
+
+
 def _mutpy_call(config: Config, target: str, unit_test: str | None) -> mock._Call:
     return mock.call(
         config,
@@ -57,15 +183,20 @@ def _mutpy_call(config: Config, target: str, unit_test: str | None) -> mock._Cal
         "--runner",
         "pytest",
         capture=True,
+        show_output_on_error=False,
     )
 
 
 class _OutputCounter:
-    def __init__(self) -> None:
+    def __init__(self, *, fail: bool = False, fail_if_not_typing: bool = False) -> None:
         self._total_count = 9
         self._successful_count = -1
+        self._fail = fail
+        self._fail_if_not_typing = fail_if_not_typing
 
-    def __call__(self, *_args: object, **_kwds: object) -> str:
+    def __call__(self, _config: Config, *args: str, **_kwds: object) -> str:
+        if self._fail or (self._fail_if_not_typing and "typing" not in args):
+            raise CommandFailedError(args)
         self._total_count += 1
         self._successful_count += 1
         return f"""

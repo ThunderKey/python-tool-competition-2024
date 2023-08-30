@@ -8,6 +8,7 @@ from python_tool_competition_2024.calculation.mutation_calculator.cosmic_ray_cal
     calculate_mutation,
 )
 from python_tool_competition_2024.config import Config
+from python_tool_competition_2024.errors import CommandFailedError
 from python_tool_competition_2024.results import RatioResult
 from python_tool_competition_2024.target_finder import find_targets
 
@@ -72,6 +73,99 @@ def test_cosmic_ray_calculator(tmp_path: Path) -> None:
         }
 
 
+def test_cosmic_ray_calculator_with_failing_baseline(tmp_path: Path) -> None:
+    with mock.patch(
+        "python_tool_competition_2024.calculation.mutation_calculator.cosmic_ray_calculator.run_command"
+    ) as run_command_mock:
+        run_command_mock.side_effect = _OutputCounter(fail_baseline=True)
+        mock.seal(run_command_mock)
+        generated_tests = tmp_path / "dummy" / "generated_tests"
+        generated_tests.mkdir(parents=True)
+        (generated_tests / "test_example1.py").touch()
+        (generated_tests / "test_example2.py").touch()
+        config = get_test_config(
+            show_commands=False,
+            show_failures=False,
+            targets_dir=TARGETS_DIR,
+            results_dir=tmp_path,
+        )
+        targets = find_targets(config)
+        with config.console.capture() as capture:
+            assert {
+                target.source_module: calculate_mutation(target, config)
+                for target in targets
+            } == {
+                "example1": RatioResult(10, 0),
+                "example2": RatioResult(11, 1),
+                "sub_example": RatioResult(12, 2),
+                "sub_example.example3": RatioResult(13, 3),
+            }
+        assert tuple(capture.get().splitlines()) == tuple(
+            (
+                f"Could not run mutation testing for {module}. "
+                "Add -vv to show the console output."
+            )
+            for module in (
+                "example1",
+                "example2",
+                "sub_example",
+                "sub_example.example3",
+            )
+        )
+
+        assert run_command_mock.call_args_list == [
+            *_cr_calls(config, "example1", skip_exec=True),
+            *_cr_calls(config, "example2", skip_exec=True),
+            *_cr_calls(config, "sub_example", skip_exec=True),
+            *_cr_calls(config, "sub_example.example3", skip_exec=True),
+        ]
+
+
+def test_cosmic_ray_calculator_with_failing_baseline_and_output(tmp_path: Path) -> None:
+    with mock.patch(
+        "python_tool_competition_2024.calculation.mutation_calculator.cosmic_ray_calculator.run_command"
+    ) as run_command_mock:
+        run_command_mock.side_effect = _OutputCounter(fail_baseline=True)
+        mock.seal(run_command_mock)
+        generated_tests = tmp_path / "dummy" / "generated_tests"
+        generated_tests.mkdir(parents=True)
+        (generated_tests / "test_example1.py").touch()
+        (generated_tests / "test_example2.py").touch()
+        config = get_test_config(
+            show_commands=True,
+            show_failures=False,
+            targets_dir=TARGETS_DIR,
+            results_dir=tmp_path,
+        )
+        targets = find_targets(config)
+        with config.console.capture() as capture:
+            assert {
+                target.source_module: calculate_mutation(target, config)
+                for target in targets
+            } == {
+                "example1": RatioResult(10, 0),
+                "example2": RatioResult(11, 1),
+                "sub_example": RatioResult(12, 2),
+                "sub_example.example3": RatioResult(13, 3),
+            }
+        assert tuple(capture.get().splitlines()) == tuple(
+            f"Could not run mutation testing for {module}."
+            for module in (
+                "example1",
+                "example2",
+                "sub_example",
+                "sub_example.example3",
+            )
+        )
+
+        assert run_command_mock.call_args_list == [
+            *_cr_calls(config, "example1", skip_exec=True),
+            *_cr_calls(config, "example2", skip_exec=True),
+            *_cr_calls(config, "sub_example", skip_exec=True),
+            *_cr_calls(config, "sub_example.example3", skip_exec=True),
+        ]
+
+
 def test_gather_results_not_started() -> None:
     with mock.patch(
         "python_tool_competition_2024.calculation.mutation_calculator.cosmic_ray_calculator.run_command"
@@ -107,16 +201,28 @@ def test_gather_results_not_completed() -> None:
         )
 
 
-def _cr_calls(config: Config, target: str) -> tuple[mock._Call, ...]:
+def _cr_calls(
+    config: Config, target: str, *, skip_exec: bool = False
+) -> tuple[mock._Call, ...]:
     cr_dir = config.results_dir / "cosmic_ray"
     config_file = cr_dir / f"{target}.toml"
     db_file = cr_dir / f"{target}.sqlite"
-    return (
+    calls: tuple[mock._Call, ...] = (
         mock.call(config, "cosmic-ray", "init", str(config_file), str(db_file)),
-        mock.call(config, "cosmic-ray", "baseline", str(config_file)),
-        mock.call(config, "cosmic-ray", "exec", str(config_file), str(db_file)),
-        mock.call(config, "cr-report", str(db_file), capture=True),
+        mock.call(
+            config,
+            "cosmic-ray",
+            "baseline",
+            str(config_file),
+            show_output_on_error=False,
+        ),
     )
+    if not skip_exec:
+        calls = (
+            *calls,
+            mock.call(config, "cosmic-ray", "exec", str(config_file), str(db_file)),
+        )
+    return (*calls, mock.call(config, "cr-report", str(db_file), capture=True))
 
 
 def _cr_config(target: Path, test_file: Path | None) -> str:
@@ -136,11 +242,14 @@ name = "local"
 
 
 class _OutputCounter:
-    def __init__(self) -> None:
+    def __init__(self, *, fail_baseline: bool = False) -> None:
         self._total_count = 9
         self._successful_count = -1
+        self._fail_baseline = fail_baseline
 
     def __call__(self, _config: Config, *args: str, **_kwargs: object) -> str:
+        if self._fail_baseline and args[0:2] == ("cosmic-ray", "baseline"):
+            raise CommandFailedError(args)
         if args[0] != "cr-report":
             return ""
         self._total_count += 1

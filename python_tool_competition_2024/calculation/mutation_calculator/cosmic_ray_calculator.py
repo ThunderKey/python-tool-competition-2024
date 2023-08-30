@@ -27,6 +27,7 @@ from typing import NamedTuple
 import toml
 
 from ...config import Config
+from ...errors import CommandFailedError
 from ...results import RatioResult
 from ...target_finder import Target
 from ..cli_runner import run_command
@@ -46,10 +47,23 @@ def calculate_mutation(target: Target, config: Config) -> RatioResult:
     run_command(
         config, "cosmic-ray", "init", str(files.config_file), str(files.db_file)
     )
-    run_command(config, "cosmic-ray", "baseline", str(files.config_file))
-    run_command(
-        config, "cosmic-ray", "exec", str(files.config_file), str(files.db_file)
-    )
+    try:
+        run_command(
+            config,
+            "cosmic-ray",
+            "baseline",
+            str(files.config_file),
+            show_output_on_error=False,
+        )
+    except CommandFailedError:
+        msg = f"Could not run mutation testing for {target.source_module}."
+        if not config.show_commands:
+            msg = f"{msg} Add -vv to show the console output."
+        config.console.print(msg, style="red")
+    else:
+        run_command(
+            config, "cosmic-ray", "exec", str(files.config_file), str(files.db_file)
+        )
     return _gather_results(files, config)
 
 

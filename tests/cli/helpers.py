@@ -2,14 +2,12 @@ import contextlib
 import math
 import os
 from collections.abc import Iterator, Mapping
-from functools import partial
 from importlib.metadata import EntryPoint
 from types import MappingProxyType
-from typing import Final
 from unittest import mock
 
 from click.testing import CliRunner
-from rich.console import Console, RenderableType
+from rich.console import RenderableType
 
 from python_tool_competition_2024.calculation.coverage_caluclator import Coverages
 from python_tool_competition_2024.calculation.mutation_calculator import (
@@ -26,9 +24,7 @@ from ..example_generators import (
     RaisingTestGenerator,
     StaticTestGenerator,
 )
-
-_CLI_COLUMNS: Final = 200
-
+from ..helpers import CLI_COLUMNS, get_test_console
 
 _DEFAULT_GENERATORS = MappingProxyType(
     {
@@ -92,9 +88,6 @@ def run_cli(  # noqa: PLR0913
     return result
 
 
-_create_console = partial(Console, width=_CLI_COLUMNS)
-
-
 @contextlib.contextmanager
 def _cli_runner(
     *,
@@ -110,20 +103,20 @@ def _cli_runner(
     ), mock.patch(
         "python_tool_competition_2024.cli.helpers.Console"
     ) as console_mock:
-        console_mock.side_effect = _create_console
+        console_mock.side_effect = get_test_console
         mock.seal(console_mock)
         yield CliRunner(mix_stderr=False)
 
 
 def renderable_to_strs(renderable: RenderableType) -> tuple[str, ...]:
-    console = _create_console()
+    console = get_test_console()
     with console.capture() as capture:
         console.print(renderable)
     return tuple(capture.get().splitlines())
 
 
 def cli_title(content: str) -> str:
-    dashes = (_CLI_COLUMNS - len(content) - 2) / 2
+    dashes = (CLI_COLUMNS - len(content) - 2) / 2
     return f"{'─' * math.floor(dashes)} {content} {'─' * math.ceil(dashes)}"
 
 

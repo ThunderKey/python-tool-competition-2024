@@ -31,7 +31,11 @@ from defusedxml import ElementTree
 
 from ..calculation.cli_runner import run_command
 from ..config import Config
-from ..errors import ConditionCoverageError, TargetNotFoundInCoveragesError
+from ..errors import (
+    CommandFailedError,
+    ConditionCoverageError,
+    TargetNotFoundInCoveragesError,
+)
 from ..results import RatioResult
 from ..target_finder import Target
 
@@ -53,20 +57,27 @@ def _generate_coverage_xml(target: Target, config: Config) -> Path:
     coverage_xml = config.coverages_dir / f"{target.source_module}.xml"
     coverage_xml.unlink(missing_ok=True)
     if target.test.exists():
-        run_command(
-            config,
-            "pytest",
-            str(target.test),
-            f"--cov={target.source_module}",
-            "--cov-branch",
-            "--cov-report",
-            f"xml:{coverage_xml}",
-            "--color=yes",
-            # reset options that are not desired
-            "--cov-fail-under=0",
-            "--override-ini=addopts=",
-            "--override-ini=cache_dir=.pytest_competition_cache",
-        )
+        try:
+            run_command(
+                config,
+                "pytest",
+                str(target.test),
+                f"--cov={target.source_module}",
+                "--cov-branch",
+                "--cov-report",
+                f"xml:{coverage_xml}",
+                "--color=yes",
+                # reset options that are not desired
+                "--cov-fail-under=0",
+                "--override-ini=addopts=",
+                "--override-ini=cache_dir=.pytest_competition_cache",
+                show_output_on_error=False,
+            )
+        except CommandFailedError:
+            msg = f"Could not run pytest for {target.source_module}."
+            if not config.show_commands:
+                msg = f"{msg} Add -vv to show the console output."
+            config.console.print(msg, style="red")
 
     # if the test was not generated or it does not import the source
     if not coverage_xml.exists():

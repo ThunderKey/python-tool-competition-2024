@@ -33,20 +33,32 @@ _VALID_COMMANDS = get_args(_COMMAND)
 
 @overload
 def run_command(
-    config: Config, command: _COMMAND, *args: str, capture: Literal[True]
+    config: Config,
+    command: _COMMAND,
+    *args: str,
+    capture: Literal[True],
+    show_output_on_error: bool = ...,
 ) -> str:
     ...
 
 
 @overload
 def run_command(
-    config: Config, command: _COMMAND, *args: str, capture: Literal[False] = ...
+    config: Config,
+    command: _COMMAND,
+    *args: str,
+    capture: Literal[False] = ...,
+    show_output_on_error: bool = ...,
 ) -> None:
     ...
 
 
 def run_command(
-    config: Config, command: _COMMAND, *args: str, capture: Literal[True, False] = False
+    config: Config,
+    command: _COMMAND,
+    *args: str,
+    capture: Literal[True, False] = False,
+    show_output_on_error: bool = True,
 ) -> None | str:
     """
     Run a command on the command line.
@@ -70,7 +82,8 @@ def run_command(
             with config.console.capture() as console_capture:
                 output = _run_command(config, command, args)
         except CommandFailedError:
-            config.console.out(console_capture.get(), highlight=False, end="")
+            if show_output_on_error:
+                config.console.out(console_capture.get(), highlight=False, end="")
             raise
     return output if capture else None
 
