@@ -307,9 +307,9 @@ def test_run_with_real_tests(wd_tmp_path: Path) -> None:
 ┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
 │ example1.py             │    ✔    │       44.44 % │         25.00 % │        62.50 % │
-│ example2.py             │    ✖    │        0.00 % │          0.00 % │         0.00 % │
+│ example2.py             │    ✖    │        0.00 % │        100.00 % │         0.00 % │
 │ sub_example/__init__.py │    ✖    │        0.00 % │          0.00 % │         0.00 % │
-│ sub_example/example3.py │    ✔    │      100.00 % │          0.00 % │         0.00 % │
+│ sub_example/example3.py │    ✔    │      100.00 % │        100.00 % │         0.00 % │
 ├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
 │ Total                   │ 50.00 % │       38.89 % │         16.67 % │        45.45 % │
 └─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
@@ -341,9 +341,9 @@ def test_run_with_real_tests(wd_tmp_path: Path) -> None:
             "mutation score,mutants,killed mutants"
         ),
         "example1.py,1.0,1,1,0.4444444444444444,9,4,0.25,4,1,0.625,8,5",
-        "example2.py,0.0,1,0,0.0,2,0,0.0,0,0,0.0,1,0",
+        "example2.py,0.0,1,0,0.0,2,0,1.0,0,0,0.0,1,0",
         "sub_example/__init__.py,0.0,1,0,0.0,4,0,0.0,2,0,0.0,1,0",
-        "sub_example/example3.py,1.0,1,1,1.0,3,3,0.0,0,0,0.0,1,0",
+        "sub_example/example3.py,1.0,1,1,1.0,3,3,1.0,0,0,0.0,1,0",
         "total,0.5,4,2,0.3888888888888889,18,7,0.16666666666666666,6,1,0.45454545454545453,11,5",
     )
     targets = (TARGETS_DIR / "sub_example" / "example3.py", TARGETS_DIR / "example1.py")
@@ -363,9 +363,9 @@ def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
 ┃ Target                  ┃ Success  ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
 │ example1.py             │    ✔     │        0.00 % │          0.00 % │         0.00 % │
-│ example2.py             │    ✔     │        0.00 % │          0.00 % │         0.00 % │
+│ example2.py             │    ✔     │        0.00 % │        100.00 % │         0.00 % │
 │ sub_example/__init__.py │    ✔     │        0.00 % │          0.00 % │         0.00 % │
-│ sub_example/example3.py │    ✔     │        0.00 % │          0.00 % │         0.00 % │
+│ sub_example/example3.py │    ✔     │        0.00 % │        100.00 % │         0.00 % │
 ├─────────────────────────┼──────────┼───────────────┼─────────────────┼────────────────┤
 │ Total                   │ 100.00 % │        0.00 % │          0.00 % │         0.00 % │
 └─────────────────────────┴──────────┴───────────────┴─────────────────┴────────────────┘
@@ -399,9 +399,9 @@ def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
             "mutation score,mutants,killed mutants"
         ),
         "example1.py,1.0,1,1,0.0,9,0,0.0,4,0,0.0,8,0",
-        "example2.py,1.0,1,1,0.0,2,0,0.0,0,0,0.0,1,0",
+        "example2.py,1.0,1,1,0.0,2,0,1.0,0,0,0.0,1,0",
         "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,2,0,0.0,1,0",
-        "sub_example/example3.py,1.0,1,1,0.0,3,0,0.0,0,0,0.0,1,0",
+        "sub_example/example3.py,1.0,1,1,0.0,3,0,1.0,0,0,0.0,1,0",
         "total,1.0,4,4,0.0,18,0,0.0,6,0,0.0,11,0",
     )
     targets = (
@@ -438,9 +438,9 @@ def test_run_with_different_targets_and_results(wd_tmp_path: Path) -> None:
 ┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
 │ example1.py             │    ✖    │        0.00 % │          0.00 % │         0.00 % │
-│ example2.py             │    ✖    │        0.00 % │          0.00 % │         0.00 % │
+│ example2.py             │    ✖    │        0.00 % │        100.00 % │         0.00 % │
 │ sub_example/__init__.py │    ✔    │        0.00 % │          0.00 % │         0.00 % │
-│ sub_example/example3.py │    ✔    │        0.00 % │          0.00 % │         0.00 % │
+│ sub_example/example3.py │    ✔    │        0.00 % │        100.00 % │         0.00 % │
 ├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
 │ Total                   │ 50.00 % │        0.00 % │          0.00 % │         0.00 % │
 └─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
@@ -471,9 +471,9 @@ def test_run_with_different_targets_and_results(wd_tmp_path: Path) -> None:
             "mutation score,mutants,killed mutants"
         ),
         "example1.py,0.0,1,0,0.0,9,0,0.0,4,0,0.0,8,0",
-        "example2.py,0.0,1,0,0.0,2,0,0.0,0,0,0.0,1,0",
+        "example2.py,0.0,1,0,0.0,2,0,1.0,0,0,0.0,1,0",
         "sub_example/__init__.py,1.0,1,1,0.0,4,0,0.0,2,0,0.0,1,0",
-        "sub_example/example3.py,1.0,1,1,0.0,3,0,0.0,0,0,0.0,1,0",
+        "sub_example/example3.py,1.0,1,1,0.0,3,0,1.0,0,0,0.0,1,0",
         "total,0.5,4,2,0.0,18,0,0.0,6,0,0.0,11,0",
     )
     targets = (

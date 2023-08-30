@@ -57,7 +57,7 @@ class RatioResult:
     @property
     def ratio(self) -> float:
         """The total covarage. The value is between 0.0 and 1.0."""
-        return 0.0 if self.total == 0 else self.successful / self.total
+        return 1.0 if self.total == 0 else self.successful / self.total
 
     def __add__(self, other: "RatioResult") -> "RatioResult":
         """Add the results together."""
