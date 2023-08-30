@@ -19,6 +19,8 @@
 #
 """Runs CLI commands."""
 
+from __future__ import annotations
+
 import os
 import subprocess  # nosec B404
 from collections.abc import Mapping

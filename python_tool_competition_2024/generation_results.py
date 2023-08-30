@@ -19,6 +19,8 @@
 #
 """A module containing the data structures for the results of test generation."""
 
+from __future__ import annotations
+
 import abc
 import dataclasses
 import enum
@@ -52,7 +54,7 @@ class FailureReason(enum.Enum):
         "An unexpected error occurred during test generation.",
     )
 
-    def __lt__(self, other: "FailureReason") -> bool:
+    def __lt__(self, other: FailureReason) -> bool:
         """Whether the other failure reason is smaller than this."""
         return self.name < other.name
 

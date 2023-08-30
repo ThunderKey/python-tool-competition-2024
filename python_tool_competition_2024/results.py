@@ -19,6 +19,8 @@
 #
 """Helpers for handling results."""
 
+from __future__ import annotations
+
 import abc
 import dataclasses
 from collections.abc import Callable, Iterable, Sequence
@@ -59,7 +61,7 @@ class RatioResult:
         """The total covarage. The value is between 0.0 and 1.0."""
         return 1.0 if self.total == 0 else self.successful / self.total
 
-    def __add__(self, other: "RatioResult") -> "RatioResult":
+    def __add__(self, other: RatioResult) -> RatioResult:
         """Add the results together."""
         return RatioResult(
             total=self.total + other.total,

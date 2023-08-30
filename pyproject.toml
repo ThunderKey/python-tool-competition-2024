@@ -8,7 +8,7 @@ packages = [{include = "python_tool_competition_2024"}]
 license = "GPL-3.0-or-later"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.9,<3.12"
 pytest = "^7.3.2"
 pytest-cov = "^4.1.0"
 rich = "^13.4.2"
@@ -17,6 +17,8 @@ defusedxml = "^0.7.1"
 toml = "^0.10.2"
 mutpy = "^0.6.1"
 cosmic-ray = "^8.3.7"
+typing-extensions = "^4.7.1"
+importlib-metadata = {version = "^6.8.0", python = "<3.10"}
 
 [tool.poetry.group.linter.dependencies]
 ruff = ">=0.0.274, <0.1"
@@ -107,6 +109,7 @@ exclude_lines = [
     "@(typing\\.)?overload",
     "if (typing\\.)?TYPE_CHECKING:",
     "class .*\\((|.*, ?)Protocol(|,.*)\\):",
+    "# pragma: no cover",
 ]
 fail_under = 100
 sort = 'Cover'
@@ -126,7 +129,7 @@ exclude = [
 ]
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py39"
 select = ["ALL"]
 ignore = [
     # custom documentation rules

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import inspect
 from pathlib import Path
 from types import ModuleType
@@ -30,7 +32,9 @@ def test_import_module() -> None:
     assert module_names == {
         TARGETS_DIR / "example1.py": frozenset({"other_method", "some_method"}),
         TARGETS_DIR / "example2.py": frozenset({"my_method"}),
-        TARGETS_DIR / "sub_example" / "__init__.py": frozenset({"helper"}),
+        TARGETS_DIR
+        / "sub_example"
+        / "__init__.py": frozenset({"annotations", "helper"}),
         TARGETS_DIR / "sub_example" / "example3.py": frozenset({"example"}),
     }
 

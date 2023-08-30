@@ -20,8 +20,8 @@
 """Handling of plugins."""
 
 import re
+import sys
 from functools import cache
-from importlib.metadata import EntryPoint, entry_points
 from typing import cast
 
 from .config import GeneratorName
@@ -32,6 +32,11 @@ from .errors import (
     NoGeneratorFoundError,
 )
 from .generators import TestGenerator
+
+if sys.version_info[0:2] >= (3, 10):
+    from importlib.metadata import EntryPoint, entry_points  # pragma: no cover
+else:
+    from importlib_metadata import EntryPoint, entry_points  # pragma: no cover
 
 ENTRY_POINT_GROUP_NAME = "python_tool_competition_2024.test_generators"
 

@@ -19,9 +19,11 @@
 #
 """Reporter to write a CSV file."""
 
+from __future__ import annotations
+
 import csv
 from pathlib import Path
-from typing import Literal, TypeAlias
+from typing import Literal
 
 from ..config import Config
 from ..results import RatioResults, Results
@@ -56,7 +58,9 @@ def report_csv(results: Results, config: Config) -> None:
         writer.writerow(_result_to_csv_row("total", results))
 
 
-_CSV_ROW: TypeAlias = tuple[
+def _result_to_csv_row(
+    target: Path | Literal["total"], ratios: RatioResults
+) -> tuple[
     Path | Literal["total"],
     float,
     int,
@@ -70,12 +74,7 @@ _CSV_ROW: TypeAlias = tuple[
     float,
     int,
     int,
-]
-
-
-def _result_to_csv_row(
-    target: Path | Literal["total"], ratios: RatioResults
-) -> _CSV_ROW:
+]:
     return (
         target,
         ratios.generation_results.ratio,

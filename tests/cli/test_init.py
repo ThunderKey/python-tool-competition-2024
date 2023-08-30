@@ -1,10 +1,13 @@
+from __future__ import annotations
+
 from collections.abc import Iterable, Mapping
 from pathlib import Path
-from typing import TypeAlias
+from typing import Union
 from unittest import mock
 
 import pytest
 from rich.table import Table
+from typing_extensions import TypeAlias
 
 from python_tool_competition_2024.cli.init_command import (
     _env_without_venv,
@@ -648,7 +651,7 @@ def _confirmation_table_lines(
     return renderable_to_strs(table)
 
 
-_DirList: TypeAlias = str | Mapping[str, "_DirList"]
+_DirList: TypeAlias = Union[str, Mapping[str, "_DirList"]]
 
 
 def _list_dir(path: Path) -> _DirList:
