@@ -79,6 +79,10 @@ def run(
         targets = find_targets(config)
         results = calculate_results(targets, config)
         report(results, console, config)
+        if not config.show_failures and (
+            results.generation_results.total != results.generation_results.successful
+        ):
+            console.print("Add -v to show the failed generation results.")
 
 
 def _extend_help(command: click.Command, extend_with: str) -> None:
