@@ -59,7 +59,7 @@ def _run_mutpy(target: Target, config: Config, test_module: str) -> str:
         config,
         "mut.py",
         "--target",
-        target.source_module,
+        str(target.source),
         "--unit-test",
         test_module,
         "--runner",

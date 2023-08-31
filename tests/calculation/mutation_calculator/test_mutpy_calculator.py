@@ -44,10 +44,14 @@ def test_mutpy_calculator(tmp_path: Path) -> None:
         }
 
         assert run_command_mock.call_args_list == [
-            _mutpy_call(config, "example1", "generated_tests.test_example1"),
-            _mutpy_call(config, "example2", "generated_tests.test_example2"),
-            _mutpy_call(config, "sub_example", None),
-            _mutpy_call(config, "sub_example.example3", None),
+            _mutpy_call(
+                config, TARGETS_DIR / "example1.py", "generated_tests.test_example1"
+            ),
+            _mutpy_call(
+                config, TARGETS_DIR / "example2.py", "generated_tests.test_example2"
+            ),
+            _mutpy_call(config, TARGETS_DIR / "sub_example" / "__init__.py", None),
+            _mutpy_call(config, TARGETS_DIR / "sub_example" / "example3.py", None),
         ]
 
 
@@ -74,12 +78,16 @@ def test_mutpy_calculator_always_failing(tmp_path: Path) -> None:
                 calculate_mutation(target, config)
 
         assert run_command_mock.call_args_list == [
-            _mutpy_call(config, "example1", "generated_tests.test_example1"),
-            _mutpy_call(config, "example1", None),
-            _mutpy_call(config, "example2", "generated_tests.test_example2"),
-            _mutpy_call(config, "example2", None),
-            _mutpy_call(config, "sub_example", None),
-            _mutpy_call(config, "sub_example.example3", None),
+            _mutpy_call(
+                config, TARGETS_DIR / "example1.py", "generated_tests.test_example1"
+            ),
+            _mutpy_call(config, TARGETS_DIR / "example1.py", None),
+            _mutpy_call(
+                config, TARGETS_DIR / "example2.py", "generated_tests.test_example2"
+            ),
+            _mutpy_call(config, TARGETS_DIR / "example2.py", None),
+            _mutpy_call(config, TARGETS_DIR / "sub_example" / "__init__.py", None),
+            _mutpy_call(config, TARGETS_DIR / "sub_example" / "example3.py", None),
         ]
 
 
@@ -121,12 +129,16 @@ def test_mutpy_calculator_failing(tmp_path: Path) -> None:
         )
 
         assert run_command_mock.call_args_list == [
-            _mutpy_call(config, "example1", "generated_tests.test_example1"),
-            _mutpy_call(config, "example1", None),
-            _mutpy_call(config, "example2", "generated_tests.test_example2"),
-            _mutpy_call(config, "example2", None),
-            _mutpy_call(config, "sub_example", None),
-            _mutpy_call(config, "sub_example.example3", None),
+            _mutpy_call(
+                config, TARGETS_DIR / "example1.py", "generated_tests.test_example1"
+            ),
+            _mutpy_call(config, TARGETS_DIR / "example1.py", None),
+            _mutpy_call(
+                config, TARGETS_DIR / "example2.py", "generated_tests.test_example2"
+            ),
+            _mutpy_call(config, TARGETS_DIR / "example2.py", None),
+            _mutpy_call(config, TARGETS_DIR / "sub_example" / "__init__.py", None),
+            _mutpy_call(config, TARGETS_DIR / "sub_example" / "example3.py", None),
         ]
 
 
@@ -165,21 +177,25 @@ def test_mutpy_calculator_failing_with_output(tmp_path: Path) -> None:
         )
 
         assert run_command_mock.call_args_list == [
-            _mutpy_call(config, "example1", "generated_tests.test_example1"),
-            _mutpy_call(config, "example1", None),
-            _mutpy_call(config, "example2", "generated_tests.test_example2"),
-            _mutpy_call(config, "example2", None),
-            _mutpy_call(config, "sub_example", None),
-            _mutpy_call(config, "sub_example.example3", None),
+            _mutpy_call(
+                config, TARGETS_DIR / "example1.py", "generated_tests.test_example1"
+            ),
+            _mutpy_call(config, TARGETS_DIR / "example1.py", None),
+            _mutpy_call(
+                config, TARGETS_DIR / "example2.py", "generated_tests.test_example2"
+            ),
+            _mutpy_call(config, TARGETS_DIR / "example2.py", None),
+            _mutpy_call(config, TARGETS_DIR / "sub_example" / "__init__.py", None),
+            _mutpy_call(config, TARGETS_DIR / "sub_example" / "example3.py", None),
         ]
 
 
-def _mutpy_call(config: Config, target: str, unit_test: str | None) -> mock._Call:
+def _mutpy_call(config: Config, target: Path, unit_test: str | None) -> mock._Call:
     return mock.call(
         config,
         "mut.py",
         "--target",
-        target,
+        str(target),
         "--unit-test",
         "typing" if unit_test is None else unit_test,
         "--runner",
