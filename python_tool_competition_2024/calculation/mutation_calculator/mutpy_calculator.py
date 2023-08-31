@@ -19,6 +19,7 @@
 #
 """Calculate mutation analysis using mutpy."""
 
+import os
 import re
 
 from ...config import Config
@@ -28,10 +29,19 @@ from ...target_finder import Target
 from ..cli_runner import run_command
 from .helpers import find_matching_line
 
+
+def _mutpy_line_regex(name: str) -> re.Pattern[str]:
+    name = re.escape(name)
+    return re.compile(
+        rf"\A\s+- {name}: (?P<number>\d+) \((?P<percentage>\d+\.\d+%)\)\Z"
+    )
+
+
 _TOTAL_REGEX = re.compile(r"\A\s+- all: (?P<number>\d+)\Z")
-_KILLED_REGEX = re.compile(
-    r"\A\s+- killed: (?P<number>\d+) \((?P<percentage>\d+\.\d+%)\)\Z"
-)
+_KILLED_REGEX = _mutpy_line_regex("killed")
+_SURVIVED_REGEX = _mutpy_line_regex("survived")
+_INCOMPETENT_REGEX = _mutpy_line_regex("incompetent")
+_TIMEOUT_REGEX = _mutpy_line_regex("timeout")
 _EMPTY_MODULE = "typing"
 
 
@@ -49,9 +59,29 @@ def calculate_mutation(target: Target, config: Config) -> RatioResult:
         config.console.print(msg, style="red")
         output = _run_mutpy(target, config, _EMPTY_MODULE)
     lines = tuple(output.splitlines())
-    total = int(find_matching_line(_TOTAL_REGEX, lines).group("number"))
-    killed = int(find_matching_line(_KILLED_REGEX, lines).group("number"))
-    return RatioResult(total, killed)
+    total = _find_number(_TOTAL_REGEX, lines)
+    killed = _find_number(_KILLED_REGEX, lines)
+    survived = _find_number(_SURVIVED_REGEX, lines)
+    incompetent = _find_number(_INCOMPETENT_REGEX, lines)
+    timeout = _find_number(_TIMEOUT_REGEX, lines)
+    ratio = RatioResult(total - incompetent, killed + timeout)
+    if ratio.total - ratio.successful == survived:
+        return ratio
+    msg = os.linesep.join(
+        (
+            "The total and killed does not match the survived mutants:",
+            f"  - total: {total}",
+            f"  - killed: {killed}",
+            f"  - survived: {survived}",
+            f"  - incompetent: {incompetent}",
+            f"  - timeout: {timeout}",
+        )
+    )
+    raise RuntimeError(msg)
+
+
+def _find_number(pattern: re.Pattern[str], lines: tuple[str, ...]) -> int:
+    return int(find_matching_line(pattern, lines).group("number"))
 
 
 def _run_mutpy(target: Target, config: Config, test_module: str) -> str:

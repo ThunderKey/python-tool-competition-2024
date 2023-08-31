@@ -190,6 +190,58 @@ def test_mutpy_calculator_failing_with_output(tmp_path: Path) -> None:
         ]
 
 
+def test_mutpy_calculator_failing_with_wrong_numbers(tmp_path: Path) -> None:
+    with mock.patch(
+        "python_tool_competition_2024.calculation.mutation_calculator.mutpy_calculator.run_command"
+    ) as run_command_mock:
+        run_command_mock.return_value = """
+[*] Mutation score [0.21818 s]: 75.0%
+   - all: 100
+   - killed: 50 (50.0%)
+   - survived: 20 (25.0%)
+   - incompetent: 2 (0.0%)
+   - timeout: 3 (0.0%)
+"""
+        mock.seal(run_command_mock)
+        generated_tests = tmp_path / "dummy" / "generated_tests"
+        generated_tests.mkdir(parents=True)
+        (generated_tests / "test_example1.py").touch()
+        (generated_tests / "test_example2.py").touch()
+        config = get_test_config(
+            show_commands=True,
+            show_failures=False,
+            targets_dir=TARGETS_DIR,
+            results_dir=tmp_path,
+        )
+        targets = find_targets(config)
+
+        for target in targets:
+            with pytest.raises(RuntimeError) as error_info:
+                calculate_mutation(target, config)
+            assert (
+                str(error_info.value)
+                == """\
+The total and killed does not match the survived mutants:
+  - total: 100
+  - killed: 50
+  - survived: 20
+  - incompetent: 2
+  - timeout: 3\
+"""
+            )
+
+        assert run_command_mock.call_args_list == [
+            _mutpy_call(
+                config, TARGETS_DIR / "example1.py", "generated_tests.test_example1"
+            ),
+            _mutpy_call(
+                config, TARGETS_DIR / "example2.py", "generated_tests.test_example2"
+            ),
+            _mutpy_call(config, TARGETS_DIR / "sub_example" / "__init__.py", None),
+            _mutpy_call(config, TARGETS_DIR / "sub_example" / "example3.py", None),
+        ]
+
+
 def _mutpy_call(config: Config, target: Path, unit_test: str | None) -> mock._Call:
     return mock.call(
         config,
@@ -251,7 +303,7 @@ class _OutputCounter:
 [*] Mutation score [0.21818 s]: 75.0%
    - all: {self._total_count}
    - killed: {self._successful_count} (75.0%)
-   - survived: 1 (25.0%)
+   - survived: {self._total_count - self._successful_count} (25.0%)
    - incompetent: 0 (0.0%)
    - timeout: 0 (0.0%)
 """
