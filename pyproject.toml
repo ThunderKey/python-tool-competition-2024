@@ -8,7 +8,7 @@ packages = [{include = "python_tool_competition_2024"}]
 license = "GPL-3.0-or-later"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.12"
+python = "^3.9"
 pytest = "^7.3.2"
 pytest-cov = "^4.1.0"
 rich = "^13.4.2"
