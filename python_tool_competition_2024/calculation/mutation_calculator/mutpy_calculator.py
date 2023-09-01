@@ -21,6 +21,7 @@
 
 import os
 import re
+import warnings
 
 from ...config import Config
 from ...errors import CommandFailedError
@@ -47,6 +48,10 @@ _EMPTY_MODULE = "typing"
 
 def calculate_mutation(target: Target, config: Config) -> RatioResult:
     """Calculate mutation analysis using mutpy."""
+    warnings.warn(  # noqa: B028
+        "Using MutPy can cause incorrect mutation score due to issues in MutPy with "
+        "recent Python versions!"
+    )
     test_module = target.test_module if target.test.exists() else _EMPTY_MODULE
     try:
         output = _run_mutpy(target, config, test_module)
