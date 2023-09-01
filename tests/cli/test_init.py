@@ -549,7 +549,8 @@ def test_init_with_failing_init(tmp_path: Path) -> None:
             "What is your e-mail address?: " + table_strs[0],
             *table_strs[1:],
             "Create the project with these settings? [y/n]: Creating File Structure...",
-            f"Poetry init was not able to create the file {pyproject_path}",
+            "Poetry init was not able to create the file ",
+            f"{pyproject_path}",
         ),
         (),
     )
