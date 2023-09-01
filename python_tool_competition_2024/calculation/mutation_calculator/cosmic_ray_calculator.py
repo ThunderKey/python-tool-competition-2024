@@ -122,7 +122,7 @@ def _gather_results(files: _CosmicRayFiles, config: Config) -> RatioResult:
     else:
         complete = int(find_matching_line(_COMPLETE_REGEX, lines).group("number"))
         survived = int(find_matching_line(_SURVIVING_REGEX, lines).group("number"))
-    if total != complete and files.target.test.exists():
+    if total != complete and complete != 0 and files.target.test.exists():
         msg = (
             f"Not all tests are complete ({complete}/{total}) for "
             f"{files.target.source_module}"
