@@ -11,3 +11,5 @@ __pycache__
 /results/*/generated_tests/**/test_*.py
 /results/*/statistics.csv
 .idea/
+tests/.coverage
+tests/coverage.xml
