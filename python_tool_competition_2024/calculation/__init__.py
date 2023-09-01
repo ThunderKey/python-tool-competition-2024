@@ -30,18 +30,27 @@ from .generation_results_calculator import calculate_generation_result
 from .mutation_calculator import MutationCalculatorName, calculate_mutation
 
 
-def calculate_results(targets: tuple[Target, ...], config: Config) -> Results:
+def calculate_results(
+    targets: tuple[Target, ...],
+    config: Config,
+    mutation_calculator_name: MutationCalculatorName,
+) -> Results:
     """Calculate the results for all targets."""
     if config.results_dir.exists():
         shutil.rmtree(config.results_dir)
     config.results_dir.mkdir(parents=True)
-    return get_results(_calculate_result(target, config) for target in targets)
+    return get_results(
+        _calculate_result(target, config, mutation_calculator_name)
+        for target in targets
+    )
 
 
-def _calculate_result(target: Target, config: Config) -> Result:
+def _calculate_result(
+    target: Target, config: Config, mutation_calculator_name: MutationCalculatorName
+) -> Result:
     generation_result = calculate_generation_result(target, config)
     coverages = calculate_coverages(target, config)
-    mutation = calculate_mutation(target, config, MutationCalculatorName.MUTPY)
+    mutation = calculate_mutation(target, config, mutation_calculator_name)
     return get_result(
         target=target,
         generation_result=generation_result,

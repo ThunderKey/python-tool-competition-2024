@@ -31,11 +31,11 @@ from . import cosmic_ray_calculator, mutpy_calculator
 class MutationCalculatorName(enum.Enum):
     """A name of the calculator name to use."""
 
-    COSMIC_RAY = enum.auto()
-    """See: https://cosmic-ray.readthedocs.io/"""
-
-    MUTPY = enum.auto()
+    MUTPY = "mutpy"
     """See: https://github.com/mutpy/mutpy"""
+
+    COSMIC_RAY = "cosmic-ray"
+    """See: https://cosmic-ray.readthedocs.io/"""
 
 
 def calculate_mutation(

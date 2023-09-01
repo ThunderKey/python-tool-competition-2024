@@ -24,6 +24,7 @@ from pathlib import Path
 import click
 
 from ..calculation import calculate_results
+from ..calculation.mutation_calculator import MutationCalculatorName
 from ..config import get_config
 from ..generator_plugins import plugin_names, to_test_generator_plugin_name
 from ..reporters import report
@@ -54,14 +55,22 @@ _MIN_VERBOSITY_SHOW_FULL_ERRORS = 1
     default=Path("results"),
     show_default=True,
 )
+@click.option(
+    "--mutation-calculator",
+    type=click.Choice(tuple(name.value for name in MutationCalculatorName)),
+    help="The calculator to run mutation analysis.",
+    default=MutationCalculatorName.MUTPY.value,
+    show_default=True,
+)
 @click.pass_context
-def run(
+def run(  # noqa: PLR0913
     ctx: click.Context,
     *,
     generator_name: str,
     verbose: int,
     targets_dir: Path,
     results_dir: Path,
+    mutation_calculator: str,
 ) -> None:
     """Run the tool competition with the specified generator."""
     with create_console(
@@ -77,7 +86,9 @@ def run(
         )
         console.rule(f"Using generator {config.generator_name}")
         targets = find_targets(config)
-        results = calculate_results(targets, config)
+        results = calculate_results(
+            targets, config, MutationCalculatorName(mutation_calculator)
+        )
         report(results, console, config)
         if not config.show_failures and (
             results.generation_results.total != results.generation_results.successful

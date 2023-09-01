@@ -503,12 +503,15 @@ def test_run_with_help(help_arg: str) -> None:
         "  GENERATOR_NAME is the name of the generator to use (detected: dummy)",
         "",
         "Options:",
-        "  -v, --verbose            Enables verbose mode. Can be repeated.",
-        "  --targets-dir DIRECTORY  The directory containing all targets.  [default:",
-        "                           targets]",
-        "  --results-dir DIRECTORY  The directory to store all results to.  [default:",
-        "                           results]",
-        "  -h, --help               Show this message and exit.",
+        "  -v, --verbose                   Enables verbose mode. Can be repeated.",
+        "  --targets-dir DIRECTORY         The directory containing all targets.",
+        "                                  [default: targets]",
+        "  --results-dir DIRECTORY         The directory to store all results to.",
+        "                                  [default: results]",
+        "  --mutation-calculator [mutpy|cosmic-ray]",
+        "                                  The calculator to run mutation analysis.",
+        "                                  [default: mutpy]",
+        "  -h, --help                      Show this message and exit.",
     )
 
 
