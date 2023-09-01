@@ -43,6 +43,12 @@ Inside of the create project run
 With `poetry run python-tool-competition-2024 run -h` you can find out what
 generators were detected.
 
+The tool does not only execute the test generator, it also runs the generated tests
+against the code to measure different metrics: it measures line and branch coverage
+using the [coverage](https://github.com/nedbat/coveragepy) framework;
+it furthermore computes [mutation score](https://en.wikipedia.org/wiki/Mutation_testing)
+utilizing the [cosmic-ray](https://github.com/sixty-north/cosmic-ray) tool.
+
 ## Improving the Competition Runner
 
 * Installation: `poetry install`
