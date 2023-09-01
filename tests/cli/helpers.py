@@ -183,7 +183,7 @@ def _register_mutation_scores(
         num_coverages = len(_COVERAGES) if scores_called else 0
         assert (
             calculate_mutation_mock.call_args_list
-            == [mock.call(mock.ANY, mock.ANY, MutationCalculatorName.MUTPY)]
+            == [mock.call(mock.ANY, mock.ANY, MutationCalculatorName.COSMIC_RAY)]
             * num_mutations
         )
         assert (

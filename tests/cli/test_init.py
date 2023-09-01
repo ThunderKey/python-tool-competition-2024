@@ -407,7 +407,8 @@ def test_init_without_overwriting_exsiting(tmp_path: Path) -> None:
             *table_strs[1:],
             "Create the project with these settings? [y/n]: "
             "Creating File Structure...",
-            f"The project directory {project_dir} already exists. Delete? [y/n]: ",
+            f"The project directory {project_dir} already exists. ",
+            "Delete? [y/n]: ",
         ),
         (),
     )

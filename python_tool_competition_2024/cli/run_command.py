@@ -59,7 +59,7 @@ _MIN_VERBOSITY_SHOW_FULL_ERRORS = 1
     "--mutation-calculator",
     type=click.Choice(tuple(name.value for name in MutationCalculatorName)),
     help="The calculator to run mutation analysis.",
-    default=MutationCalculatorName.MUTPY.value,
+    default=MutationCalculatorName.COSMIC_RAY.value,
     show_default=True,
 )
 @click.pass_context
