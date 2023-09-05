@@ -6,14 +6,25 @@
 
 ### Installation
 
-This tool requires Python 3.11 and [poetry](https://python-poetry.org/).
+This tool requires Python 3.11 (**Note:** the tool will not work with any other version, including the newer versions) and [poetry](https://python-poetry.org/).
 
 `pip install git+ssh://git@github.com/ThunderKey/python-tool-competition-2024.git`
 (until made public)
 
 ### Creating a New Test Generator Project
 
-Run `python-tool-competition-2024 init` and follow the instructions on screen.
+Run `python-tool-competition-2024 init` and follow the instructions on the screen. During the setup process, you need to provide the following information:
+- Human-readable name of the test generator (mandatory)
+- Directory in which the project will be created (by default: the current directory)
+- Your full name (mandatory)
+- Your email address (mandatory)
+- Information required to create `pyproject.toml`:
+  - Project's version (by default 0.1.0)
+  - Author (by default, it will use the information that is provided in the prior steps)
+  - Licence (optional)
+  - Compatible Python versions for your generator (ToDo: any restriction for the version?)
+  - Project's main dependencies (can be defined during the setup or afterward)
+  - Project's development dependencies (can be defined during the setup or afterward)
 
 This will create a [poetry](https://python-poetry.org/) project with all
 required files.
@@ -30,7 +41,7 @@ The success contains the body of the generated test file.
 Storing the file is handled by the runner that runs `build_test`.
 The failure contains a reason and lines that describe the failure.
 
-For examples see:
+For examples see (ToDo: should be public):
 
 * <https://github.com/ThunderKey/python-tool-competition-2024-klara>
 * <https://github.com/ThunderKey/python-tool-competition-2024-hypothesis-ghostwriter>
