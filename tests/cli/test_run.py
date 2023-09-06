@@ -362,19 +362,21 @@ Add -v to show the failed generation results.
 
 def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
     assert run_successful_cli(
-        ("run", "dummy", "--targets-dir", str(TARGETS_DIR)), generators=None
+        ("run", "dummy", "--targets-dir", str(TARGETS_DIR)),
+        generators=None,
+        mock_scores=True,
     ) == (
         cli_title("Using generator dummy"),
         *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success  ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
-│ example1.py             │    ✔     │        0.00 % │          0.00 % │         0.00 % │
-│ example2.py             │    ✔     │        0.00 % │        100.00 % │         0.00 % │
-│ sub_example/__init__.py │    ✔     │        0.00 % │          0.00 % │         0.00 % │
-│ sub_example/example3.py │    ✔     │        0.00 % │        100.00 % │         0.00 % │
+│ example1.py             │    ✔     │       50.00 % │         40.00 % │        40.00 % │
+│ example2.py             │    ✔     │        0.00 % │         25.00 % │         2.00 % │
+│ sub_example/__init__.py │    ✔     │      100.00 % │         50.00 % │       100.00 % │
+│ sub_example/example3.py │    ✔     │       25.00 % │         64.00 % │         0.00 % │
 ├─────────────────────────┼──────────┼───────────────┼─────────────────┼────────────────┤
-│ Total                   │ 100.00 % │        0.00 % │          0.00 % │         0.00 % │
+│ Total                   │ 100.00 % │       42.50 % │         50.00 % │        21.00 % │
 └─────────────────────────┴──────────┴───────────────┴─────────────────┴────────────────┘
 """.splitlines(),  # noqa: E501
     )
@@ -390,14 +392,7 @@ def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
         test_dir / "test_sub_example.py",
     )
     csv_file = results_dir / "statistics.csv"
-    assert _find_files(wd_tmp_path) == (
-        results_dir / ".coverage",
-        results_dir / ".pytest_cache",
-        *_cosmic_ray_files(results_dir),
-        *_coverages_files(results_dir),
-        *test_files,
-        csv_file,
-    )
+    assert _find_files(wd_tmp_path) == (*test_files, csv_file)
     assert tuple(csv_file.read_text().splitlines()) == (
         (
             "target,"
@@ -406,11 +401,11 @@ def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
             "branch coverage,branches,covered branches,"
             "mutation score,mutants,killed mutants"
         ),
-        "example1.py,1.0,1,1,0.0,9,0,0.0,4,0,0.0,37,0",
-        "example2.py,1.0,1,1,0.0,2,0,1.0,0,0,0.0,13,0",
-        "sub_example/__init__.py,1.0,1,1,0.0,5,0,0.0,2,0,0.0,23,0",
-        "sub_example/example3.py,1.0,1,1,0.0,3,0,1.0,0,0,0.0,11,0",
-        "total,1.0,4,4,0.0,19,0,0.0,6,0,0.0,84,0",
+        "example1.py,1.0,1,1,0.5,10,5,0.4,15,6,0.4,100,40",
+        "example2.py,1.0,1,1,0.0,3,0,0.25,8,2,0.02,50,1",
+        "sub_example/__init__.py,1.0,1,1,1.0,7,7,0.5,12,6,1.0,1,1",
+        "sub_example/example3.py,1.0,1,1,0.25,20,5,0.64,25,16,0.0,49,0",
+        "total,1.0,4,4,0.425,40,17,0.5,60,30,0.21,200,42",
     )
     targets = (
         TARGETS_DIR / "sub_example" / "example3.py",
@@ -438,19 +433,20 @@ def test_run_with_different_targets_and_results(wd_tmp_path: Path) -> None:
             str(TARGETS_DIR),
             "--results-dir",
             "other_res",
-        )
+        ),
+        mock_scores=True,
     ) == (
         cli_title("Using generator length"),
         *"""\
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
 ┃ Target                  ┃ Success ┃ Line Coverage ┃ Branch Coverage ┃ Mutation Score ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
-│ example1.py             │    ✖    │        0.00 % │          0.00 % │         0.00 % │
-│ example2.py             │    ✖    │        0.00 % │        100.00 % │         0.00 % │
-│ sub_example/__init__.py │    ✔    │        0.00 % │          0.00 % │         0.00 % │
-│ sub_example/example3.py │    ✔    │        0.00 % │        100.00 % │         0.00 % │
+│ example1.py             │    ✖    │       50.00 % │         40.00 % │        40.00 % │
+│ example2.py             │    ✖    │        0.00 % │         25.00 % │         2.00 % │
+│ sub_example/__init__.py │    ✔    │      100.00 % │         50.00 % │       100.00 % │
+│ sub_example/example3.py │    ✔    │       25.00 % │         64.00 % │         0.00 % │
 ├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
-│ Total                   │ 50.00 % │        0.00 % │          0.00 % │         0.00 % │
+│ Total                   │ 50.00 % │       42.50 % │         50.00 % │        21.00 % │
 └─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
 Add -v to show the failed generation results.
 """.splitlines(),
@@ -464,14 +460,7 @@ Add -v to show the failed generation results.
         test_dir / "test_sub_example.py",
     )
     csv_file = results_dir / "statistics.csv"
-    assert _find_files(wd_tmp_path) == (
-        results_dir / ".coverage",
-        results_dir / ".pytest_cache",
-        *_cosmic_ray_files(results_dir),
-        *_coverages_files(results_dir),
-        *test_files,
-        csv_file,
-    )
+    assert _find_files(wd_tmp_path) == (*test_files, csv_file)
     assert tuple(csv_file.read_text().splitlines()) == (
         (
             "target,"
@@ -480,11 +469,11 @@ Add -v to show the failed generation results.
             "branch coverage,branches,covered branches,"
             "mutation score,mutants,killed mutants"
         ),
-        "example1.py,0.0,1,0,0.0,9,0,0.0,4,0,0.0,37,0",
-        "example2.py,0.0,1,0,0.0,2,0,1.0,0,0,0.0,13,0",
-        "sub_example/__init__.py,1.0,1,1,0.0,5,0,0.0,2,0,0.0,23,0",
-        "sub_example/example3.py,1.0,1,1,0.0,3,0,1.0,0,0,0.0,11,0",
-        "total,0.5,4,2,0.0,19,0,0.0,6,0,0.0,84,0",
+        "example1.py,0.0,1,0,0.5,10,5,0.4,15,6,0.4,100,40",
+        "example2.py,0.0,1,0,0.0,3,0,0.25,8,2,0.02,50,1",
+        "sub_example/__init__.py,1.0,1,1,1.0,7,7,0.5,12,6,1.0,1,1",
+        "sub_example/example3.py,1.0,1,1,0.25,20,5,0.64,25,16,0.0,49,0",
+        "total,0.5,4,2,0.425,40,17,0.5,60,30,0.21,200,42",
     )
     targets = (
         TARGETS_DIR / "sub_example" / "example3.py",
