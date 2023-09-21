@@ -47,6 +47,7 @@ For examples see:
 
 - <https://github.com/ThunderKey/python-tool-competition-2024-klara>
 - <https://github.com/ThunderKey/python-tool-competition-2024-hypothesis-ghostwriter>
+- <https://github.com/ThunderKey/python-tool-competition-2024-pynguin>
 
 ### Running inside of the Project
 
