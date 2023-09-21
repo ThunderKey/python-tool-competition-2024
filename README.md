@@ -1,6 +1,27 @@
-# Python Tool Competition Runner
+# SBFT Python Tool Competition Runner
 
 ![GitHub Actions](https://github.com/ThunderKey/python-tool-competition-2024/actions/workflows/check.yaml/badge.svg)
+
+The Workshop on [The 17th International Search-Based and Fuzz Testing (SBFT)](https://sbft24.github.io/)
+offers a Python tool competition on automatic test generation for the Python programming
+language.
+
+## Important Dates
+
+- Submission: XY
+- Workshop: XY
+
+## Overview
+
+In general, manual testing of software systems is costly.
+Automatic test generation for Python lowers barriers to
+test and ensure quality for Python software.
+Therefore, the SBFT initiates a competition on Python test generation,
+which enhances research and implementation for novel test generators for Python.
+This repository provides the necessary facilities and guidelines
+for participating in the SBFT Python tool competition.
+
+## Test Generator Implementation
 
 ## Usage
 
