@@ -23,6 +23,11 @@ for participating in the SBFT Python tool competition.
 
 ## Test Generator Implementation
 
+The platform provides an API for writing test cases.
+You simply need to generate a `string` that represent the body of Python
+testing module that tests a given target.
+Below you see how to use the platform to implement a generator.
+
 ## Usage
 
 ### Installation
