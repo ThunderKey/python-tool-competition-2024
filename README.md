@@ -8,8 +8,25 @@ language.
 
 ## Important Dates
 
-- Submission: XY
-- Workshop: XY
+- Submission: TODO
+- Workshop: TODO
+
+## Submission
+
+Submit your test generator by sending an email to:
+
+- Nicolas Erni (ZHAW) - <gann@zhaw.ch>
+- Christian Birchler (ZHAW) - <birc@zhaw.ch>
+- Pouria Derakhshanfar (JetBrains) - <pouria.derakhshanfar@jetbrains.com>
+- Stephan Lukasczyk (University of Passau) - <stephan.lukasczyk@uni-passau.de>
+- Sebastiano Panichella (ZHAW) - <panc@zhaw.ch>
+
+Your email should include:
+
+- A link to the repository
+  - If the repository is private then invite the competition organizers to the repository
+- The name of the version tag
+- The commit hash of the version tag
 
 ## Overview
 
