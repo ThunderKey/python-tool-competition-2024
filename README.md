@@ -70,5 +70,5 @@ directory.
 ## Improving the Competition Runner
 
 - Installation: `poetry install`
-- Testing: `tox` (`tox -p auto` for parallel execution)
+- Testing: `tox`
 - Use [pre-commit](https://pre-commit.com/) if possible.
