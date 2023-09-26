@@ -25,7 +25,7 @@ def test_main_with_help(help_arg: str) -> None:
 
 def test_main_with_version() -> None:
     assert run_successful_cli(("--version",), generators_called=False) == (
-        "main-cli, version 0.1.0",
+        "main-cli, version 0.1.1",
     )
 
 

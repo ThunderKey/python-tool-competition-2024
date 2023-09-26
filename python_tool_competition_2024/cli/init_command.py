@@ -191,7 +191,7 @@ def _create_pyproject_toml(config: _InitConfig, console: Console) -> None:
         "--description=Python Tool Competition 2024 "
         f"implementation using {config.readable_name}",
         f"--author={config.author}",
-        "--dependency=git+ssh://git@github.com:ThunderKey/python-tool-competition-2024.git",
+        "--dependency=python-tool-competition-2024",
     )
 
     pyproject_path = config.project_dir / "pyproject.toml"
