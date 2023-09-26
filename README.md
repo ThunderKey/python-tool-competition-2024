@@ -13,7 +13,7 @@ language.
 
 ## Submission
 
-Submit your test generator by sending an email to:
+Submit your test generator by sending an email all organizers:
 
 - Nicolas Erni (ZHAW) - <gann@zhaw.ch>
 - Christian Birchler (ZHAW) - <birc@zhaw.ch>
@@ -41,8 +41,10 @@ for participating in the SBFT Python tool competition.
 ## Test Generator Implementation
 
 The platform provides an API for writing test cases.
-You simply need to generate a `string` that represent the body of Python
-testing module that tests a given target.
+You simply need to generate a `string` that represent the body of a valid Python
+testing module that tests a given target with `pytest`.
+Furthermore, your test code needs to be compatible with `cosmic-ray`
+so that your test suite can be assessed through mutation scores.
 Below you see how to use the platform to implement a generator.
 
 ## Usage
