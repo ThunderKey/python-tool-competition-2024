@@ -29,8 +29,7 @@ packages = [{include = "python_tool_competition_2024_hypothesis"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-python-tool-competition-2024 = {git = \
-"git@github.com:ThunderKey/python-tool-competition-2024.git"}
+python-tool-competition-2024 = "*"
 
 
 [build-system]
@@ -148,8 +147,7 @@ def test_init_with_confirm(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
             "--name=python-tool-competition-2024-some-generator "
             "--description=Python Tool Competition 2024 implementation using Some "
             "Generator --author=Some Name <some@test.com> ",
-            "│   "
-            "--dependency=git+ssh://git@github.com:ThunderKey/python-tool-competition-2024.git",
+            "│   --dependency=python-tool-competition-2024",
             f"└── Working Dir: {project_dir}",
             "Installing Dependencies...",
             "Running Command:",
@@ -170,7 +168,7 @@ def test_init_with_confirm(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
                     "--description=Python Tool Competition 2024 implementation "
                     "using Some Generator",
                     "--author=Some Name <some@test.com>",
-                    "--dependency=git+ssh://git@github.com:ThunderKey/python-tool-competition-2024.git",
+                    "--dependency=python-tool-competition-2024",
                 ),
             ),
             run_kwargs,
@@ -298,7 +296,7 @@ def test_init_with_tmp_file(tmp_path: Path) -> None:
                     "--description=Python Tool Competition 2024 implementation "
                     "using TestGen",
                     "--author=Other Name <other@test.com>",
-                    "--dependency=git+ssh://git@github.com:ThunderKey/python-tool-competition-2024.git",
+                    "--dependency=python-tool-competition-2024",
                 ),
             ),
             run_kwargs,
@@ -564,7 +562,7 @@ def test_init_with_failing_init(tmp_path: Path) -> None:
                     "--description=Python Tool Competition 2024 implementation "
                     "using Some Generator",
                     "--author=Some Name <some@test.com>",
-                    "--dependency=git+ssh://git@github.com:ThunderKey/python-tool-competition-2024.git",
+                    "--dependency=python-tool-competition-2024",
                 ),
             ),
             run_kwargs,
