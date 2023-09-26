@@ -8,8 +8,7 @@
 
 This tool requires at least Python 3.9 and [poetry](https://python-poetry.org/).
 
-`pip install git+ssh://git@github.com/ThunderKey/python-tool-competition-2024.git`
-(until made public)
+`pip install python-tool-competition-2024`
 
 ### Creating a New Test Generator Project
 
@@ -71,5 +70,5 @@ directory.
 ## Improving the Competition Runner
 
 - Installation: `poetry install`
-- Testing: `tox` (`tox -p auto` for parallel execution)
+- Testing: `tox`
 - Use [pre-commit](https://pre-commit.com/) if possible.
