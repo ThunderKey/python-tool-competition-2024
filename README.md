@@ -6,10 +6,15 @@ The Workshop on [The 17th International Search-Based and Fuzz Testing (SBFT)](ht
 offers a Python tool competition on automatic test generation for the Python programming
 language.
 
-## Important Dates
+## Important SBFT'24 Dates
 
-- Submission: TODO
-- Workshop: TODO
+- Paper Submission: 9. November 2023
+- Tool Submission: 1. December 2023
+- Competition report: 16. January 2024
+- Notification to authors: 21. December 2023
+- Camera ready due: 25. January 2024
+- Author's registration due: TBA
+- Workshop: TBA April 2024
 
 ## Submission
 
