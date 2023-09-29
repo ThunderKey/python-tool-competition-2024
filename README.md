@@ -6,6 +6,8 @@ The Workshop on [The 17th International Search-Based and Fuzz Testing (SBFT)](ht
 offers a Python tool competition on automatic test generation for the Python programming
 language.
 
+![Python Tool Competition](python_competition.jpg)
+
 ## Important SBFT'24 Dates
 
 - Paper Submission: 9. November 2023
