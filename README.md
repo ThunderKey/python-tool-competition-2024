@@ -23,6 +23,7 @@ language.
 Submit your test generator by sending an email all organizers:
 
 - Nicolas Erni (ZHAW) - <gann@zhaw.ch>
+- Al-Ameen Mohammed Ali Mohammed (ZHAW) - <alam@zhaw.ch>
 - Christian Birchler (ZHAW) - <birc@zhaw.ch>
 - Pouria Derakhshanfar (JetBrains) - <pouria.derakhshanfar@jetbrains.com>
 - Stephan Lukasczyk (University of Passau) - <stephan.lukasczyk@uni-passau.de>
