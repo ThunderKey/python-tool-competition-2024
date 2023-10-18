@@ -13,6 +13,7 @@ language.
 All dates are anywhere on earth (AoE, UTC-12h):
 
 - Tool Submission: 1. December 2023
+- Results provided to tool authors: 9. January 2024
 - Competition report: 16. January 2024
 - Notification to authors: 21. December 2023
 - Camera ready due: 25. January 2024
