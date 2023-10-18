@@ -8,9 +8,10 @@ language.
 
 ![Python Tool Competition](python_competition.jpg)
 
-## Important SBFT'24 Dates
+## Important SBFT'24 Python Tool Compeetition Dates
 
-- Paper Submission: 9. November 2023
+All dates are anywhere on earth (AoE, UTC-12h):
+
 - Tool Submission: 1. December 2023
 - Competition report: 16. January 2024
 - Notification to authors: 21. December 2023
