@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import os
 import subprocess  # nosec B404
-from collections.abc import Mapping
 from typing import Literal, get_args, overload
 
 from ..config import Config
@@ -112,7 +111,7 @@ def _run_command(config: Config, command: _COMMAND, args: tuple[str, ...]) -> st
     raise CommandFailedError((command, *args))
 
 
-def _extend_env(config: Config) -> Mapping[str, str]:
+def _extend_env(config: Config) -> dict[str, str]:
     env = os.environ | {
         "PYTHONPATH": os.pathsep.join(
             (str(config.targets_dir), str(config.results_dir))

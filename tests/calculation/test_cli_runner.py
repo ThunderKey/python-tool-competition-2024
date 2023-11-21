@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import re
 import subprocess  # nosec: B404
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 from unittest import mock
@@ -91,9 +91,7 @@ def test_invalid_command(capsys: pytest.CaptureFixture[str], *, verbose: bool) -
         ({"SOME": "test"}, {"SOME": "test"}),
     ),
 )
-def test_extend_env(
-    original_env: Mapping[str, str], expected_env: Mapping[str, str]
-) -> None:
+def test_extend_env(original_env: dict[str, str], expected_env: dict[str, str]) -> None:
     config_mock = sealed_mock(
         targets_dir=Path("targets", "path"), results_dir=Path("some", "results", "path")
     )
