@@ -152,12 +152,14 @@ _MUTATION_SCORES = (
     RatioResult(50, 1),
     RatioResult(1, 1),
     RatioResult(49, 0),
+    RatioResult(49, 0),
 )
 
 _COVERAGES = (
     Coverages(RatioResult(10, 5), RatioResult(15, 6)),
     Coverages(RatioResult(3, 0), RatioResult(8, 2)),
     Coverages(RatioResult(7, 7), RatioResult(12, 6)),
+    Coverages(RatioResult(20, 5), RatioResult(25, 16)),
     Coverages(RatioResult(20, 5), RatioResult(25, 16)),
 )
 

@@ -42,6 +42,7 @@ def test_cosmic_ray_calculator(tmp_path: Path) -> None:
             "example2": RatioResult(11, 1),
             "sub_example": RatioResult(12, 2),
             "sub_example.example3": RatioResult(13, 3),
+            "sub_example.example4": RatioResult(14, 4),
         }
 
         assert run_command_mock.call_args_list == [
@@ -49,6 +50,7 @@ def test_cosmic_ray_calculator(tmp_path: Path) -> None:
             *_cr_calls(config, "example2"),
             *_cr_calls(config, "sub_example"),
             *_cr_calls(config, "sub_example.example3"),
+            *_cr_calls(config, "sub_example.example4"),
         ]
         cr_path = tmp_path / "dummy" / "cosmic_ray"
         assert {
@@ -65,6 +67,10 @@ def test_cosmic_ray_calculator(tmp_path: Path) -> None:
             cr_path
             / "sub_example.example3.toml": _cr_config(
                 TARGETS_DIR / "sub_example" / "example3.py", None
+            ),
+            cr_path
+            / "sub_example.example4.toml": _cr_config(
+                TARGETS_DIR / "sub_example" / "example4.py", None
             ),
             cr_path
             / "sub_example.toml": _cr_config(
@@ -101,6 +107,7 @@ def test_cosmic_ray_calculator_with_failing_baseline(tmp_path: Path) -> None:
                 "example2": RatioResult(11, 1),
                 "sub_example": RatioResult(12, 2),
                 "sub_example.example3": RatioResult(13, 3),
+                "sub_example.example4": RatioResult(14, 4),
             }
         assert tuple(capture.get().splitlines()) == tuple(
             (
@@ -112,6 +119,7 @@ def test_cosmic_ray_calculator_with_failing_baseline(tmp_path: Path) -> None:
                 "example2",
                 "sub_example",
                 "sub_example.example3",
+                "sub_example.example4",
             )
         )
 
@@ -120,6 +128,7 @@ def test_cosmic_ray_calculator_with_failing_baseline(tmp_path: Path) -> None:
             *_cr_calls(config, "example2", skip_exec=True),
             *_cr_calls(config, "sub_example", skip_exec=True),
             *_cr_calls(config, "sub_example.example3", skip_exec=True),
+            *_cr_calls(config, "sub_example.example4", skip_exec=True),
         ]
 
 
@@ -149,6 +158,7 @@ def test_cosmic_ray_calculator_with_failing_baseline_and_output(tmp_path: Path) 
                 "example2": RatioResult(11, 1),
                 "sub_example": RatioResult(12, 2),
                 "sub_example.example3": RatioResult(13, 3),
+                "sub_example.example4": RatioResult(14, 4),
             }
         assert tuple(capture.get().splitlines()) == tuple(
             f"Could not run mutation testing for {module}."
@@ -157,6 +167,7 @@ def test_cosmic_ray_calculator_with_failing_baseline_and_output(tmp_path: Path) 
                 "example2",
                 "sub_example",
                 "sub_example.example3",
+                "sub_example.example4",
             )
         )
 
@@ -165,6 +176,7 @@ def test_cosmic_ray_calculator_with_failing_baseline_and_output(tmp_path: Path) 
             *_cr_calls(config, "example2", skip_exec=True),
             *_cr_calls(config, "sub_example", skip_exec=True),
             *_cr_calls(config, "sub_example.example3", skip_exec=True),
+            *_cr_calls(config, "sub_example.example4", skip_exec=True),
         ]
 
 

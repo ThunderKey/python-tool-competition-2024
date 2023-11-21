@@ -43,6 +43,7 @@ _TARGET_FILES = {
     "sub_example": {
         "__init__.py": (TARGETS_DIR / "sub_example" / "__init__.py").read_text(),
         "example3.py": (TARGETS_DIR / "sub_example" / "example3.py").read_text(),
+        "example4.py": (TARGETS_DIR / "sub_example" / "example4.py").read_text(),
     },
 }
 

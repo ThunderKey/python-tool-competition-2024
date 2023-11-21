@@ -41,6 +41,7 @@ def test_mutpy_calculator(tmp_path: Path) -> None:
             "example2": RatioResult(11, 1),
             "sub_example": RatioResult(12, 2),
             "sub_example.example3": RatioResult(13, 3),
+            "sub_example.example4": RatioResult(14, 4),
         }
 
         assert run_command_mock.call_args_list == [
@@ -52,6 +53,7 @@ def test_mutpy_calculator(tmp_path: Path) -> None:
             ),
             _mutpy_call(config, TARGETS_DIR / "sub_example" / "__init__.py", None),
             _mutpy_call(config, TARGETS_DIR / "sub_example" / "example3.py", None),
+            _mutpy_call(config, TARGETS_DIR / "sub_example" / "example4.py", None),
         ]
 
 
@@ -88,6 +90,7 @@ def test_mutpy_calculator_always_failing(tmp_path: Path) -> None:
             _mutpy_call(config, TARGETS_DIR / "example2.py", None),
             _mutpy_call(config, TARGETS_DIR / "sub_example" / "__init__.py", None),
             _mutpy_call(config, TARGETS_DIR / "sub_example" / "example3.py", None),
+            _mutpy_call(config, TARGETS_DIR / "sub_example" / "example4.py", None),
         ]
 
 
@@ -118,6 +121,7 @@ def test_mutpy_calculator_failing(tmp_path: Path) -> None:
                 "example2": RatioResult(11, 1),
                 "sub_example": RatioResult(12, 2),
                 "sub_example.example3": RatioResult(13, 3),
+                "sub_example.example4": RatioResult(14, 4),
             }
 
         assert tuple(capture.get().splitlines()) == tuple(
@@ -139,6 +143,7 @@ def test_mutpy_calculator_failing(tmp_path: Path) -> None:
             _mutpy_call(config, TARGETS_DIR / "example2.py", None),
             _mutpy_call(config, TARGETS_DIR / "sub_example" / "__init__.py", None),
             _mutpy_call(config, TARGETS_DIR / "sub_example" / "example3.py", None),
+            _mutpy_call(config, TARGETS_DIR / "sub_example" / "example4.py", None),
         ]
 
 
@@ -169,6 +174,7 @@ def test_mutpy_calculator_failing_with_output(tmp_path: Path) -> None:
                 "example2": RatioResult(11, 1),
                 "sub_example": RatioResult(12, 2),
                 "sub_example.example3": RatioResult(13, 3),
+                "sub_example.example4": RatioResult(14, 4),
             }
 
         assert tuple(capture.get().splitlines()) == tuple(
@@ -187,6 +193,7 @@ def test_mutpy_calculator_failing_with_output(tmp_path: Path) -> None:
             _mutpy_call(config, TARGETS_DIR / "example2.py", None),
             _mutpy_call(config, TARGETS_DIR / "sub_example" / "__init__.py", None),
             _mutpy_call(config, TARGETS_DIR / "sub_example" / "example3.py", None),
+            _mutpy_call(config, TARGETS_DIR / "sub_example" / "example4.py", None),
         ]
 
 
@@ -239,6 +246,7 @@ The total and killed does not match the survived mutants:
             ),
             _mutpy_call(config, TARGETS_DIR / "sub_example" / "__init__.py", None),
             _mutpy_call(config, TARGETS_DIR / "sub_example" / "example3.py", None),
+            _mutpy_call(config, TARGETS_DIR / "sub_example" / "example4.py", None),
         ]
 
 

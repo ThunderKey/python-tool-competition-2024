@@ -32,8 +32,9 @@ Target {targets_dir / "example2.py"} failed with FailureReason.UNEXPECTED_ERROR
 │ example2.py             │    ✖    │        0.00 % │         25.00 % │         2.00 % │
 │ sub_example/__init__.py │    ✔    │      100.00 % │         50.00 % │       100.00 % │
 │ sub_example/example3.py │    ✔    │       25.00 % │         64.00 % │         0.00 % │
+│ sub_example/example4.py │    ✔    │       25.00 % │         64.00 % │         0.00 % │
 ├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
-│ Total                   │ 50.00 % │       42.50 % │         50.00 % │        21.00 % │
+│ Total                   │ 60.00 % │       36.67 % │         54.12 % │        16.87 % │
 └─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
 """.splitlines(),
     )
@@ -44,6 +45,7 @@ Target {targets_dir / "example2.py"} failed with FailureReason.UNEXPECTED_ERROR
         test_dir / "__init__.py",
         test_dir / "sub_example" / "__init__.py",
         test_dir / "sub_example" / "test_example3.py",
+        test_dir / "sub_example" / "test_example4.py",
         test_dir / "test_sub_example.py",
     )
     csv_file = results_dir / "statistics.csv"
@@ -54,6 +56,7 @@ Target {targets_dir / "example2.py"} failed with FailureReason.UNEXPECTED_ERROR
         wd_tmp_path / "targets" / "example2.py",
         wd_tmp_path / "targets" / "sub_example" / "__init__.py",
         wd_tmp_path / "targets" / "sub_example" / "example3.py",
+        wd_tmp_path / "targets" / "sub_example" / "example4.py",
     )
     assert tuple(csv_file.read_text().splitlines()) == (
         (
@@ -67,10 +70,12 @@ Target {targets_dir / "example2.py"} failed with FailureReason.UNEXPECTED_ERROR
         "example2.py,0.0,1,0,0.0,3,0,0.25,8,2,0.02,50,1",
         "sub_example/__init__.py,1.0,1,1,1.0,7,7,0.5,12,6,1.0,1,1",
         "sub_example/example3.py,1.0,1,1,0.25,20,5,0.64,25,16,0.0,49,0",
-        "total,0.5,4,2,0.425,40,17,0.5,60,30,0.21,200,42",
+        "sub_example/example4.py,1.0,1,1,0.25,20,5,0.64,25,16,0.0,49,0",
+        "total,0.6,5,3,0.36666666666666664,60,22,0.5411764705882353,85,46,0.1686746987951807,249,42",
     )
     targets = (
         targets_dir / "sub_example" / "example3.py",
+        targets_dir / "sub_example" / "example4.py",
         targets_dir / "sub_example" / "__init__.py",
     )
     assert {f: f.read_text() for f in test_files} == {
@@ -92,8 +97,9 @@ def test_run_in_wd_with_all_success(wd_tmp_path: Path) -> None:
 │ example2.py             │    ✔     │        0.00 % │         25.00 % │         2.00 % │
 │ sub_example/__init__.py │    ✔     │      100.00 % │         50.00 % │       100.00 % │
 │ sub_example/example3.py │    ✔     │       25.00 % │         64.00 % │         0.00 % │
+│ sub_example/example4.py │    ✔     │       25.00 % │         64.00 % │         0.00 % │
 ├─────────────────────────┼──────────┼───────────────┼─────────────────┼────────────────┤
-│ Total                   │ 100.00 % │       42.50 % │         50.00 % │        21.00 % │
+│ Total                   │ 100.00 % │       36.67 % │         54.12 % │        16.87 % │
 └─────────────────────────┴──────────┴───────────────┴─────────────────┴────────────────┘
 """.splitlines(),  # noqa: E501
     )
@@ -104,6 +110,7 @@ def test_run_in_wd_with_all_success(wd_tmp_path: Path) -> None:
         test_dir / "__init__.py",
         test_dir / "sub_example" / "__init__.py",
         test_dir / "sub_example" / "test_example3.py",
+        test_dir / "sub_example" / "test_example4.py",
         test_dir / "test_example1.py",
         test_dir / "test_example2.py",
         test_dir / "test_sub_example.py",
@@ -116,6 +123,7 @@ def test_run_in_wd_with_all_success(wd_tmp_path: Path) -> None:
         wd_tmp_path / "targets" / "example2.py",
         wd_tmp_path / "targets" / "sub_example" / "__init__.py",
         wd_tmp_path / "targets" / "sub_example" / "example3.py",
+        wd_tmp_path / "targets" / "sub_example" / "example4.py",
     )
     assert tuple(csv_file.read_text().splitlines()) == (
         (
@@ -129,10 +137,12 @@ def test_run_in_wd_with_all_success(wd_tmp_path: Path) -> None:
         "example2.py,1.0,1,1,0.0,3,0,0.25,8,2,0.02,50,1",
         "sub_example/__init__.py,1.0,1,1,1.0,7,7,0.5,12,6,1.0,1,1",
         "sub_example/example3.py,1.0,1,1,0.25,20,5,0.64,25,16,0.0,49,0",
-        "total,1.0,4,4,0.425,40,17,0.5,60,30,0.21,200,42",
+        "sub_example/example4.py,1.0,1,1,0.25,20,5,0.64,25,16,0.0,49,0",
+        "total,1.0,5,5,0.36666666666666664,60,22,0.5411764705882353,85,46,0.1686746987951807,249,42",
     )
     targets = (
         targets_dir / "sub_example" / "example3.py",
+        targets_dir / "sub_example" / "example4.py",
         targets_dir / "example1.py",
         targets_dir / "example2.py",
         targets_dir / "sub_example" / "__init__.py",
@@ -156,8 +166,9 @@ def test_run_in_wd_with_all_failures(wd_tmp_path: Path) -> None:
 │ example2.py             │    ✖    │        0.00 % │         25.00 % │         2.00 % │
 │ sub_example/__init__.py │    ✖    │      100.00 % │         50.00 % │       100.00 % │
 │ sub_example/example3.py │    ✖    │       25.00 % │         64.00 % │         0.00 % │
+│ sub_example/example4.py │    ✖    │       25.00 % │         64.00 % │         0.00 % │
 ├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
-│ Total                   │ 0.00 %  │       42.50 % │         50.00 % │        21.00 % │
+│ Total                   │ 0.00 %  │       36.67 % │         54.12 % │        16.87 % │
 └─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
 Add -v to show the failed generation results.
 """.splitlines(),
@@ -171,6 +182,7 @@ Add -v to show the failed generation results.
         wd_tmp_path / "targets" / "example2.py",
         wd_tmp_path / "targets" / "sub_example" / "__init__.py",
         wd_tmp_path / "targets" / "sub_example" / "example3.py",
+        wd_tmp_path / "targets" / "sub_example" / "example4.py",
     )
     assert tuple(csv_file.read_text().splitlines()) == (
         (
@@ -184,7 +196,8 @@ Add -v to show the failed generation results.
         "example2.py,0.0,1,0,0.0,3,0,0.25,8,2,0.02,50,1",
         "sub_example/__init__.py,0.0,1,0,1.0,7,7,0.5,12,6,1.0,1,1",
         "sub_example/example3.py,0.0,1,0,0.25,20,5,0.64,25,16,0.0,49,0",
-        "total,0.0,4,0,0.425,40,17,0.5,60,30,0.21,200,42",
+        "sub_example/example4.py,0.0,1,0,0.25,20,5,0.64,25,16,0.0,49,0",
+        "total,0.0,5,0,0.36666666666666664,60,22,0.5411764705882353,85,46,0.1686746987951807,249,42",
     )
 
 
@@ -201,8 +214,9 @@ def test_run_in_wd_with_all_exceptions(wd_tmp_path: Path) -> None:
 │ example2.py             │    ✖    │        0.00 % │         25.00 % │         2.00 % │
 │ sub_example/__init__.py │    ✖    │      100.00 % │         50.00 % │       100.00 % │
 │ sub_example/example3.py │    ✖    │       25.00 % │         64.00 % │         0.00 % │
+│ sub_example/example4.py │    ✖    │       25.00 % │         64.00 % │         0.00 % │
 ├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
-│ Total                   │ 0.00 %  │       42.50 % │         50.00 % │        21.00 % │
+│ Total                   │ 0.00 %  │       36.67 % │         54.12 % │        16.87 % │
 └─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
 Add -v to show the failed generation results.
 """.splitlines(),
@@ -216,6 +230,7 @@ Add -v to show the failed generation results.
         wd_tmp_path / "targets" / "example2.py",
         wd_tmp_path / "targets" / "sub_example" / "__init__.py",
         wd_tmp_path / "targets" / "sub_example" / "example3.py",
+        wd_tmp_path / "targets" / "sub_example" / "example4.py",
     )
     assert tuple(csv_file.read_text().splitlines()) == (
         (
@@ -229,7 +244,8 @@ Add -v to show the failed generation results.
         "example2.py,0.0,1,0,0.0,3,0,0.25,8,2,0.02,50,1",
         "sub_example/__init__.py,0.0,1,0,1.0,7,7,0.5,12,6,1.0,1,1",
         "sub_example/example3.py,0.0,1,0,0.25,20,5,0.64,25,16,0.0,49,0",
-        "total,0.0,4,0,0.425,40,17,0.5,60,30,0.21,200,42",
+        "sub_example/example4.py,0.0,1,0,0.25,20,5,0.64,25,16,0.0,49,0",
+        "total,0.0,5,0,0.36666666666666664,60,22,0.5411764705882353,85,46,0.1686746987951807,249,42",
     )
 
 
@@ -247,6 +263,7 @@ def test_run_in_wd_with_abort(wd_tmp_path: Path) -> None:
         wd_tmp_path / "targets" / "example2.py",
         wd_tmp_path / "targets" / "sub_example" / "__init__.py",
         wd_tmp_path / "targets" / "sub_example" / "example3.py",
+        wd_tmp_path / "targets" / "sub_example" / "example4.py",
     )
 
 
@@ -263,8 +280,9 @@ def test_run_with_different_targets(wd_tmp_path: Path) -> None:
 │ example2.py             │    ✖    │        0.00 % │         25.00 % │         2.00 % │
 │ sub_example/__init__.py │    ✔    │      100.00 % │         50.00 % │       100.00 % │
 │ sub_example/example3.py │    ✔    │       25.00 % │         64.00 % │         0.00 % │
+│ sub_example/example4.py │    ✔    │       25.00 % │         64.00 % │         0.00 % │
 ├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
-│ Total                   │ 50.00 % │       42.50 % │         50.00 % │        21.00 % │
+│ Total                   │ 60.00 % │       36.67 % │         54.12 % │        16.87 % │
 └─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
 Add -v to show the failed generation results.
 """.splitlines(),
@@ -276,6 +294,7 @@ Add -v to show the failed generation results.
         test_dir / "__init__.py",
         test_dir / "sub_example" / "__init__.py",
         test_dir / "sub_example" / "test_example3.py",
+        test_dir / "sub_example" / "test_example4.py",
         test_dir / "test_sub_example.py",
     )
     csv_file = results_dir / "statistics.csv"
@@ -292,10 +311,12 @@ Add -v to show the failed generation results.
         "example2.py,0.0,1,0,0.0,3,0,0.25,8,2,0.02,50,1",
         "sub_example/__init__.py,1.0,1,1,1.0,7,7,0.5,12,6,1.0,1,1",
         "sub_example/example3.py,1.0,1,1,0.25,20,5,0.64,25,16,0.0,49,0",
-        "total,0.5,4,2,0.425,40,17,0.5,60,30,0.21,200,42",
+        "sub_example/example4.py,1.0,1,1,0.25,20,5,0.64,25,16,0.0,49,0",
+        "total,0.6,5,3,0.36666666666666664,60,22,0.5411764705882353,85,46,0.1686746987951807,249,42",
     )
     targets = (
         TARGETS_DIR / "sub_example" / "example3.py",
+        TARGETS_DIR / "sub_example" / "example4.py",
         TARGETS_DIR / "sub_example" / "__init__.py",
     )
     assert {f: f.read_text() for f in test_files} == {
@@ -315,8 +336,9 @@ def test_run_with_real_tests(wd_tmp_path: Path) -> None:
 │ example2.py             │    ✖    │        0.00 % │        100.00 % │         0.00 % │
 │ sub_example/__init__.py │    ✖    │        0.00 % │          0.00 % │         0.00 % │
 │ sub_example/example3.py │    ✔    │      100.00 % │        100.00 % │       100.00 % │
+│ sub_example/example4.py │    ✖    │        0.00 % │        100.00 % │       100.00 % │
 ├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
-│ Total                   │ 50.00 % │       36.84 % │         16.67 % │        33.33 % │
+│ Total                   │ 40.00 % │       29.17 % │         16.67 % │        33.33 % │
 └─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
 Add -v to show the failed generation results.
 """.splitlines(),
@@ -351,7 +373,8 @@ Add -v to show the failed generation results.
         "example2.py,0.0,1,0,0.0,2,0,1.0,0,0,0.0,13,0",
         "sub_example/__init__.py,0.0,1,0,0.0,5,0,0.0,2,0,0.0,23,0",
         "sub_example/example3.py,1.0,1,1,1.0,3,3,1.0,0,0,1.0,11,11",
-        "total,0.5,4,2,0.3684210526315789,19,7,0.16666666666666666,6,1,0.3333333333333333,84,28",
+        "sub_example/example4.py,0.0,1,0,0.0,5,0,1.0,0,0,1.0,0,0",
+        "total,0.4,5,2,0.2916666666666667,24,7,0.16666666666666666,6,1,0.3333333333333333,84,28",
     )
     targets = (TARGETS_DIR / "sub_example" / "example3.py", TARGETS_DIR / "example1.py")
     assert {f: f.read_text() for f in test_files} == {
@@ -375,8 +398,9 @@ def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
 │ example2.py             │    ✔     │        0.00 % │         25.00 % │         2.00 % │
 │ sub_example/__init__.py │    ✔     │      100.00 % │         50.00 % │       100.00 % │
 │ sub_example/example3.py │    ✔     │       25.00 % │         64.00 % │         0.00 % │
+│ sub_example/example4.py │    ✔     │       25.00 % │         64.00 % │         0.00 % │
 ├─────────────────────────┼──────────┼───────────────┼─────────────────┼────────────────┤
-│ Total                   │ 100.00 % │       42.50 % │         50.00 % │        21.00 % │
+│ Total                   │ 100.00 % │       36.67 % │         54.12 % │        16.87 % │
 └─────────────────────────┴──────────┴───────────────┴─────────────────┴────────────────┘
 """.splitlines(),  # noqa: E501
     )
@@ -387,6 +411,7 @@ def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
         test_dir / "__init__.py",
         test_dir / "sub_example" / "__init__.py",
         test_dir / "sub_example" / "test_example3.py",
+        test_dir / "sub_example" / "test_example4.py",
         test_dir / "test_example1.py",
         test_dir / "test_example2.py",
         test_dir / "test_sub_example.py",
@@ -405,10 +430,12 @@ def test_run_with_different_targets_and_dummy(wd_tmp_path: Path) -> None:
         "example2.py,1.0,1,1,0.0,3,0,0.25,8,2,0.02,50,1",
         "sub_example/__init__.py,1.0,1,1,1.0,7,7,0.5,12,6,1.0,1,1",
         "sub_example/example3.py,1.0,1,1,0.25,20,5,0.64,25,16,0.0,49,0",
-        "total,1.0,4,4,0.425,40,17,0.5,60,30,0.21,200,42",
+        "sub_example/example4.py,1.0,1,1,0.25,20,5,0.64,25,16,0.0,49,0",
+        "total,1.0,5,5,0.36666666666666664,60,22,0.5411764705882353,85,46,0.1686746987951807,249,42",
     )
     targets = (
         TARGETS_DIR / "sub_example" / "example3.py",
+        TARGETS_DIR / "sub_example" / "example4.py",
         TARGETS_DIR / "example1.py",
         TARGETS_DIR / "example2.py",
         TARGETS_DIR / "sub_example" / "__init__.py",
@@ -445,8 +472,9 @@ def test_run_with_different_targets_and_results(wd_tmp_path: Path) -> None:
 │ example2.py             │    ✖    │        0.00 % │         25.00 % │         2.00 % │
 │ sub_example/__init__.py │    ✔    │      100.00 % │         50.00 % │       100.00 % │
 │ sub_example/example3.py │    ✔    │       25.00 % │         64.00 % │         0.00 % │
+│ sub_example/example4.py │    ✔    │       25.00 % │         64.00 % │         0.00 % │
 ├─────────────────────────┼─────────┼───────────────┼─────────────────┼────────────────┤
-│ Total                   │ 50.00 % │       42.50 % │         50.00 % │        21.00 % │
+│ Total                   │ 60.00 % │       36.67 % │         54.12 % │        16.87 % │
 └─────────────────────────┴─────────┴───────────────┴─────────────────┴────────────────┘
 Add -v to show the failed generation results.
 """.splitlines(),
@@ -457,6 +485,7 @@ Add -v to show the failed generation results.
         test_dir / "__init__.py",
         test_dir / "sub_example" / "__init__.py",
         test_dir / "sub_example" / "test_example3.py",
+        test_dir / "sub_example" / "test_example4.py",
         test_dir / "test_sub_example.py",
     )
     csv_file = results_dir / "statistics.csv"
@@ -473,10 +502,12 @@ Add -v to show the failed generation results.
         "example2.py,0.0,1,0,0.0,3,0,0.25,8,2,0.02,50,1",
         "sub_example/__init__.py,1.0,1,1,1.0,7,7,0.5,12,6,1.0,1,1",
         "sub_example/example3.py,1.0,1,1,0.25,20,5,0.64,25,16,0.0,49,0",
-        "total,0.5,4,2,0.425,40,17,0.5,60,30,0.21,200,42",
+        "sub_example/example4.py,1.0,1,1,0.25,20,5,0.64,25,16,0.0,49,0",
+        "total,0.6,5,3,0.36666666666666664,60,22,0.5411764705882353,85,46,0.1686746987951807,249,42",
     )
     targets = (
         TARGETS_DIR / "sub_example" / "example3.py",
+        TARGETS_DIR / "sub_example" / "example4.py",
         TARGETS_DIR / "sub_example" / "__init__.py",
     )
     assert {f: f.read_text() for f in test_files} == {
@@ -629,6 +660,8 @@ def _cosmic_ray_files(results_dir: Path) -> tuple[Path, ...]:
         results_dir / "cosmic_ray" / "example2.toml",
         results_dir / "cosmic_ray" / "sub_example.example3.sqlite",
         results_dir / "cosmic_ray" / "sub_example.example3.toml",
+        results_dir / "cosmic_ray" / "sub_example.example4.sqlite",
+        results_dir / "cosmic_ray" / "sub_example.example4.toml",
         results_dir / "cosmic_ray" / "sub_example.sqlite",
         results_dir / "cosmic_ray" / "sub_example.toml",
     )
@@ -639,6 +672,7 @@ def _coverages_files(results_dir: Path) -> tuple[Path, ...]:
         results_dir / "coverages" / "example1.xml",
         results_dir / "coverages" / "example2.xml",
         results_dir / "coverages" / "sub_example.example3.xml",
+        results_dir / "coverages" / "sub_example.example4.xml",
         results_dir / "coverages" / "sub_example.xml",
     )
 

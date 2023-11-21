@@ -54,4 +54,11 @@ def test_find_targets(generator_name: GeneratorName) -> None:
             test=tests / "sub_example" / "test_example3.py",
             test_module="generated_tests.sub_example.test_example3",
         ),
+        Target(
+            source=TARGETS_DIR / "sub_example" / "example4.py",
+            relative_source=Path("sub_example", "example4.py"),
+            source_module="sub_example.example4",
+            test=tests / "sub_example" / "test_example4.py",
+            test_module="generated_tests.sub_example.test_example4",
+        ),
     )
