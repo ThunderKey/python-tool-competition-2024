@@ -36,6 +36,9 @@ def test_import_module() -> None:
         / "sub_example"
         / "__init__.py": frozenset({"annotations", "helper"}),
         TARGETS_DIR / "sub_example" / "example3.py": frozenset({"example"}),
+        TARGETS_DIR
+        / "sub_example"
+        / "example4.py": frozenset({"compress_string", "decompress_string", "gzip"}),
     }
 
 
