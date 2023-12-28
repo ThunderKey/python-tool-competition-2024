@@ -125,7 +125,8 @@ directory.
 
 ## References for Tool Authors 
 
-```@article{Devroey2022,
+```
+  @article{Devroey2022,
   author = {Devroey, Xavier and Gambi, Alessio and Galeotti, Juan Pablo and Just, René and Kifetew, Fitsum and Panichella, Annibale and Panichella, Sebastiano},
   title = {JUGE: An infrastructure for benchmarking Java unit test generators},
   journal = {Software Testing, Verification and Reliability},
