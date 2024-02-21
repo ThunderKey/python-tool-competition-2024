@@ -21,7 +21,7 @@ typing-extensions = "^4.7.1"
 importlib-metadata = {version = "^6.8.0", python = "<3.10"}
 
 [tool.poetry.group.linter.dependencies]
-ruff = ">=0.0.274, <0.1"
+ruff = ">=0.2.2, <0.3"
 vulture = "^2.7"
 pip-audit = "^2.5.6"
 black = "^23.3.0"
@@ -130,6 +130,9 @@ exclude = [
 
 [tool.ruff]
 target-version = "py39"
+extend-exclude = ["python_tool_competition_2024/templates"]
+
+[tool.ruff.lint]
 select = ["ALL"]
 ignore = [
     # custom documentation rules
@@ -145,7 +148,6 @@ ignore = [
     # don't separate typing imports
     "TCH",
 ]
-extend-exclude = ["python_tool_competition_2024/templates"]
 
 # Avoiding flagging (and removing) `V101` from any `# noqa`
 # directives, despite Ruff's lack of support for `vulture`.
@@ -161,7 +163,7 @@ external = [
     "V201",  # unreachable code
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
     # ignore missing docstrings
     "D1",
@@ -193,10 +195,10 @@ external = [
     "FBT001",
 ]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
-[tool.ruff.flake8-pytest-style]
+[tool.ruff.lint.flake8-pytest-style]
 parametrize-values-type = "tuple"
 
 [tool.bandit]
