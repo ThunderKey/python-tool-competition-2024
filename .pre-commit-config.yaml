@@ -2,7 +2,7 @@
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: check-yaml
       - id: check-toml
@@ -10,13 +10,13 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.292
+    rev: v0.2.2
     hooks:
       - id: ruff
         args: ["--fix"]
 
   - repo: https://github.com/ambv/black
-    rev: 23.9.1
+    rev: 24.2.0
     hooks:
       # black with default configs
       - id: black
@@ -24,12 +24,12 @@ repos:
         exclude: 'python_tool_competition_2024/templates/.*'
 
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.32.0
+    rev: v1.35.1
     hooks:
       - id: yamllint
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.37.0
+    rev: v0.39.0
     hooks:
       - id: markdownlint
         args: ["--fix"]
