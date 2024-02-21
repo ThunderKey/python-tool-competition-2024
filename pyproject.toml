@@ -24,7 +24,7 @@ importlib-metadata = {version = "^6.8.0", python = "<3.10"}
 ruff = ">=0.2.2, <0.3"
 vulture = "^2.7"
 pip-audit = "^2.5.6"
-black = "^23.3.0"
+black = "^24.2.0"
 mypy = "^1.4.0"
 bandit = "^1.7.5"
 types-toml = "^0.10.8.7"

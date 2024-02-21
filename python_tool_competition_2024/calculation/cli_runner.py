@@ -39,8 +39,7 @@ def run_command(
     *args: str,
     capture: Literal[True],
     show_output_on_error: bool = ...,
-) -> str:
-    ...
+) -> str: ...
 
 
 @overload
@@ -50,8 +49,7 @@ def run_command(
     *args: str,
     capture: Literal[False] = ...,
     show_output_on_error: bool = ...,
-) -> None:
-    ...
+) -> None: ...
 
 
 def run_command(
